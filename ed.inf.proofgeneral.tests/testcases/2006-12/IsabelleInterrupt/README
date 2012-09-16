@@ -1,0 +1,18 @@
+da: interrupting Isabelle causes system exit.
+
+Process Tarski.thy and hit interrupt button.
+
+Problems:
+
+ 1) System should not exit
+ 2) When system exits, state should be cleaned up.
+    Especially prover ownership!!
+    
+Status:
+
+ 2) partially solved: prover ownership is reset on
+ restarting session.  However, active script dialog
+ kicks in during closing editor that has partly-processed
+ script: more state should be cleared on prover exit
+ and active scripting switch shouldn't assume prover is active.
+    

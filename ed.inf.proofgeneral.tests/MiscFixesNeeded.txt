@@ -1,0 +1,11 @@
+Some notes about miscellaneous fixes needed, without test cases.
+
+6.12.06 [da]
+============
+
+* Quick diff reference provider for decoding symbols: should recode symbols
+  only for proof script documents (comments added at top).
+  
+* Many assertions triggered re. JFace.  Should investigate/fix these if
+  they're our fault.
+   

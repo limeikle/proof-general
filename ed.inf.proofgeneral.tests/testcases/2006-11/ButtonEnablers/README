@@ -1,0 +1,37 @@
+NAME:			ButtonEnablers
+LAST UDPATED:	$Date: 2006/12/06 14:04:02 $
+UPDATED BY:		$Author: gdutton $
+REPORTER:		da
+STATUS:			unresolved
+
+DESCRIPTION:
+
+  Action buttons on toolbar not enabled and disabled appropriately.
+  Disabling often only occurs after a button action returns an exception.
+  Enabling often occurs only after restarting the prover, and not appropriately.
+
+TEST CASE:
+
+
+ 
+FURTHER INFORMATION:
+
+  Button state is determined in:
+  -- PGAction
+     |-- PGProverAction
+         |-- [type]Action (e.g. UndoAction)
+   
+  When are buttons enabled/disabled?
+
+FIX NEEDED:
+
+  * Simplest solution is to leave all buttons permenantly enabled, and to signal
+	a warning when a 'disabled' action is used.
+	
+	STATUS: this is mostly complete, but needs more thorough testing.
+	
+  * More complete solution is for buttons to be individually aware of when it is
+	appropriate to be run.
+  * Realistically these checks may require to be carried out in a background 
+	thread (with priority given to disabled buttons), and a combination of the 
+	two solutions would be best, where a button is enabled in any doubt.

@@ -1,0 +1,45 @@
+NAME:			ExternalFileSave
+LAST UDPATED:	$Date: 2006/12/06 10:58:50 $
+UPDATED BY:		$Author: da $
+REPORTER:		gdutton
+STATUS:			unresolved
+
+DESCRIPTION:
+
+ Saving an external file fails to write anything to file.
+ "Save As" performs similarly, but it also removes the editor and its changes.
+ Eclipse believes the file has been writen, and resets its 'dirty' status.
+
+TEST CASE:
+
+ Start a new Proof General session.
+ Open a .thy file from the file system using File... Open
+ This file can be in any location, except within an active project.
+ Make a change to the file (eclipse will flag the change with a '*' in its tab)
+ EITHER
+	 Choose save, close the file and reopen it
+	 ( You will find its contents unchanged )
+ OR
+ 	Choose save as and pick a new file name.
+ 	( You will find the editor closes, and cannot reopen the "new" file )
+ 
+FURTHER INFORMATION:
+
+ Seems to be caused by the fact that files external to the project are provided to the
+ ProofScriptEditor by a "JavaFileEditorInput" instance.
+ 
+ This seems to be a general problem with the Eclipse framework: you can crash the
+ standard installation very easily by opening an external text file and using 
+ "Save As" (as of 3.2.1).
+ 
+FIX NEEDED:
+
+Possible fixes
+ * Ensure that files are loaded in the same way regardless of their internal/external status
+ * Prevent loading of external files (use 'open' as a shortcut to 'import')
+ 
+ * DA: probably nothing for now.  I added a contentType in the hope this might
+ influence the choice of JavaFileEditorInput but it doesn't seem to help.
+ 
+ 
+ 

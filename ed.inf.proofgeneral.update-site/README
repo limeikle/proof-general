@@ -1,0 +1,115 @@
+This is the root directory of the Proof General update site.
+
+The meta data is maintained in CVS at 
+
+  Host: cvs.inf.ed.ac.uk
+  Path: /disk/cvs/proofgen
+  Repo: eclipse/ed.inf.proofgeneral.update-site
+  
+For convenience and extra backup, we do also keep the
+update jar files in CVS although it's not strictly necessary
+and costs disk space on the CVS server.
+[ So should only do this for release builds ]
+
+To publish to the website, use the launch configuration
+"Publish to PG website" which runs rsync with args:
+ 
+  -e ssh -auv ${project_loc}/ ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/eclipse/
+
+[FIXME: we need some ignores here, for CVS/, .project, *.launch ]
+
+This only works directly if you are a DICE user in the proofgen
+group (with same local/remote user name).
+
+
+Best practice is to follow these steps:
+
+ 1) build and test the plugin and make the standalone pgeclipse product:
+
+     open pgeclipse.product, select "Eclipse product export wizard" and change entries:
+        Root Directory:  PGEclipse
+        Destination:     archive file:  
+                         <workspace>/ed.inf.proofgeneral.update-site/products/PGEclipse-1.0.6.zip
+        
+     i.e. the destination must be set manually and should point to a zip file in the products/ 
+     subdirectory with the appropriate name/version, so that the mirror to the web (below) works.
+
+ 2) bump the plugin version number for major release (o/w use automatic qualifier)
+ 3) bump the feature version to match the plugin version (o/w use automatic qualifier)
+ 4) add the new version of the feature to the update site if number changed
+ 5) build the update site/feature/plugin  (button Build All).
+ 6) test update locally (optional):
+    - use local webserver pointing to workspace 
+    - test version of Eclipse perhaps with previous version installed
+ 7) synchronise the update site project to CVS
+ 8) publish to the web as above
+
+The standalone product is published to the web by using
+the Export Product Wizard (click on link in pgeclipse.product or use
+File -> Export).  Then:
+
+ 9) select the pgeclipse.product configuration
+    - make the root directory "pgeclipse-<pluginversion>",
+    - choose to build to an archive file pgeclipse-<pluginversion>.zip,
+    - location of the archive should be ed.inf.proofgeneral.update-site/products
+        within the workspace, to publish using the rsync command
+    - select multiple architectures:
+        linux gtk/x86, linux gtk/x86_64, 
+        mac os x carbon/ppc, mac os x carbon/x86,
+        win32/x86
+    [ You need to install the RCP-SDK for multiple archs, see 
+       devel-doc/howto/make-release.txt ]
+10) publish to web
+  
+Note: the product configuration pgeclipse.product is based on features, unlike the 
+standalone plugin-based product configuration in pgeclipseplugin.product.  This results 
+in a larger download but is easier to manage and has a bit more functionality.
+The other package configuration is still useful to test a product without having to checkout
+a second package for the feature. 
+
+---
+
+Changing version numbers:
+
+  You need to do this in many places!
+  1. plugin.xml (main plugin; also prover plugins)
+  2. feature.xml (ed.inf.proofgeneral.feature, ed.inf.proofgeneral.provers.feature)
+  3. pgeclise.product in update-site project: 
+     remove the ed.inf.proofgeneral feature and re-add it
+     (this will update the invisible version number)
+
+Notes:
+ - in the site editor, older versions appear as greyed out *but* with
+   the new version number.  This seems to be a bug/odd feature 
+   (site.xml has the old versions).
+   Don't delete these grey entries!  They are needed so that the
+   update manager recognises an update path.
+ - categories always appear in update dialog ("Other" if not given)
+ - Eclipse Project uses Eclipse version numbers as categories  
+ - Also uses version numbers for features (how do they get in automatically?)
+ - Feature Description has huge text box but is displayed in one line in update dialog!
+ 
+---
+
+Questions:
+ - how can we automatically synchronise the feature version with the plugin
+   version -- we only have one version number and simplest to use same everywhere.
+   Or can we get date-tagged versions like Eclipse uses?
+ - how do we record/replay the export product wizard with pre-programmed settings?
+     Some notes about this in the "Commercial Quality" book, inc example ant script.
+     Would be handy but not worth days of work: upcoming Eclipse improvements to
+     packaging/update mechanism will probably help with this.
+ - how can we best include standalone product in update site?
+     (maybe as a "data" archive feature?)
+     Fine as a directly linked download under products/.  We could use ISDD.     
+ - can we get automatic updates for product if based on feature rather than plugin?
+     YES!  This is great.  So we only need to rebuild the product when
+     the underlying platform changes or for major improvements.  
+     People can get incremental updates via the feature mechanism.  
+     We only build product very occasionally 
+     (product downloads are huge so we can't maintain many on the web server) 
+ 
+ 
+---
+David Aspinall, Oct 2006.
+

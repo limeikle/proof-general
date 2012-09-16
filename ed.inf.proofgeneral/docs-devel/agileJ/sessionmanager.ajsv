@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--AgileJ Ltd. (http://www.agilej.com)-->
+<ajsv>
+    <diagram scope="scopeElementSets.elementSet.Switchable Types In Package" style="standardDiagramStyles.diagramStyle.Standard Basic Style" version="1.4.5">
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Manhattan Lines" switchValue="dependence, fields"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Line Types" switchValue="dependence, field, inheritance"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Signature Length" switchValue="short"/>
+        <switch switchID="scopeElementSets.stylePatternSwitch.Scope Package" switchValue="ed\.inf\.proofgeneral\.sessionmanager"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Visibility" switchValue="public, protected, package, private"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Members" switchValue="fields, methods, inners, initializers"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.UserCancelException" project="ed.inf.proofgeneral" xLocation="1148" yLocation="1808"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.ProverInfo" project="ed.inf.proofgeneral" xLocation="1959" yLocation="807"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.ProverSyntax" project="ed.inf.proofgeneral" xLocation="2062" yLocation="1294"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.CommandQueuedWithValues" project="ed.inf.proofgeneral" xLocation="2212" yLocation="2551"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.IProverStateObserver" project="ed.inf.proofgeneral" xLocation="2377" yLocation="1350"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.CommandQueued" project="ed.inf.proofgeneral" xLocation="1877" yLocation="2501"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.ProverCommandQueue" project="ed.inf.proofgeneral" xLocation="346" yLocation="3097"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.StreamGobbler" project="ed.inf.proofgeneral" xLocation="288" yLocation="2367"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.ScriptManager" project="ed.inf.proofgeneral" xLocation="776" yLocation="3265"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.ProverOwner" project="ed.inf.proofgeneral" xLocation="195" yLocation="2656"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.ProverKnowledge" project="ed.inf.proofgeneral" xLocation="279" yLocation="425"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.CommandQueue" project="ed.inf.proofgeneral" xLocation="1522" yLocation="2501"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.CommandProcessor" project="ed.inf.proofgeneral" xLocation="1141" yLocation="861"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.UnlockDocument" project="ed.inf.proofgeneral" xLocation="751" yLocation="3005"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.KeyWord" project="ed.inf.proofgeneral" xLocation="2735" yLocation="1508"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.PGIPSyntax" project="ed.inf.proofgeneral" xLocation="1543" yLocation="212"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.ControlledDocuments" project="ed.inf.proofgeneral" xLocation="2371" yLocation="2114"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.InterfaceScriptSyntax" project="ed.inf.proofgeneral" xLocation="710" yLocation="420"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.PGIPEventQueue" project="ed.inf.proofgeneral" xLocation="712" yLocation="2357"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.ProverState" project="ed.inf.proofgeneral" xLocation="653" yLocation="948"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.NameSpace" project="ed.inf.proofgeneral" xLocation="2629" yLocation="1868"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.ScriptingException" project="ed.inf.proofgeneral" xLocation="1139" yLocation="1487"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.SessionManagerFactory" project="ed.inf.proofgeneral" xLocation="1881" yLocation="2911"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.SessionManager" project="ed.inf.proofgeneral" xLocation="1081" yLocation="2351"/>
+    </diagram>
+</ajsv>

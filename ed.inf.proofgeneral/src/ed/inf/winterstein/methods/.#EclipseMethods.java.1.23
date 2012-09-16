@@ -1,0 +1,417 @@
+/*
+    Created on 06-Jun-2004
+ */
+package ed.inf.winterstein.methods;
+import java.util.Map;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.MessageDialogWithToggle;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.internal.Workbench;
+
+import ed.inf.customswt.AssocListFieldEditor;
+import ed.inf.heneveld.utils.General;
+import ed.inf.heneveld.utils.KnownException;
+import ed.inf.heneveld.utils.MutableObject;
+import ed.inf.heneveld.utils.process.RunnableWithParams;
+import ed.inf.proofgeneral.Constants;
+import ed.inf.proofgeneral.ProofGeneralPlugin;
+import ed.inf.proofgeneral.editor.actions.CommandFailedException;
+import ed.inf.proofgeneral.prefpages.PrefsPageBackend;
+import ed.inf.proofgeneral.sessionmanager.ScriptingException;
+
+
+/**
+ * Some general purpose static Eclipse methods for use from anywhere 
+ @author Daniel Winterstein
+ */
+public class EclipseMethods {
+
+    /**
+     * This class should not be created. Everything is static.
+     */
+    private EclipseMethods() {
+        super();     
+    }
+
+	/**
+	 * Test whether or not a font can display specific unicode character.
+	 * This creates and disposes an awt font, so it is probably not efficient.
+	 * Caching the answers is recommended.
+	 * @param swtFont
+	 * @param s  - a string of unicode characters to test
+	 * @return 
+	 */
+	public static boolean unicodeStringTest(Font swtFont, String s) {
+		if (s==null || s.length()==0) return false;
+		FontData[] fda = swtFont.getFontData();
+		FontData fd = fda[0];
+		// TODO: map between swt and awt styles
+		java.awt.Font awtFont = new java.awt.Font(fd.getName(),0,fd.getHeight());
+		//TODO Eclipse SDK (on GTK at least) will fallback to use other fonts, so characters may be usable even when this is false
+		//(not sure how to discover which are visible and which aren't ... but so far most of them seem to be!)
+		if (awtFont.canDisplayUpTo(s) == -1) return true;
+		return false;
+	}
+
+    
+    /**
+     * Displays an error dialog.
+     * Note: Works from background threads as well as the display thread.
+     * @param e
+     */
+    public static void errorDialog(Exception e) {
+    	try {
+    					
+			//multi-line messages get first line in top and following lines in body
+			//otherwise the message    	
+			String msg = "Cause unknown."; 
+			String msgBody = "";
+			if (e instanceof CommandFailedException) {
+				msg = ((CommandFailedException)e).exceptionMessage;      
+				msg = General.sReplace(msg, "***", "");   //could prune starts
+				if (msg.indexOf('\n')>0) {
+					msgBody = msg.substring(msg.indexOf('\n')).trim()+"\n\n\n";
+					msg = msg.substring(0, msg.indexOf('\n')).trim();    		
+				} else {
+					msgBody = ""; 
+				}
+				String cmd = ((CommandFailedException)e).command;
+				if (cmd!=null && cmd.length()>0) {
+					msgBody = msgBody +"The error occurred while processing the command:\n\n"+cmd;
+				}
+			} else	if (e instanceof ScriptingException) {
+				msg = e.getMessage();      
+				msg = General.sReplace(msg, "***", "");   //could prune starts
+				if (msg.indexOf('\n')>0) {
+					msgBody = msg.substring(msg.indexOf('\n')).trim()+"\n\n\n";
+					msg = msg.substring(0, msg.indexOf('\n')).trim();    		
+				} else {
+					msgBody = ""; 
+				}
+			} else if (e instanceof KnownException) {
+				//for known exceptions, just take the message, or if no message, just the class
+				msg = e.getMessage();
+				msgBody = "";
+				if (msg==null) {
+					msg = e.getClass().getName();
+					if (msg.lastIndexOf('.')>=0) msg = msg.substring(msg.lastIndexOf('.')+1);
+					msgBody = getStackTraceString(e);
+				}
+			} else {
+				msg = e.getMessage();
+				if (msg==null || msg.length()==0) {
+					//clean up the text we display at the top, if there is no message (not really important)
+					if (e instanceof NullPointerException)
+						msg = "A null-pointer error occurred.";
+					else if (e instanceof ScriptingException)
+						msg = "A scripting error occurred.";
+					else
+						msg="Cause unknown.";    		
+				}
+				msgBody = getStackTraceString(e);
+			}
+			
+			final String msg1 = msg;
+			final String msg2 = msgBody;
+			    	
+			final IStatus status = new Status(
+	        IStatus.ERROR,
+	        ProofGeneralPlugin.getDefault().getDescriptor().getUniqueIdentifier(),
+	        IStatus.ERROR,
+	        msg1, 
+	        e);
+    	if (ProofGeneralPlugin.debug(EclipseMethods.class)) ProofGeneralPlugin.getDefault().getLog().log(status);    	
+	    final String title= "Error!"; //$NON-NLS-1$
+
+//			String type = e.getClass().getName();
+//			type = type.substring(type.lastIndexOf(".")+1);
+//			msg = type +":\n "+msg; //unnecessary    	
+			final Exception exc = e;
+			final String buttons[] = new String[] { "OK" };
+			final int image=MessageDialog.ERROR;
+			
+			org.eclipse.swt.widgets.Display.getDefault().asyncExec(
+					new Runnable() {
+						public void run() {
+							Shell shell = null;
+							try {
+								shell = ProofGeneralPlugin.getActiveEditor().getSite().getShell();
+							} catch (Exception e) {   			
+							}
+							if (shell==null) shell = new Shell();
+					    MessageDialog d = new MessageDialog(shell,
+									title, null, msg1, image, buttons, 0) {
+					 			protected Control createCustomArea(Composite parent) {
+					 				Label l = new Label(parent, SWT.VERTICAL);
+					 				l.setText(msg2);
+					 				//TODO perhaps a component to see/print exception details?
+					 				return l;
+					 			}
+					 		};
+							d.open();
+							
+							//messageDialog(title,fMsg,new String[] {"OK"},false,MessageDialog.ERROR);
+							//ErrorDialog.openError(new Shell(), title, fMsg, status);
+						}
+					});    
+			// another version of openError exists which has some filtering
+
+		} catch (RuntimeException e1) {
+			e1.printStackTrace();
+		}    
+	}
+
+	public static String getStackTraceString(Exception e) {
+		//make the body the stack trace
+		StackTraceElement st[] = e.getStackTrace();
+		StringBuffer sb = new StringBuffer(e.toString());
+		sb.append("\n");
+		for (int i=0; i<st.length; i++) {
+			sb.append("     "+st[i].toString());
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+
+	/**
+     * @see messageDialog(String,String,String[],boolean,int)
+     * @param title
+     * @param msg
+     * @param buttons
+     * @return
+     */
+    public static String messageDialog(String title,String msg,
+			String[] buttons) {        
+        boolean toggle = false;
+        int image=MessageDialog.QUESTION;
+        return messageDialog(title,msg,buttons,toggle,image);
+    }
+
+    /**
+     * Open a (blocking) message dialog with a choice of buttons.
+     * @param toggle - If true, the user can select to block future occurences of this message.
+     * @return label from the button pushed     
+     */
+    public static String messageDialog(String title,String msg,
+            							String[] buttons, boolean toggle,
+            							int image) {       
+   		Shell shell = null;
+   		try {
+   			shell = ProofGeneralPlugin.getActiveEditor().getSite().getShell();
+   		} catch (Exception e) {   			
+   		}
+   		if (shell==null) shell = new Shell();
+       if (!toggle) {
+           MessageDialog d = new MessageDialog(shell, title,null,msg, image, buttons, 1);           
+           d.setBlockOnOpen(true);
+           //d.getShell().moveAbove(null);
+           int pushed = d.open();
+           if (pushed<0) return null;
+           return buttons[pushed];
+       }
+	    String blocked = ProofGeneralPlugin.getDefault().getPreferenceStore()
+	    					.getString(Constants.PREF_BLOCKED_MESSAGES);
+	    //if (blocked != null) {		        
+        Map blocks = AssocListFieldEditor.makeMap(blocked);
+        String mkey = AssocListFieldEditor.makeKey(title+": "+msg);
+        if (blocks.get(mkey.intern()) != null) { // block the popup dialog
+            return (String) blocks.get(mkey.intern());
+        }
+	    //}
+	    MessageDialogWithToggle d = new MessageDialogWithToggle(shell, title,null,       
+           								msg,
+           								image,
+           								buttons,
+           								1,
+           								"Remember this response and do not ask again.",false);       
+       d.setBlockOnOpen(true);
+       int pushed = d.open(); 
+       if (d.getToggleState()) { // store the answer
+           blocks.put(mkey,buttons[pushed]);
+           String s = AssocListFieldEditor.makeString(blocks);
+           PrefsPageBackend.setPref(Constants.PREF_BLOCKED_MESSAGES,s);
+       }
+       if (pushed<0) return null;
+       return buttons[pushed];
+    }    
+    
+    
+    /**
+     * Courtesy of G.Longman
+     * Modified
+     * @param IFile file
+     * @return
+     */
+    public static IEditorPart findEditorFor(IFile file) {
+        IWorkbench workbench = Workbench.getInstance();
+        if (workbench==null) return null;        
+        IWorkbenchWindow[] windows = workbench.getWorkbenchWindows();
+        for (int i = 0; i < windows.length; i++) {
+            IWorkbenchPage[] pages = windows[i].getPages();
+            for (int x = 0; x < pages.length; x++) {
+                IEditorReference[] editors = pages[x].getEditorReferences();
+                for (int z = 0; z < editors.length; z++) {
+                    IEditorReference ref = editors[z];
+                    IEditorPart editor = ref.getEditor(true);
+                    if (editor == null) {
+                        continue;
+                    }
+                    IEditorInput input = editor.getEditorInput();
+                    IFile editorFile = (IFile) input.getAdapter(IFile.class);
+                    if (editorFile != null && editorFile.equals(file)) return editor;
+                }
+            }
+        }
+        return null;
+    }
+
+    /** prompts the user to enter a string
+  	 * @param title
+  	 * @param message
+  	 * @return the string entered by the user, or null if none
+  	 */
+ 	public static String messagePromptDialog(String title, String message) {
+		//TODO just use InputDialog (didn't know about that when wrote this...)
+ 		String buttons[] = new String[] { "OK", "Cancel" };
+ 		int image=MessageDialog.QUESTION;
+ 		final MutableObject result = new MutableObject(null);
+ 		Shell shell = null;
+ 		try {
+ 			ProofGeneralPlugin.getActiveEditor().getSite().getShell();
+ 		} catch (Exception e) {
+ 			shell = new Shell();
+ 		}
+    MessageDialog d = new MessageDialog(shell,
+				title, null, message, image, buttons, 0) {
+    	Text t = null;
+ 			protected Control createCustomArea(Composite parent) { 				
+ 				t = new Text(parent, SWT.SINGLE);
+ 				try {
+ 				  t.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+ 				} catch (Exception e) {}
+ 				return t;
+ 			}
+ 			public int open() {
+ 				int r = super.open();
+ 				try {
+ 					if (t!=null) result.set(t.getText());
+ 				} catch (Exception e) {}
+ 				return r;
+ 			}
+ 			public boolean close() {
+ 				try {
+ 					if (t!=null) result.set(t.getText());
+ 				} catch (Exception e) {}
+ 				boolean result = super.close();
+ 			  //do local de-initialising
+ 			  return result;
+ 			}
+ 		};
+    d.setBlockOnOpen(true);
+    //d.getShell().moveAbove(null);
+    int pushed = d.open();       
+    if (pushed!=0) return null;
+    return (String)result.get(); 		
+	}
+
+	/** prompts the user to enter a string (can be called from outwith the async thread)
+	 * @param title
+	 * @param message
+	 * @return the string entered by the user, or null if none
+	 */
+	public static String messagePromptDialogAsync(final String title, final String message) {
+		final MutableObject result = new MutableObject(null);
+		synchronized (result) {
+			if (!(new RunnableWithParams(null) {
+				public void run() {
+					try {
+						result.set(messagePromptDialog(title, message));
+					} finally {
+						synchronized (result) {
+							//System.out.println("notifying");
+							result.notifyAll();
+						}
+					}
+				}
+			}.callDefaultDisplayAsyncExec())) {
+				//only run if the message is being displayed in another thread (else it has already been displayed)
+				//System.out.println("waiting");
+				try {
+					result.wait();
+				} catch (InterruptedException e) {}
+			}			
+		}
+		return (String)result.get();
+	}
+
+	/** displays a dialog in the async thread, waiting for it
+	 */
+	public static String messageDialogAsync(String title,String msg,
+			String[] buttons) {  
+        boolean toggle = false;
+        int image=MessageDialog.QUESTION;
+        return messageDialogAsync(title,msg,buttons,toggle,image);
+	}
+	
+	public static String messageDialogAsync(final String title, final String msg,
+			final String[] buttons, final boolean toggle,
+			final int image) {  
+		final MutableObject result = new MutableObject(null);
+		synchronized (result) {
+			if (!(new RunnableWithParams(null) {
+				public void run() {
+					try {
+						result.set(
+                                messageDialog(title, msg, buttons, toggle, image)
+                        );
+					} finally {
+						synchronized (result) {
+							//System.out.println("notifying");
+							result.notifyAll();
+						}
+					}
+				}
+			}.callDefaultDisplayAsyncExec())) {
+				//only run if the message is being displayed in another thread (else it has already been displayed)
+				//System.out.println("waiting");
+				try {
+					result.wait();
+				} catch (InterruptedException e) {}
+			}			
+			return (String)result.get();
+		}
+	}
+	
+	/**
+	 * Given an Eclipse IFile object, return the actual filename with complete os path.
+	 * @param file
+	 * @return
+	 */
+	public static String getOSPath(IResource file) {
+		IPath path = file.getLocation();
+		String spath = path.toOSString();
+		return spath;
+	}
+
+
+}

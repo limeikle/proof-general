@@ -1,0 +1,1454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<!-- Note: DTD at bottom.  Use documentation links on Extensions panel for specific extension DTD parts. -->
+<plugin>
+   <extension-point id="prover" name="Prover Instance" schema="schema/prover.exsd"/>
+   <extension-point id="splashExtension" name="Splash Extensions" schema="schema/splashExtension.exsd"/>
+
+     <extension point="org.eclipse.ui.preferencePages">
+      <page
+            name="Proof General"
+            class="ed.inf.proofgeneral.preferences.ProofGeneralPrefs"
+            id="ed.inf.proofgeneral.prefpages">
+         <keywordReference
+               id="ed.inf.proofgeneral.keyword.appearance">
+         </keywordReference>
+      </page>
+	  <page
+            name="Folding"
+            category="ed.inf.proofgeneral.prefpages"
+            class="ed.inf.proofgeneral.preferences.FoldingPrefs"
+            id="ed.inf.proofgeneral.prefpages.FoldingPrefs"/>
+	  <page
+            name="Debugging Options"
+            category="ed.inf.proofgeneral.prefpages"
+            class="ed.inf.proofgeneral.preferences.DebugPrefs"
+            id="ed.inf.proofgeneral.prefpages.DebugPrefs"/>
+ <page
+       name="Blocked Messages"
+       category="ed.inf.proofgeneral.prefpages"
+       class="ed.inf.proofgeneral.preferences.BlockedMessagesPrefs"
+       id="ed.inf.proofgeneral.prefpages.BlockedMessagesPrefs"/>
+ <page
+       name="Miscellaneous"
+       category="ed.inf.proofgeneral.prefpages"
+       class="ed.inf.proofgeneral.preferences.MiscellaneousPrefs"
+       id="ed.inf.proofgeneral.prefpages.advanced"/>
+
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Proof General"
+            id="ed.inf.proofgeneral">
+      </category>
+      <view
+            allowMultiple="false"
+            category="ed.inf.proofgeneral"
+            class="ed.inf.proofgeneral.views.output.CurrentStateView"
+            icon="icons/star16.gif"
+            id="ed.inf.proofgeneral.views.CurrentStateView"
+            name="Proof State">
+      </view>
+      <view
+            allowMultiple="true"
+            category="ed.inf.proofgeneral"
+            class="ed.inf.proofgeneral.views.output.LatestOutputView"
+            icon="icons/star16.gif"
+            id="ed.inf.proofgeneral.views.LatestOutput"
+            name="Prover Output"/>
+
+      <view
+            allowMultiple="false"
+            category="ed.inf.proofgeneral"
+            class="ed.inf.proofgeneral.views.IdView"
+            icon="icons/star16.gif"
+            id="ed.inf.proofgeneral.views.IdView"
+            name="Proof Objects"/>
+      <view
+            allowMultiple="false"
+            category="ed.inf.proofgeneral"
+            class="org.eclipse.ui.navigator.CommonNavigator"
+            icon="icons/star16.gif"
+            id="ed.inf.proofgeneral.views.Explorer"
+            name="Proof Explorer"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            icon="icons/file_symbols.gif"
+            class="ed.inf.proofgeneral.symbols.SymbolTableEditor"
+            name="PG Symbol Table Editor"
+            id="ed.inf.proofgeneral.symboltableeditor"
+            extensions="sym"/>
+     <!-- da: in progress
+      <editor
+            class="ed.inf.proofgeneral.pgip.editor.PGIPEditor"
+            contributorClass="ed.inf.proofgeneral.pgip.editor.PGIPEditorContributor"
+            default="false"
+            extensions="thy"
+            icon="icons/star16.gif"
+            id="ed.inf.proofgeneral.pgip.editor"
+            name="PGIP Editor">
+      </editor> -->
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="ed.inf.proofgeneral.views.PGPerspective"
+            icon="icons/star16.gif"
+            id="ed.inf.proofgeneral.views.PGPerspective"
+            name="Proof General">
+      </perspective>
+   </extension>
+
+    <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.ui.resourcePerspective">
+         <perspectiveShortcut
+               id="ed.inf.proofgeneral.views.PGPerspective">
+         </perspectiveShortcut>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="ed.inf.proofgeneral.views.PGPerspective">
+         <perspectiveShortcut
+               id="org.eclipse.ui.resourcePerspective">
+         </perspectiveShortcut>
+         <newWizardShortcut id="ed.inf.proofgeneral.wizards.NewCoqProofScriptWizard"/>
+         <newWizardShortcut id="ed.inf.proofgeneral.wizards.NewPMLProofScriptWizard"/>
+         <newWizardShortcut id="org.eclipse.ui.wizards.new.folder"/>
+         <newWizardShortcut id="org.eclipse.ui.wizards.new.file"/>
+		 <newWizardShortcut id="org.eclipse.ui.editors.wizards.UntitledTextFileWizard"/>
+         <viewShortcut id="ed.inf.proofgeneral.views.CurrentStateView"/>
+         <viewShortcut id="ed.inf.proofgeneral.views.Explorer"/>
+         <viewShortcut id="ed.inf.proofgeneral.views.LatestOutput"/>
+         <viewShortcut id="ed.inf.proofgeneral.views.IdView"/>
+         <viewShortcut id="org.eclipse.ui.views.ProblemView"/>
+         <viewShortcut id="org.eclipse.ui.views.TaskList"/>
+         <viewShortcut id="org.eclipse.ui.views.ContentOutline"/>
+         <viewShortcut id="org.eclipse.ui.console.ConsoleView"/>
+         <viewShortcut id="org.eclipse.ui.views.ResourceNavigator"/>
+      </perspectiveExtension>
+    </extension>
+
+
+   <extension
+         point="org.eclipse.help.contexts">
+ <!-- da: disable these automatically generated but quite useless help contexts for now.
+      <contexts
+            file="config/prefHelpContexts.xml">
+      </contexts>
+      -->
+      <contexts file="config/pgHelpContexts.xml"/>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.actionSetPartAssociations">
+      <actionSetPartAssociation
+            targetID="ed.inf.proofgeneral.action.contribution.set">
+         <part id="ed.inf.proofgeneral.editor" />
+         <part id="ed.inf.proofgeneral.views.CurrentStateView" />
+		<!-- da: removed <part id="ed.inf.proofgeneral.views.SessionLogView" /> -->
+        <!-- da: removed <part id="ed.inf.proofgeneral.views.ErrorView" /> -->
+         <part id="ed.inf.proofgeneral.views.LatestOutput" />
+         <part id="ed.inf.proofgeneral.views.PGPerspective"/>
+         <part id="ed.inf.proofgeneral.symboltableeditor"/>
+        <!-- da: removed <part id="ed.inf.proofgeneral.teacher.view"/> -->
+        <!-- DEPGRAPH FIXME: moved to other plugin
+           <part id="ed.inf.proofgeneral.depgraph.GraphMultiPageEditor"/> -->
+      </actionSetPartAssociation>
+   </extension>
+
+   <extension point="org.eclipse.ui.actionSets">
+   <actionSet
+         description="Actions for Proof General"
+         id="ed.inf.proofgeneral.action.contribution.set"
+         label="Proof General"
+         visible="false">
+	 <action label="PG Feature Request" class="ed.inf.proofgeneral.actions.FeatureRequestAction"
+	menubarPath="help/" id="ed.inf.proofgeneral.action.feauturerequest"
+	icon="icons/star16.gif"
+	 />
+	 <action label="PG Bug Report" class="ed.inf.proofgeneral.actions.BugReportAction"
+	menubarPath="help/" id="ed.inf.proofgeneral.action.bugreport"
+	icon="icons/star16.gif"
+	 />
+<!-- da: I've removed this menu item.  The other two now open web pages in an editor
+    view, appropriate for Wiki editing.  This one is subsumed by ordinary help contents.
+    The only reason to reinstate this would be to provide prover-based help here,
+    or maybe navigate to a cheat sheet or something.
+	<action label="Proof General Help" class="ed.inf.proofgeneral.HelpAction"
+	menubarPath="help/" id="ed.inf.proofgeneral.action.help"
+	icon="icons/star16.gif" tooltip="Go to the Proof General help website"
+	-->
+
+ <menu
+       label="Proof &amp;General"
+       id="ed.inf.proofgeneral.pgmenu">
+    <separator name="ed.inf.proofgeneral.coreseparator"/>
+    <separator name="ed.inf.proofgeneral.separator1"/>
+    <separator name="ed.inf.proofgeneral.separator2"/>
+    <groupMarker name="ed.inf.proofgeneral.toolbargroup"/>
+ </menu>
+
+<action
+      definitionId="ed.inf.proofgeneral.commands.activate"
+      icon="icons/activate.gif"
+      id="ed.inf.proofgeneral.actions.retarget.ActivateAction"
+      label="Activate"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      retarget="true"
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      tooltip="Find/toggle active script"/>
+<action
+      definitionId="ed.inf.proofgeneral.commands.restart"
+      icon="icons/restart2.gif"
+      id="ed.inf.proofgeneral.actions.retarget.RestartAction"
+      label="&amp;Restart"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      retarget="true"
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      tooltip="Restart the theorem prover"/>
+
+<!-- da: Let's remove this button from the toolbar.  It's in the outline
+     view already, and we really want parsing to be automatic.
+<action
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      label="&amp;Parse"
+      class="ed.inf.proofgeneral.editor.actions.ParseDocAction"
+      tooltip="Parse the entire file from beginning to end"
+      definitionId="ed.inf.proofgeneral.commands.parse"
+      icon="icons/tree.gif"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      id="ed.inf.proofgeneral.actions.parse"/>
+-->
+<action
+      definitionId="ed.inf.proofgeneral.commands.goto"
+      icon="icons/goto.gif"
+      id="ed.inf.proofgeneral.actions.retarget.GotoAction"
+      label="&amp;Goto"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      retarget="true"
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      tooltip="Send/undo commands to reach the current location"/>
+
+<action
+      definitionId="ed.inf.proofgeneral.commands.sendall"
+      icon="icons/down.gif"
+      id="ed.inf.proofgeneral.actions.retarget.SendAllAction"
+      label="Send All"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      retarget="true"
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      tooltip="Process the rest of this file"/>
+
+<action
+      definitionId="ed.inf.proofgeneral.commands.send"
+      icon="icons/fwd.gif"
+      id="ed.inf.proofgeneral.actions.retarget.SendAction"
+      label="&amp;Send command"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      retarget="true"
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      tooltip="Send next command"/>
+
+<action
+      definitionId="ed.inf.proofgeneral.commands.interrupt"
+      icon="icons/stop.gif"
+      id="ed.inf.proofgeneral.actions.retarget.InterruptAction"
+      label="&amp;Interrupt"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      retarget="true"
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      tooltip="Interrupt the theorem prover"/>
+
+<action
+      definitionId="ed.inf.proofgeneral.commands.undo"
+      icon="icons/bkwd.gif"
+      id="ed.inf.proofgeneral.actions.retarget.UndoAction"
+      label="&amp;Undo Command"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      retarget="true"
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      tooltip="Undo last proof command"/>
+
+<action
+      definitionId="ed.inf.proofgeneral.commands.undoall"
+      icon="icons/up.gif"
+      id="ed.inf.proofgeneral.actions.retarget.UndoAllAction"
+      label="Undo All"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      retarget="true"
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      tooltip="Undo to the beginning of this file"/>
+
+<action
+      allowLabelUpdate="true"
+      definitionId="ed.inf.proofgeneral.commands.symbols"
+      id="ed.inf.proofgeneral.actions.retarget.ToggleSymbolsAction"
+      label="&amp;Symbols"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.separator1"
+      retarget="true"
+      style="toggle"/>
+
+    <action
+      label="&amp;Enter Command"
+      icon="icons/prompt.gif"
+      definitionId="ed.inf.proofgeneral.commands.enter"
+      tooltip="Enter a command to send directly to the prover"
+      retarget="true"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.separator1"
+      id="ed.inf.proofgeneral.actions.enter"/>
+
+
+ 	<action
+       label="Proof State"
+       class="ed.inf.proofgeneral.actions.ShowCurrentStateView"
+       icon="icons/star16.gif"
+       id="ed.inf.proofgeneral.actions.showcurrentstateview"/>
+ 	<action
+       label="Prover Output"
+       class="ed.inf.proofgeneral.actions.ShowLatestOutputView"
+       icon="icons/star16.gif"
+       id="ed.inf.proofgeneral.actions.showlatestoutputview"/>
+<!-- da: removed this view
+	<action
+       label="Error Log"
+       class="ed.inf.proofgeneral.editor.actions.ShowErrorLogView"
+       icon="icons/star16.gif"
+       id="ed.inf.proofgeneral.actions.showerrorlogview"/>
+       -->
+<!-- da: removed this view 8.1.07
+ 	<action
+       label="Session Log"
+       class="ed.inf.proofgeneral.editor.actions.ShowSessionLogView"
+       icon="icons/star16.gif"
+       id="ed.inf.proofgeneral.actions.showsessionlogview"/>
+       -->
+	<action
+       label="Proof Objects"
+       class="ed.inf.proofgeneral.actions.ShowIDListView"
+       icon="icons/star16.gif"
+       id="ed.inf.proofgeneral.actions.showidlistview"/>
+   <action
+       toolbarPath="ed.inf.proofgeneral.toolbargroup"
+       label="&amp;Open Definition"
+       icon="icons/bookmark.gif"
+       class="ed.inf.proofgeneral.editor.actions.retargeted.OpenDefinition"
+       tooltip="Try to find where a term was defined, and show that definition."
+       definitionId="ed.inf.proofgeneral.commands.opendefn"
+       menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.separator1"
+       id="ed.inf.proofgeneral.actions.opendefn"/>
+
+<!-- extra miscellaneous commands, -AH -->
+<menu
+	label="&amp;Miscellaneous"
+	id="ed.inf.proofgeneral.pgmenu.misc"
+	path="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.separator2">
+  <separator name="ed.inf.proofgeneral.misc.internal"/>
+  <separator name="ed.inf.proofgeneral.misc.external"/>
+</menu>
+</actionSet>
+</extension>
+
+<!-- this allows us to define a PG context to which the key-bindings are restricted
+     (we were getting conflicts otherwise, when the PG plugin is combined with others) -AH -->
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            name="In ProofGeneral editor"
+            description="Proof General is active"
+            parentId="org.eclipse.ui.textEditorScope"
+            id="ed.inf.proofgeneral.context"/>
+   </extension>
+
+<extension point="org.eclipse.ui.commands">
+	  <category
+            id="ed.inf.proofgeneral.commands"
+	  		name="Proof General"
+            description="Proof General Commands">
+      </category>
+
+     <command
+		categoryId="ed.inf.proofgeneral.commands"
+		name="Undo All"
+		id="ed.inf.proofgeneral.commands.undoall"/>
+
+      <!-- NB: commands need distinct names, else Eclipse uses id; "Undo" no good -->
+      <command
+      		description="Undo the last theorem prover command"
+      		categoryId="ed.inf.proofgeneral.commands"
+            name="Undo Last" 
+            id="ed.inf.proofgeneral.commands.undo">
+      </command> 
+
+      <command
+            description="Send the next command out to the theorem prover"
+            categoryId="ed.inf.proofgeneral.commands"
+            name="Send Next"
+            id="ed.inf.proofgeneral.commands.send">
+      </command>
+
+      <command
+      		description="Try to interrupt the theorem prover (could kill it)"
+            categoryId="ed.inf.proofgeneral.commands"
+            name="Interrupt"
+            id="ed.inf.proofgeneral.commands.interrupt"/>
+
+      <command
+            categoryId="ed.inf.proofgeneral.commands"
+            name="Process All"
+            id="ed.inf.proofgeneral.commands.sendall"/>
+
+      <command
+            description="Send/undo to this point"
+            categoryId="ed.inf.proofgeneral.commands"
+            name="Goto"
+            id="ed.inf.proofgeneral.commands.goto"/>
+
+      <command
+            description="Restart the theorem prover"
+            categoryId="ed.inf.proofgeneral.commands"
+            name="Restart"
+            id="ed.inf.proofgeneral.commands.restart"/>
+
+      <command
+            categoryId="ed.inf.proofgeneral.commands"
+            description="Activate this file for scripting"
+            name="Activate Script"
+            id="ed.inf.proofgeneral.commands.activate"/>
+
+      <command
+            categoryId="ed.inf.proofgeneral.commands"
+            name="Parse"
+            id="ed.inf.proofgeneral.commands.parse"/>
+
+      <command
+            description="Open the definition for a term, if it can be found"
+            categoryId="ed.inf.proofgeneral.commands"
+            name="Open Definition"
+            id="ed.inf.proofgeneral.commands.opendefn"/>
+
+      <command
+            description="Toggle between symbol tokens and ASCII"
+            categoryId="ed.inf.proofgeneral.commands"
+            name="Toggle Symbols"
+            id="ed.inf.proofgeneral.commands.symbols"/>
+      <command
+            categoryId="ed.inf.proofgeneral.commands"
+            name="Enter Command"
+            id="ed.inf.proofgeneral.commands.enter"/>
+	</extension>
+
+	<extension point="org.eclipse.ui.bindings">
+	<!-- da: a modern scheme (like old Emacs scheme without C-c prefix) -->
+		<key
+			commandId="ed.inf.proofgeneral.commands.send"
+            contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+			sequence="Ctrl+N"/>
+		<key
+			commandId="ed.inf.proofgeneral.commands.sendall"
+			contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+			sequence="Ctrl+B"/>
+		<key
+			commandId="ed.inf.proofgeneral.commands.undo"
+			contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+			sequence="Ctrl+U"/>
+		<key
+			commandId="ed.inf.proofgeneral.commands.undoall"
+			contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+			sequence="Ctrl+R"/>
+		<key
+			commandId="ed.inf.proofgeneral.commands.interrupt"
+			contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+			sequence="Ctrl+I"/>  <!-- Ctrl+C commonly copy -->
+		<key
+			commandId="ed.inf.proofgeneral.commands.goto"
+			contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+			sequence="Ctrl+Enter"/>
+		<key
+			commandId="ed.inf.proofgeneral.commands.parse"
+			contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+			sequence="Ctrl+P"/>
+		<!-- maybe we want to attach this to Open Declaration ??, see also in ProofScriptEditor -->
+		<key
+			commandId="ed.inf.proofgeneral.commands.opendefn"
+			contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+			sequence="F3"/>
+           <!-- da: backward compatibility for Emacs old hands -->
+		<key
+			commandId="ed.inf.proofgeneral.commands.send"
+            contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.emacsAcceleratorConfiguration"
+			sequence="Ctrl+C Ctrl+N"/>
+		<key
+			commandId="ed.inf.proofgeneral.commands.sendall"
+            contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.emacsAcceleratorConfiguration"
+			sequence="Ctrl+C Ctrl+B"/>
+   		<key
+			commandId="ed.inf.proofgeneral.commands.undo"
+			contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.emacsAcceleratorConfiguration"
+			sequence="Ctrl+C Ctrl+U"/>
+   		<key
+			commandId="ed.inf.proofgeneral.commands.undoall"
+			contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.emacsAcceleratorConfiguration"
+			sequence="Ctrl+C Ctrl+R"/>
+		<key
+			commandId="ed.inf.proofgeneral.commands.interrupt"
+			contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.emacsAcceleratorConfiguration"
+			sequence="Ctrl+C Ctrl+C"/>
+		<key
+			commandId="ed.inf.proofgeneral.commands.goto"
+			contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.emacsAcceleratorConfiguration"
+			sequence="Ctrl+C Ctrl+Enter"/>
+		<key
+			commandId="ed.inf.proofgeneral.commands.enter"
+			contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.emacsAcceleratorConfiguration"
+			sequence="Ctrl+C Ctrl+V"/>
+		<key
+			commandId="ed.inf.proofgeneral.commands.enter"
+			contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.emacsAcceleratorConfiguration"
+			sequence="Ctrl+C Ctrl+."/>
+        <!-- da: a handy completion binding since C-space is Emacs set mark.  Unfortunately
+                 this doesn't work: gives error that org.eclipse.ui.text.hippieCompletion is an undefined command. -->
+		<key 
+			commandId="org.eclipse.ui.text.hippieCompletion"
+			contextId="ed.inf.proofgeneral.context"
+			schemeId="org.eclipse.ui.emacsAcceleratorConfiguration"
+			sequence="Ctrl+."/>
+
+	</extension>
+
+	<extension
+	  id="pgmarker"
+      point="org.eclipse.core.resources.markers"
+      name="Proof marker" >
+      <persistent value="false" />
+<!-- da: I don't think this should be a bookmark.  They're for
+     user use rather than auto-generation.
+          <super type="org.eclipse.core.resources.bookmark" /> -->
+      <attribute name="tooltip"/>
+      <super type="org.eclipse.core.resources.textmarker"/>
+   </extension>
+   <extension
+         id="pgproblem"
+         name="Proof problem"
+         point="org.eclipse.core.resources.markers">
+      <super type="org.eclipse.core.resources.problemmarker"/>
+      <super type="org.eclipse.core.resources.textmarker"/>
+      <super type="ed.inf.proofgeneral.pgmarker"/>
+      <persistent value="true"/>
+   </extension>
+   <extension
+         id="pgtask"
+         name="Proof task"
+         point="org.eclipse.core.resources.markers">
+      <super type="org.eclipse.core.resources.taskmarker"/>
+      <super type="ed.inf.proofgeneral.pgmarker"/>
+      <persistent value="true"/>
+   </extension>
+   <extension
+         id="pglabel"
+         name="Proof object label"
+         point="org.eclipse.core.resources.markers">
+      <super type="org.eclipse.core.resources.labelmarker"/>
+      <super type="ed.inf.proofgeneral.pgmarker"/>
+      <persistent value="true"/>
+   </extension>
+   <extension
+         id="theorem"
+         name="Theorem"
+         point="org.eclipse.core.resources.markers">
+      <super type="ed.inf.proofgeneral.pgmarker"/>
+	  <super type="ed.inf.proofgeneral.labelmarker"/>
+	  <persistent value="true" />
+   </extension>
+   <extension
+         id="theory"
+         name="Theory"
+         point="org.eclipse.core.resources.markers">
+      <super type="ed.inf.proofgeneral.pgmarker"/>
+	  <super type="ed.inf.proofgeneral.labelmarker"/>
+	  <persistent value="true" />
+   </extension>
+   <extension
+         id="defn"
+         name="Definition"
+         point="org.eclipse.core.resources.markers">
+      <super type="ed.inf.proofgeneral.pgmarker"/>
+   	  <super type="ed.inf.proofgeneral.labelmarker"/>
+   	  <persistent value="true" />
+   </extension>
+   <extension
+         id="gototempmarker"
+         name="Temporary Goto Marker"
+         point="org.eclipse.core.resources.markers">
+      <super type="ed.inf.proofgeneral.pgmarker"/>
+      <persistent value="false"/>
+   </extension>
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="content/toc.xml"
+            primary="true"/>
+      <toc file="content/tocgettingstarted.xml"/>
+      <toc file="content/tocsamples.xml"/>
+   </extension>
+  
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="ed.inf.proofgeneral.preferences.PreferenceInitializer"/>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="ed.inf.proofgeneral"
+            name="Proof General"/>
+      <wizard
+            category="ed.inf.proofgeneral"
+            class="ed.inf.proofgeneral.wizards.NewProofProjectWizard"
+            finalPerspective="ed.inf.proofgeneral.views.PGPerspective"
+            icon="icons/star16.gif"
+            id="ed.inf.proofgeneral.wizards.NewProjectWizard"
+            name="Proof Project"
+            preferredPerspectives="ed.inf.proofgeneral.views.PGPerspective"
+            project="true">
+         <description>
+            Create a new theorem proving project.
+         </description>
+      </wizard>
+   </extension>
+  
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.quickDiffReferenceProvider">
+      <referenceprovider
+            class="ed.inf.proofgeneral.editor.symbols.quickdiff.LastSaveReferenceProvider"
+            id="ed.inf.proofgeneral.referenceprovider"
+            label="Version on Disk (symbol-decoded)"/>
+   </extension>
+
+	<!-- document state decorators -->
+	<extension point="org.eclipse.ui.decorators">
+	<decorator
+       adaptable="true"
+       class="ed.inf.proofgeneral.document.decorators.ActiveScriptDecorator"
+       id="ed.inf.proofgeneral.document.decorators.ProcessedScriptDecorator"
+       label="Active Script Decorator"
+       lightweight="true"
+       location="BOTTOM_LEFT"
+       state="true">
+	    <description>
+	       Decorates a proof script file according to its state of completion in the prover.
+	    </description>
+     <enablement>
+        <objectClass name="org.eclipse.core.resources.IFile"/>
+     </enablement>
+	  </decorator>
+	<decorator
+       adaptable="true"
+       class="ed.inf.proofgeneral.document.decorators.ErrorDecorator"
+       id="ed.inf.proofgeneral.document.decorators.ErrorDecorator"
+       label="Error Decorator"
+       lightweight="true"
+       location="BOTTOM_RIGHT"
+       state="true">
+		<description>
+			Decorates scripts which cause prover errors.
+		</description>
+  <enablement>
+     <objectClass name="org.eclipse.core.resources.IFile"/>
+  </enablement>
+ </decorator>
+	</extension>
+
+	<extension point="org.eclipse.core.contenttype.contentTypes">
+    <content-type
+          base-type="org.eclipse.core.runtime.text"
+          id="ed.inf.proofgeneral.proofscript"
+          name="Proof Script File"
+          priority="high"/>
+    </extension>
+
+	<extension
+		  id="proofBuilder"
+	      name="Proof Project Builder"
+	      point="org.eclipse.core.resources.builders">
+			<builder hasNature="true">
+			    <run class="ed.inf.proofgeneral.builder.ProofBuilder"/>
+		    </builder>
+	</extension>
+
+	<extension
+	     id="proofNature"
+	     name="Proof Project Nature"
+	     point="org.eclipse.core.resources.natures">
+	     <runtime>
+	       <run class="ed.inf.proofgeneral.builder.ProofNature"/>
+	     </runtime>
+	    <builder id="ed.inf.proofgeneral.proofBuilder"/>
+	    <content-type id="ed.inf.proofgeneral.proofscript"/>
+	</extension>
+
+	<extension point="org.eclipse.ui.popupMenus">
+    <objectContribution
+          id="ed.inf.proofgeneral.naturetoggle"
+          nameFilter="*"
+          objectClass="org.eclipse.core.resources.IProject">
+       <action
+             class="ed.inf.proofgeneral.builder.ToggleNatureAction"
+             enablesFor="+"
+             icon="icons/star16.gif"
+             id="ed.inf.proofgeneral.addRemoveNatureAction"
+             label="Add/Remove Proof Nature"
+             menubarPath="additions"
+             tooltip="Add or remove the proof nature for this project"/>
+    </objectContribution>
+
+    <objectContribution
+          id="ed.inf.proofgeneral.editsymboltable"
+          nameFilter="*"
+          objectClass="org.eclipse.core.resources.IProject">
+       <action
+             class="ed.inf.proofgeneral.editor.symbols.SymbolTableFiles"
+             enablesFor="+"
+             icon="icons/file_symbols.gif"
+             id="ed.inf.proofgeneral.createEditSymbolTable"
+             label="Create Symbol Table"
+             menubarPath="additions"/>
+    </objectContribution>
+
+ </extension>
+ <!-- TODO da: this marker is from the builder made by the wizard.
+   Enable this to see how the sample XML builder works.
+ <extension
+       id="xmlProblem"
+       name="XML Problem"
+       point="org.eclipse.core.resources.markers">
+    <super type="org.eclipse.core.resources.problemmarker"/>
+    <persistent value="true"/>
+ </extension>
+ -->
+ <extension
+       point="org.eclipse.ui.editors.annotationTypes">
+    <type
+          markerSeverity="2"
+          markerType="ed.inf.proofgeneral.problem"
+          name="ed.inf.proofgeneral.editor.problem"
+          super="org.eclipse.ui.workbench.texteditor.error"/>
+    <type
+          markerSeverity="1"
+          markerType="ed.inf.proofgeneral.problem"
+          name="ed.inf.proofgeneral.editor.warning"
+          super="org.eclipse.ui.workbench.texteditor.warning"/>
+    <type
+          markerSeverity="0"
+          markerType="ed.inf.proofgeneral.problem"
+          name="ed.inf.proofgeneral.editor.info"
+          super="org.eclipse.ui.workbench.texteditor.warning"/>
+    <type
+          markerType="ed.inf.proofgeneral.queued"
+          name="ed.inf.proofgeneral.editor.queued"
+          />
+    <type
+          markerType="ed.inf.proofgeneral.processed"
+          name="ed.inf.proofgeneral.editor.processed"
+          />
+    <type
+          markerType="ed.inf.proofgeneral.outdated"
+          name="ed.inf.proofgeneral.editor.outdated"
+          />
+ </extension>
+ <extension
+       point="org.eclipse.ui.editors.markerAnnotationSpecification">
+  <specification
+        annotationType="ed.inf.proofgeneral.editor.processed"
+        colorPreferenceKey="ed.inf.proofgeneral.ui.processed.colour"
+        colorPreferenceValue="176,196,222"
+        contributesToHeader="false"
+        highlightPreferenceKey="ed.inf.proofgeneral.ui.processed.highlight"
+        highlightPreferenceValue="true"
+        includeOnPreferencePage="true"
+        isGoToNextNavigationTarget="false"
+        isGoToPreviousNavigationTarget="false"
+        label="Processed Proof"
+        overviewRulerPreferenceKey="ed.inf.proofgeneral.ui.processed.overview"
+        overviewRulerPreferenceValue="false"
+        presentationLayer="1"
+        showInNextPrevDropdownToolbarAction="false"
+        textPreferenceKey="processedText"
+        textPreferenceValue="true"
+        textStylePreferenceValue="IBEAM"
+        verticalRulerPreferenceKey="ed.inf.proofgeneral.ui.processedvertical"
+        verticalRulerPreferenceValue="false"/>
+   <specification
+         annotationType="ed.inf.proofgeneral.editor.queued"
+         colorPreferenceKey="ed.inf.proofgeneral.ui.queued.colour"
+         colorPreferenceValue="255,228,225"
+         contributesToHeader="false"
+         highlightPreferenceKey="ed.inf.proofgeneral.ui.queued.highlight"
+         highlightPreferenceValue="true"
+         includeOnPreferencePage="true"
+         isGoToNextNavigationTarget="false"
+         isGoToPreviousNavigationTarget="false"
+         label="Queued Proof"
+         overviewRulerPreferenceKey="ed.inf.proofgeneral.ui.queued.overview"
+         overviewRulerPreferenceValue="false"
+         presentationLayer="2"
+         showInNextPrevDropdownToolbarAction="false"
+         textPreferenceKey="queuedText"
+         textPreferenceValue="true"
+         textStylePreferenceValue="IBEAM"
+         verticalRulerPreferenceKey="ed.inf.proofgeneral.ui.queuedvertical"
+         verticalRulerPreferenceValue="false"/>
+            <specification
+          annotationType="ed.inf.proofgeneral.editor.outdated"
+          colorPreferenceKey="ed.inf.proofgeneral.ui.outdated.colour"
+          colorPreferenceValue="200,200,255"
+          contributesToHeader="false"
+          highlightPreferenceKey="ed.inf.proofgeneral.ui.outdated.highlight"
+          highlightPreferenceValue="true"
+          includeOnPreferencePage="true"
+          label="Outdated Proof"
+          overviewRulerPreferenceKey="ed.inf.proofgeneral.ui.outdated.overview"
+          overviewRulerPreferenceValue="false"
+          presentationLayer="0"
+          textPreferenceKey="outdatedText"
+          textPreferenceValue="true"
+          textStylePreferenceValue="IBEAM"
+          verticalRulerPreferenceKey="ed.inf.proofgeneral.ui.outdatedvertical"
+          verticalRulerPreferenceValue="true"/>
+ </extension>
+ <extension
+       point="org.eclipse.ui.console.consoleFactories">
+       <consoleFactory
+             class="ed.inf.proofgeneral.console.TracingConsoleFactory"
+             icon="icons/star16.gif"
+             label="Prover Tracing"/>
+</extension>
+ <extension
+       point="org.eclipse.ui.console.consoleFactories">
+       <consoleFactory
+             class="ed.inf.proofgeneral.console.DebugConsoleFactory"
+             icon="icons/star16.gif"
+             label="Prover Debug"/>
+</extension>
+ <extension
+       point="org.eclipse.ui.console.consoleFactories">
+       <consoleFactory
+         label="PGIP Log"
+	     icon="icons/star16.gif"
+	     class="ed.inf.proofgeneral.console.PGIPLogConsoleFactory"/>
+ </extension>
+ <extension
+       point="org.eclipse.ui.actionSets">
+       <actionSet
+			label="Cheat Sheets..."
+			visible="true"
+			id="org.eclipse.ui.cheatsheets.actionSet">
+			<action
+            	label="Cheat Sheets..."
+				class="org.eclipse.ui.cheatsheets.CheatSheetExtensionFactory:helpMenuAction"
+				menubarPath="help/group.tutorials"
+				id="org.eclipse.ui.cheatsheets.actions.CheatSheetHelpMenuAction">
+        	</action>
+     	</actionSet>
+ </extension>
+ <extension
+       id="ed.inf.proofgeneral.cheatsheets.sheets"
+       name="Cheat Sheets"
+       point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+    <category
+          id="ed.inf.proofgeneral.cheatsheets"
+          name="ProofGeneral"/>
+    <cheatsheet
+          category="ed.inf.proofgeneral.cheatsheets"
+          composite="false"
+          contentFile="content/cheatsheet_intro.xml"
+          id="ed.inf.proofgeneral.cheatsheets.intro"
+          name="Getting Started with Proof General">
+          <description>
+          	This Cheat Sheet shows you how to create a proof project in Proof General and add a proof script.
+          </description>
+ 	</cheatsheet>
+ </extension>
+
+
+ <extension
+       point="org.eclipse.ui.navigator.viewer">
+    <viewer viewerId="ed.inf.proofgeneral.views.Explorer"
+            popupMenuId="ed.inf.proofgeneral.explorer"/>
+    <viewerContentBinding viewerId="ed.inf.proofgeneral.views.Explorer">
+       <includes>
+          <contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>
+          <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
+-         <contentExtension pattern="ed.inf.proofgeneral.explorer.filters.*"/>
+       </includes>
+    </viewerContentBinding>
+    <viewerActionBinding viewerId="ed.inf.proofgeneral.views.Explorer">
+       <includes>
+           <actionExtension pattern="org.eclipse.ui.navigator.resources.*"/>
+       </includes>
+    </viewerActionBinding>
+ </extension>
+  
+ <extension
+       point="org.eclipse.ui.navigator.navigatorContent">
+<!-- Later on: if we wanted to add sub-parts of proofs, etc:
+<navigatorContent
+          name="Proof Explorer"
+		  priority="low"
+		  icon="icons/star16.gif"
+		  activeByDefault="true"
+		  contentProvider="ed.inf.proofgeneral.explorer.ResourceExtensionContentProvider"
+		  labelProvider="ed.inf.proofgeneral.explorer.ResourceExtensionLabelProvider"
+		  sorter="org.eclipse.ui.navigator.resources.internal.workbench.ResourceSorter"
+		  id="org.eclipse.ui.navigator.resourceContent">
+	<triggerPoints>
+	<or>
+		<instanceof value="org.eclipse.core.resources.IWorkspaceRoot"/>
+		<instanceof value="org.eclipse.core.resources.IProject"/>
+		<instanceof value="org.eclipse.core.resources.IFolder"/>
+	</or>
+	</triggerPoints>
+	<possibleChildren>
+	<or>
+		<instanceof value="org.eclipse.core.resources.IWorkspaceRoot"/>
+		<instanceof value="org.eclipse.core.resources.IProject"/>
+		<instanceof value="org.eclipse.core.resources.IResource"/>
+		<instanceof value="org.eclipse.core.resources.IFolder"/>
+		<instanceof value="org.eclipse.core.resources.IFile"/>
+	</or>
+	</possibleChildren>
+</navigatorContent> -->	
+    <!-- This filter doesn't seem to work -->
+    <commonFilter
+          activeByDefault="true"
+          id="ed.inf.proofgeneral.explorer.filters.hideNonProofProjects"
+          name="Hide non-Proof Projects">
+       <filterExpression>
+       <not>
+          <adapt type="org.eclipse.core.resources.IProject">
+             <test property="org.eclipse.core.resources.projectNature"
+                   value="ed.inf.proofgeneral.proofNature"/>
+          </adapt>
+       </not>
+       </filterExpression>
+    </commonFilter>
+    <commonWizard
+          type="new"
+          wizardId="ed.inf.proofgeneral.wizards.NewProofProjectWizard">
+       <enablement/>
+    </commonWizard>
+  </extension>
+
+<!-- Later if we add sub-file content to explorer:
+ <extension point="org.eclipse.ui.navigator.linkHelper">
+ <linkHelper class="ed.inf.proofgeneral.explorer.ResourceLinkHelper"
+	id="ed.inf.proofgeneral.explorer.linkHelper">
+<selectionEnablement>
+<instanceof value="org.eclipse.core.resources.IFile"/>
+</selectionEnablement>
+<editorInputEnablement>
+<instanceof value="org.eclipse.ui.IFileEditorInput"/>
+</editorInputEnablement>
+</linkHelper>
+</extension>
+ -->
+ 
+ <!-- Notions of activities to help de-clutter the product interface - da.
+      TODO: not seen this appear in the General -> Capabilities pref yet.
+      Something more to get that menu to appear?
+      Can we use this to disable also:
+         - File -> Open menu item?
+         - Working sets?
+         - Extra clutter in features product (run configs)
+  -->
+ <extension
+       point="org.eclipse.ui.activities">
+    <activity
+          description="Theorem Proving with Proof General"
+          id="ed.inf.proofgeneral.product.activity.proving"
+          name="Proof General Activity"/>
+    <activityPatternBinding
+	      activityId="ed.inf.proofgeneral.product.proving"
+	   	  pattern="ed\.inf\.proofgeneral\..*">
+    </activityPatternBinding>
+<!-- should be defined by team plugins?    <activity
+          description="Team Development Support (CVS, etc)"
+          id="ed.inf.proofgeneral.product.activity.team"
+          name="Team Support"/>
+    <activityPatternBinding
+	      activityId="ed.inf.proofgeneral.product.team"
+	   	  pattern="org\.eclipse\.team\..*">
+    </activityPatternBinding>
+    -->
+    <activity
+          description="Run External Tools support"
+          id="ed.inf.proofgeneral.product.activity.runtools"
+          name="Run Tools Support"/>
+    <activityPatternBinding
+          activityId="ed.inf.proofgeneral.product.activity.runtools"
+          pattern="org\.eclipse\.ui\.externaltools"/>
+    <activity
+          description="Debugging Support (not used by PG)"
+          id="ed.inf.proofgeneral.product.activity.debug"
+          name="Debugging Support (not used by PG)"/>
+    <activityPatternBinding
+          activityId="ed.inf.proofgeneral.product.activity.debug"
+          pattern="org\.eclipse\.debug\..*"/>
+ </extension>
+
+
+ <extension
+       point="org.eclipse.ui.themes">
+    <theme
+          id="ed.inf.proofgeneral.theme"
+          name="Proof General UI Theme"/>
+    <themeElementCategory
+          id="ed.inf.proofgeneral.scriptmanagement"
+          label="Scripting States"/>
+    <colorDefinition
+          categoryId="ed.inf.proofgeneral.scriptmanagement"
+          id="ed.inf.proofgeneral.PROCESSED"
+          isEditable="true"
+          label="Processed text in editor (background)"
+          value="176,196,222">
+       <description/>
+    </colorDefinition>
+    <colorDefinition
+          categoryId="ed.inf.proofgeneral.scriptmanagement"
+          id="ed.inf.proofgeneral.BUSY"
+          isEditable="true"
+          label="Busy text in editor (background)"
+          value="255,228,225">
+       <description/>
+    </colorDefinition>
+    <colorDefinition
+          categoryId="ed.inf.proofgeneral.scriptmanagement"
+          defaultsTo="ed.inf.proofgeneral.PROCESSED"
+          id="ed.inf.proofgeneral.OUTLINE_PROCESSED_BG"
+          isEditable="true"
+          label="Processed text in outline (background)"
+          >
+       <description/>
+    </colorDefinition>
+    <colorDefinition
+          categoryId="ed.inf.proofgeneral.scriptmanagement"
+          defaultsTo="ed.inf.proofgeneral.BUSY"
+          id="ed.inf.proofgeneral.OUTLINE_BUSY_BG"
+          isEditable="true"
+          label="Busy text in outline (background)"
+          >
+       <description/>
+    </colorDefinition>
+    <colorDefinition
+          categoryId="ed.inf.proofgeneral.scriptmanagement"
+          id="ed.inf.proofgeneral.OUTLINE_PROCESSED_FG"
+          isEditable="true"
+          label="Processed text in outline (foreground)"
+          value="COLOR_BLACK">
+       <description/>
+    </colorDefinition>
+    <colorDefinition
+          categoryId="ed.inf.proofgeneral.scriptmanagement"
+          id="ed.inf.proofgeneral.OUTLINE_BUSY_FG"
+          isEditable="true"
+          label="Busy text in outline (foreground)"
+          value="COLOR_BLACK">
+       <description/>
+    </colorDefinition>
+    <colorDefinition
+          categoryId="ed.inf.proofgeneral.scriptmanagement"
+          id="ed.inf.proofgeneral.OUTDATED"
+          isEditable="true"
+          label="Outdated text"
+          value="50,50,50">
+       <description/>
+    </colorDefinition>
+    <themeElementCategory
+          id="ed.inf.proofgeneral.scripteditor"
+          label="Script Editor"/>
+    <colorDefinition
+          categoryId="ed.inf.proofgeneral.scripteditor"
+          id="ed.inf.proofgeneral.KEYWORD"
+          isEditable="true"
+          label="Keywords"
+          value="139,0,100">
+       <description>
+       Colour of keywords in the proof script editor.
+       </description>
+    </colorDefinition>
+    <colorDefinition
+          categoryId="ed.inf.proofgeneral.scripteditor"
+          id="ed.inf.proofgeneral.STRING"
+          isEditable="true"
+          label="Strings"
+          value="42,0,255">
+       <description>
+       Colour of strings in the proof script editor.
+       </description>
+    </colorDefinition>
+    <colorDefinition
+          categoryId="ed.inf.proofgeneral.scripteditor"
+          id="ed.inf.proofgeneral.COMMENT"
+          isEditable="true"
+          label="Comments"
+          value="63,97,125">
+       <description>
+       Colour of comments in the proof script editor.
+       </description>
+    </colorDefinition>
+    <colorDefinition
+          categoryId="ed.inf.proofgeneral.scripteditor"
+          id="ed.inf.proofgeneral.HOLE"
+          isEditable="true"
+          label="Holes"
+          value="200,50,80">
+       <description>
+       Colour of replacable holes in the proof script editor.
+       </description>
+    </colorDefinition>
+    <themeElementCategory
+          id="ed.inf.proofgeneral.prover"
+          label="Prover"/>
+    <colorDefinition
+          categoryId="ed.inf.proofgeneral.prover"
+          id="ed.inf.proofgeneral.PGIP_CONSOLE_INPUT"
+          isEditable="true"
+          label="Console input"
+          value="100,100,150">
+       <description>
+       Colour for displaying input text sent to the prover in the PGIP Console.
+       </description>
+    </colorDefinition>
+      <colorDefinition
+          categoryId="ed.inf.proofgeneral.prover"
+          id="ed.inf.proofgeneral.ERRORBACKGROUND"
+          isEditable="true"
+          label="Error condition"
+          value="220,70,70">
+       <description>
+       Background colour for displaying errors
+       </description>
+    </colorDefinition>
+    <fontDefinition
+          categoryId="ed.inf.proofgeneral.prover"
+          defaultsTo="org.eclipse.jface.textfont"
+          id="ed.inf.proofgeneral.CONSOLE"
+          label="Console Font">
+       <description>
+       Font for Proof General consoles (for debug or tracing messages from the prover, and the PGIP log).
+       </description>
+    </fontDefinition>
+ </extension>
+ <extension
+       point="org.eclipse.search.textSearchEngine">
+    <textSearchEngine
+          class="ed.inf.proofgeneral.document.SymbolisedSearch"
+          id="ed.inf.proofgeneral.textSearchEngine1"
+          label="ed.inf.proofgeneral.textSearchEngine1">
+    </textSearchEngine>
+ </extension>
+ <extension
+       point="org.eclipse.ui.keywords">
+    <keyword
+          id="ed.inf.proofgeneral.keyword.prover"
+          label="prover">
+    </keyword>
+    <keyword
+          id="ed.inf.proofgeneral.keyword.appearance"
+          label="appearance">
+    </keyword>
+ </extension>
+ 
+  <!-- intro -->
+ 
+  <extension
+       point="org.eclipse.ui.intro">
+    <intro
+          class="org.eclipse.ui.intro.config.CustomizableIntroPart"
+           icon="icons/star16.gif"
+          id="ed.inf.proofgeneral.intro">
+    </intro>
+    <introProductBinding
+          introId="ed.inf.proofgeneral.intro"
+          productId="ed.inf.proofgeneral.pgeclipse">
+    </introProductBinding>
+    <introProductBinding
+          introId="ed.inf.proofgeneral.intro"
+          productId="ed.inf.proofgeneral.pgeclipse_themax">
+    </introProductBinding>
+ </extension>
+ <extension
+       point="org.eclipse.ui.intro.config">
+    <config
+          content="content/introContent.xml"
+          id="ed.inf.proofgeneral.introConfigId"
+          introId="ed.inf.proofgeneral.intro">
+       <presentation
+             home-page-id="root">
+          <implementation
+                kind="html"
+                os="win32,linux,macosx"
+                style="content/shared.css">
+          </implementation>
+       </presentation>
+    </config>
+ </extension>
+ 
+ 
+ <!-- Products -->
+ 
+ 
+ <extension
+       id="isabelle_product"
+       point="org.eclipse.core.runtime.products">
+    <product
+          application="org.eclipse.ui.ide.workbench"
+          name="Proof General with Prover&apos;s Palette">
+       <property
+             name="windowImages"
+             value="icons/branding/star16.png,icons/branding/star32.png,icons/branding/star48.png,icons/branding/star64.png,icons/branding/star128.png">
+       </property>
+       <property
+             name="aboutText"
+             value="Proof General Eclipse&#x0A;Version 1.0.x (a beta version).&#x0A;&#x0A;Developed at the School of Informatics, University of Edinburgh&#x0A;and the Department of Mathematics and Informatics, University of Bremen.&#x0A;&#x0A;Project website: http://proofgeneral.inf.ed.ac.uk&#x0A;&#x0A;(c) Copyright University of Edinburgh, University of Bremen, contributors and others, 2005-7.&#x0A;&#x0A;&#x0A;With Prover&apos;s Palette extensions, (c) Laura Meikle 2009.">
+       </property>
+       <property
+             name="aboutImage"
+             value="icons/pg-text-twolines.png">
+       </property>
+       <property
+             name="appName"
+             value="Proof General with Prover&apos;s Palette">
+       </property>
+    </product>
+ </extension>
+ <extension
+       id="coq_product"
+       point="org.eclipse.core.runtime.products">
+    <product
+          application="org.eclipse.ui.ide.workbench"
+          name="Coq Proof General">
+       <property
+             name="windowImages"
+             value="icons/branding/star16.png,icons/branding/star32.png,icons/branding/star48.png,icons/branding/star64.png,icons/branding/star128.png">
+       </property>
+       <property
+             name="aboutText"
+             value="Proof General Eclipse&#x0A;Version 1.0.x (a beta version).&#x0A;&#x0A;Developed at the School of Informatics, University of Edinburgh&#x0A;and the Department of Mathematics and Informatics, University of Bremen.&#x0A;&#x0A;Project website: http://proofgeneral.inf.ed.ac.uk&#x0A;&#x0A;(c) Copyright University of Edinburgh, University of Bremen, contributors and others, 2005-7.">
+       </property>
+       <property
+             name="aboutImage"
+             value="icons/pg-text-twolines.png">
+       </property>
+       <property
+             name="appName"
+             value="Coq Proof General">
+       </property>
+    </product>
+ </extension>
+ <extension
+       id="pml_product"
+       point="org.eclipse.core.runtime.products">
+    <product
+          application="org.eclipse.ant.core.antRunner"
+          name="Isabelle Proof General Eclipse">
+       <property
+             name="windowImages"
+             value="icons/branding/star16.png,icons/branding/star32.png,icons/branding/star48.png,icons/branding/star64.png,icons/branding/star128.png">
+       </property>
+       <property
+             name="aboutText"
+             value="Proof General Eclipse&#x0A;Version 1.0.x (a beta version).&#x0A;&#x0A;Developed at the School of Informatics, University of Edinburgh&#x0A;and the Department of Mathematics and Informatics, University of Bremen.&#x0A;&#x0A;Project website: http://proofgeneral.inf.ed.ac.uk&#x0A;&#x0A;(c) Copyright University of Edinburgh, University of Bremen, contributors and others, 2005-7.">
+       </property>
+       <property
+             name="aboutImage"
+             value="icons/pg-text-twolines.png">
+       </property>
+    </product>
+ </extension>
+ <extension
+       id="allprovers_product"
+       point="org.eclipse.core.runtime.products">
+    <product
+          application="org.eclipse.ui.ide.workbench"
+          name="Proof General Eclipse">
+       <property
+             name="windowImages"
+             value="icons/branding/star16.png,icons/branding/star32.png,icons/branding/star48.png,icons/branding/star64.png,icons/branding/star128.png">
+       </property>
+       <property
+             name="aboutText"
+             value="Proof General Eclipse&#x0A;Version 1.0.x (a beta version).&#x0A;&#x0A;Developed at the School of Informatics, University of Edinburgh&#x0A;and the Department of Mathematics and Informatics, University of Bremen.&#x0A;&#x0A;Project website: http://proofgeneral.inf.ed.ac.uk&#x0A;&#x0A;(c) Copyright University of Edinburgh, University of Bremen, contributors and others, 2005-7.">
+       </property>
+       <property
+             name="aboutImage"
+             value="icons/pg-text-twolines.png">
+       </property>
+       <property
+             name="appName"
+             value="Proof General Eclipse">
+       </property>
+    </product>
+ </extension>
+  <extension
+         id="pgeclipse"
+         name="Proof General Eclipse"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.eclipse.ui.ide.workbench"
+            description="IDE for interactive proof"
+            name="Proof General Eclipse">
+         <property
+               name="welcomePage"
+               value="welcome.xml"/>
+         <property
+               name="featureImage"
+               value="icons/EGeneral.png"/>
+         <property
+               name="appName"
+               value="Proof General Eclipse">
+         </property>
+         <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
+         </property>
+         <property
+               name="aboutImage"
+               value="icons/pg-text-twolines.png">
+         </property>
+         <property
+               name="aboutText"
+               value="Proof General Eclipse, Version 1.0.x (a beta version).&#x0A;(c) Copyright Edinburgh University contributors and others 2005-7&#x0A;Project website: http://proofgeneral.inf.ed.ac.uk/kit">
+         </property>
+         <property
+               name="windowImages"
+               value="icons/branding/star16.png,icons/branding/star32.png,icons/branding/star48.png,icons/branding/star64.png,icons/branding/star128.png">
+         </property>
+         <property
+               name="startupForegroundColor"
+               value="BFBFBF">
+         </property>
+         <property
+               name="startupMessageRect"
+               value="7,252,445,20">
+         </property>
+         <property
+               name="startupProgressRect"
+               value="5,275,445,15">
+         </property>
+      </product>
+   </extension>
+ <extension
+       id="pgeclipse_themax"
+       name="Proof General Eclipse (The Max)"
+       point="org.eclipse.core.runtime.products">
+    <product
+          application="org.eclipse.ui.ide.workbench"
+          name="Proof General Eclipse (The Max)">
+       <property
+             name="windowImages"
+             value="icons/branding/star16.png,icons/branding/star32.png,icons/branding/star48.png,icons/branding/star64.png,icons/branding/star128.png">
+       </property>
+       <property
+             name="aboutText"
+             value="Proof General Eclipse, Version 1.0.x (a beta version).&#x0A;(c) Copyright Edinburgh University contributors and others 2005-7&#x0A;Project website: http://proofgeneral.inf.ed.ac.uk/kit">
+       </property>
+       <property
+             name="aboutImage"
+             value="icons/pg-text-twolines.png">
+       </property>
+       <property
+             name="appName"
+             value="Proof General Eclipse (The Max)">
+       </property>
+       <property
+             name="startupForegroundColor"
+             value="BFBFBF">
+       </property>
+       <property
+             name="startupMessageRect"
+             value="7,252,445,20">
+       </property>
+       <property
+             name="startupProgressRect"
+             value="5,275,445,15">
+       </property>
+       <property
+             name="preferenceCustomization"
+             value="plugin_customization.ini">
+       </property>
+    </product>
+ </extension>
+ <extension
+       point="org.eclipse.ui.splashHandlers">
+    <splashHandler
+          class="ed.inf.proofgeneral.splashHandlers.ExtensibleSplashHandler"
+          id="ed.inf.proofgeneral.splashHandlers.extensible">
+    </splashHandler>
+ </extension>
+ <extension
+       point="ed.inf.proofgeneral.splashExtension">
+    <splashExtension
+          icon="icons/splash/splash-generic.png"
+          id="generic"
+          tooltip="Generic Core">
+    </splashExtension>
+ </extension>
+
+
+ <!--- This extension point could be used if we engage our own annotation
+       model for proof scripts which also allows direct annotation from
+       the script model for processed/queued regions, etc.
+ <extension
+       point="org.eclipse.core.filebuffers.annotationModelCreation">
+    <factory
+          class="org.eclipse.ui.texteditor.ResourceMarkerAnnotationModelFactory">
+    </factory>
+ </extension>
+-->
+ 
+</plugin>
+
+
+<!--
+	This is the DTD for plugin.xml files
+	<?eclipse version="3.2"?>
+
+	<!ELEMENT plugin (extension-point*, extension*)>
+
+	<!ELEMENT fragment (extension-point*, extension*)>
+
+	<!ELEMENT extension-point EMPTY>
+	<!ATTLIST extension-point
+	 name                CDATA #REQUIRED
+	 id                  CDATA #REQUIRED
+	 schema              CDATA #IMPLIED
+	>
+
+	<!ELEMENT extension ANY>
+	<!ATTLIST extension
+	 point               CDATA #REQUIRED
+	 name                CDATA #IMPLIED
+	 id                  CDATA #IMPLIED
+	>
+-->

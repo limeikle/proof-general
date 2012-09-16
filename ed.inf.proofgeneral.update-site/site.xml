@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description url="http://proofgeneral.inf.ed.ac.uk/eclipse">
+      Proof General Eclipse Update Site
+   </description>
+   <feature url="features/ed.inf.proofgeneral_1.0.6.pre-qualifier.jar" id="ed.inf.proofgeneral" version="1.0.6.pre-qualifier">
+      <category name="Proof General"/>
+   </feature>
+   <feature url="features/ed.inf.proofgeneral.extras_1.0.6.pre-qualifier.jar" id="ed.inf.proofgeneral.extras" version="1.0.6.pre-qualifier">
+      <category name="Proof General"/>
+   </feature>
+   <feature url="features/net.sourceforge.texlipse_1.1.1.200707191138.jar" id="net.sourceforge.texlipse" version="1.1.1.200707191138">
+      <category name="Texlipse"/>
+   </feature>
+   <category-def name="Proof General" label="proofgen-main">
+      <description>
+         Plugins for developing interactive proof
+      </description>
+   </category-def>
+   <category-def name="Texlipse" label="Texlipse">
+      <description>
+         Texlipse (CVS version recompiled)
+      </description>
+   </category-def>
+</site>

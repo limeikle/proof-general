@@ -1,0 +1,18 @@
+Some notes on recommended programming style for Proof General
+-------------------------------------------------------------
+
+These are some notes on recommendations that should be followed in the code, but
+aren't at the moment.  - DA.
+
+* Keep exceptions for exceptional circumstances. E.g. do not program
+  method invocation on an object that may be null and protect with
+  an exception handler.  Instead use an explicit null test.
+
+* Follow good coding conventions for Java, e.g. always surround statements
+  in loops and conditionals by braces, do not use multiple variable
+  declarations/initialisations, use Java syntax for arrays.  You can
+  test for these with the analysis tools of TPTP.
+
+* Use standard headers on all files (TODO: we should add license details
+  to each file).
+

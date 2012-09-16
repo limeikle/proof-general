@@ -1,0 +1,65 @@
+
+<preferences prefix="Isabelle " > <!-- prefix *must* be set to same as prover name -->
+
+<pref name="Start Command" label="Start Command" class="String" default="isabelle -I -X" />
+
+<pref name="Use Sockets" label="Use remote version and sockets?" class="Boolean" default="false" />
+<pref name="Host Address" label="Host Address" class="String" default="localhost" />
+<pref name="Port" label="Port" class="Integer" default="5678" />
+
+<pref name ="use PGIP interrupts" label="Send PGIP interrupts?"
+		tooltip="Send (as opposed to tty ones)"
+		class="Boolean" default="false" />
+
+<!-- da: made both these next two hidden.  They should be replaced by
+   PGIP configuration messages soon, and spoil the dialog ("value should be
+   existing file" when it is a workspace path).  Don't want to encourage
+   users to mess with this.
+-->
+<pref name="Isabelle Keywords File" label="Keywords File" 
+	class="File" default="config/IsabelleKeywords.txt" 
+tooltip="A file containing a list of key-words" id="IsabelleKeywordsFile" 
+visible="false">
+<description>A file containing a list of key-words; used for syntax highlighting.</description>
+</pref>
+
+<!--  <pref name="Default Symbol Table"
+  	    os="macosx"
+		class="File" default="config/symbols/Isabelle-Mac.sym"
+  	    tooltip="The default symbol table used if no project-specific table is set"
+  	    visible="true"/>
+  	    -->
+
+<pref name="Default Symbol Table"
+      class="File" default="config/symbols/Isabelle.sym"
+  	    tooltip="The default symbol table used if no project-specific table is set"
+  	    visible="true"/>
+
+<pref name="Lexical Syntax File" 
+	 label="Lexical Syntax File" 
+	 class="File" default="config/IsabelleLexicalSyntax.xml"
+	 tooltip="A file containing PGIP defintions for the basic alphabet of the prover" 
+	 id="IsabelleLexicalSyntaxFile"
+     visible="false">
+	 <description>A file containing pgip definitions for the basic lexical constants -
+	 e.g. string delimiters, word characters, etc. Used for syntax highlighting.</description>
+</pref>
+
+<!-- da: do we really need this? -->
+<pref name="Isabelle LINEEND" label="New line character(s)" class="String" default="\n" />
+
+<!-- da: hide this one.  PGIP should avoid the need for this -->
+<pref name="Startup Script" 
+	label="Proof script to be run at session start" 
+	class="Text" default="" 
+	visible="false"/>
+
+<!-- 
+<pref name="Stylesheet File" 
+      class="File" default="config/pgml-template.xsl"
+  	  tooltip="An XSL file used to pretty-format Isabelle output" id="StyleSheetFile"
+  	  visible="true"/>
+-->
+
+
+</preferences>

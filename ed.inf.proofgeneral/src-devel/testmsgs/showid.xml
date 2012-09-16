@@ -1,0 +1,12 @@
+<!-- some tests of showid messages -->
+<pgips>
+
+<pgip class="pa" id="X" seq="1"><proofstep>context HOL</proofstep></pgip>
+
+<pgip class="pa" id="X" seq="1"><showid objtype="theorem" name="allE"/></pgip>
+
+<pgip class="pa" id="X" seq="1"><showid objtype="theory" name="List"/></pgip>
+
+<pgip class="pa" id="X" seq="1"><showid objtype="theory" name="Main"/></pgip>
+
+</pgips>

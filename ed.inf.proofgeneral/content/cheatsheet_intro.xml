@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Creating a new Proof Project">
+   <intro>
+      <description>
+         This cheat sheet shows you how to create a new Proof Project to hold your proof scripts, then add some scripts.
+<br/><br/>
+Your new Proof Project will hold all your proof scripts for processing together.
+Files must be added to a project before they can be used in Proof General.
+      </description>
+   </intro>
+	
+	<item title="Launch the Proof Project Wizard">
+		<!--  pluginId was org.eclipse.ui.cheatsheets -->
+		<!--  action
+			pluginId="ed.inf.proofgeneral"
+			class="ed.inf.proofgeneral.wizards.NewProofProjectWizard.CheatSheetAction" -->
+		<!-- command serialization="ed.inf.proofgeneral.wizards.NewProofProjectWizard.newProject()"/ -->
+      <description>
+         On the File menu, select <b>New &gt; Project...</b>.
+		<br/><br/>
+		From the selection of available wizards, expand the Proof General folder, and select <b>Proof Project</b>.
+		<br/><br/>
+		Confirm your selection by pressing <b>Next</b>.
+      </description>
+   </item>
+   <item title="Name your project" dialog="false" skip="false">
+      <description>
+         The next page of the wizard will appear.  <b>Name</b> your project as you 
+		 wish (though remember this must also be a valid direcrory name).
+		 <br/><br/>
+		In general it is sensible to <b>use default location</b>, but be aware this
+		might not be your preferred &apos;documents&apos; store if you downloaded Proof General 
+		 to a temporary location.
+		 <br/><br/>
+		Press <b>Finish</b> to create your project.  You will find your newly created
+		project in the <b>Project Explorer</b> view, and can now add files to your
+		project.
+      </description>
+   </item>
+   <item title="Create a new script" dialog="false" skip="true">
+      <description>
+         This allows you to create a new script from a template.  You can skip this step if you want to import a file.
+		<br/><br/>
+		From the <b>File</b> menu, select <b>New &gt; Proof Script</b>.
+		<br/><br/>
+		Enter the Theory&apos;s <b>name</b> into the first box (The file name will be automatically generated).  If 
+		<b>container</b> is blank, click <b>Browse</b> to select your new project; otherwise you can accept the default.
+		<br/><br/>
+		Press <b>Finish</b> to create your template file.
+      </description>
+   </item>
+   <item title="Import an existing script" dialog="false" skip="true">
+      <description>
+         You must <b>import</b> existing theory files on disk in order to use them in scripting.
+		<br/><br/>
+		From the <b>File</b> menu, select <b>Import...</b>
+		<br/><br/>
+		From the wizard, select <b>General &gt; File System</b>; press <b>Next</b>.
+		<br/><br/>
+		Type the directory containing your file into <b>from</b>, or find it using <b>browse</b>.  Beneath here, directories 
+		appear on the left; files on the right.  &apos;Tick&apos; files you wish to import.  Accept the default import location 
+		(or browse to find another project or project sub-folder).
+		<br/><br/>
+		Press <b>Finish</b> to import your selected files.
+      </description>
+   </item>
+   <item title="View your proof script" dialog="false" skip="false">
+      <description>
+         Your proof script should now appear in the <b>Proof Explorer</b> view,
+		to the left of your screen by default.  You can view any one of these
+		scripts by double-clicking on its entry.
+      </description>
+   </item>
+</cheatsheet>

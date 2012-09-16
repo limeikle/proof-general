@@ -1,0 +1,17 @@
+normally:
+
+ normalize
+ ProjectionDocument.masterDocumentAboutToBeChanged
+ ProjectionDocumentManager.fireDocumentEvent
+ ProjectionDocumentManager.documentAboutToBeChanged
+ ProofScriptDocument(AbstractDocument).fireDocumentAboutToBeChanged
+                                      .replace(int,int,String,long)
+                                      
+                                      
+when error:
+
+  no .replace
+  
+  but ProofScriptDocument.run
+      with ProofScriptDocumentEvent
+      

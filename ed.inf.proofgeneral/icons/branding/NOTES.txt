@@ -1,0 +1,11 @@
+Files were made with Omnigraffle/gimp/png2ico.
+Star icon based on Daniel's star16.gif graphic.
+
+Windows ico file notes:
+- png2ico seems to reduce colour space always
+- Imagemagick has no way of making 32 bit depth bmp
+- GD: Fixed using Windows tools.
+
+Question: can the branding icons be omitted from the binary distribution?
+
+[ da, Sep 06 ]

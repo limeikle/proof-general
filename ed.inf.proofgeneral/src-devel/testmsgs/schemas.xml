@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
+  <uri resource="schemas.xml" uri="file:///home/da/emacs/packages/nxml-mode/schema/locate.rnc"/>
+  <uri pattern="*.xml" uri="../../../dtd/pgip.rnc"/>
+</locatingRules>
+
+<!--- This file is used by Emacs nxml mode, which can be used
+      to validate RELAX NG documents interactively.  
+      See http://www.thaiopensource.com/download/ -->

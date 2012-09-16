@@ -1,0 +1,22 @@
+<proofgeneral>
+
+<!-- Some ideal modifications to the symbol table; most fonts don't support these unicode or html representations
+     but perhaps one day they will; maybe would be nice to have a comment field in the symbol table ?   -->
+     
+   <addsymbol family="Arrows" name="Long Right Arrow" ascii="\&lt;Longrightarrow&gt;" shortcut="==&gt;" unicode="27f9" html="&amp;xrArr;"/>
+   <addsymbol family="Arrows" name="Long Left Arrow" ascii="\&lt;Longleftarrow&gt;" shortcut="&lt;==" unicode="27f8" html="&amp;xlArr;"/>
+   <addsymbol family="Arrows" name="long right arrow" ascii="\&lt;longrightarrow&gt;" shortcut="--&gt;" unicode="27f6" html="&amp;xrarr;"/>
+   <addsymbol family="Arrows" name="long left arrow" ascii="\&lt;longleftarrow&gt;" shortcut="&lt;--" unicode="27f5" html="&amp;xlarr;"/>
+   
+   <!-- note the 'long' arrows above used to be combinations of a long bar (single or double) and the usual arrow;
+        this doesn't line up though and looks awful on the systems where I've seen it ... better to rely on unicode
+        and wait for that support to arrive, i think -AH  -->
+   
+   <addsymbol family="Arrows" name="Right Arrow" ascii="\&lt;Rightarrow&gt;" shortcut="=&gt;" unicode="21d2" html="&amp;rArr;"/>
+   <addsymbol family="Arrows" name="Left Arrow" ascii="\&lt;Leftarrow&gt;" shortcut="&lt;=" unicode="21d0" html="&amp;lArr;"/>
+   <addsymbol family="Arrows" name="right arrow" ascii="\&lt;rightarrow&gt;" shortcut="-&gt;" unicode="2192" html="&amp;rarr;"/>
+   <addsymbol family="Arrows" name="left arrow" ascii="\&lt;leftarrow&gt;" shortcut="&lt;-" unicode="2190" html="&amp;larr;"/>
+   <addsymbol family="logic" name="Forall" ascii="\&lt;forall&gt;" shortcut="ALL" unicode="2200" html="&amp;forall;"/>
+   <addsymbol family="logic" name="Exist" ascii="\&lt;exists&gt;" shortcut="EX" unicode="2203" html="&amp;exist;"/>
+
+</proofgeneral>

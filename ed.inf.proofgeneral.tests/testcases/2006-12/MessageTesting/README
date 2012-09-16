@@ -1,0 +1,34 @@
+Files here demonstrates the different kinds of message that
+can be produced by provers.  At least in the case of Isabelle,
+the variety of message types is quite large.
+
+Different types can be handled differently in the interface:
+   
+   - important messages should be highlighted and cause the prover
+   output view to be raised.
+   - tracing messages can be accumulated in a separate view.  They
+   can be possibly very many, so code for dealing with them should be efficient.
+   - error and warning messages associated with script commands should
+   cause appropriate markers to be generated.  Those not associated with
+   script commands should cause highlighted messages in the prover output.
+   - info/debug messages can be logged in a separate view.
+   
+The current PG message model is to *ignore* ordinary
+messages and proof state output before the final message that appears
+before <ready/>, *except* important messages.  The rationale for this is to 
+not waste time displaying lots of intermediate output which isn't 
+interesting (and will be removed) when a single command produces a sequence 
+of proof steps, for example.
+
+With PGIP we can be more strict, and handle every output that is produced.
+(If the theorem prover developers don't like this they must change their
+code).  But we should still batch up messages that appear before <ready/>,
+and highlight important and error messages.
+
+As another back-compatibility issue, we take error messages to indicate
+error conditions, rather than sending an explicit command failed message.
+This doesn't seem too harmful.
+
+
+
+  

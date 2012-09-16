@@ -1,0 +1,15 @@
+
+<tooltips>
+<!-- 
+
+	This file defines tooltips for the text editor. 
+	These are short help messages that appear when the user holds the cursor over a word.
+	They are also known as 'text hovers' in Eclipse.
+
+	Such files must be named (System Name)Tooltips.xml so that the system can find them.
+	
+	They consist solely of key-value elements, of the form below.
+	
+-->
+	
+</tooltips>

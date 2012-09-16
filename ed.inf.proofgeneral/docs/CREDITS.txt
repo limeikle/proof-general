@@ -1,0 +1,29 @@
+The main developers of Proof General Eclipse have been:
+
+Daniel Winterstein
+
+  First version, funded by IBM Eclipse Innovation for 2004
+  and University of Edinburgh small project award in 2005
+
+Alex Heneveld
+
+  Many improvements and fixes during his PhD work 2004-6 on
+  Feasch system: using features to influence proof search.
+
+Graham Dutton
+
+  Fixes and improvements in Oct 2006 - Jan 2007.  Supported by
+  EPSRC Platform Grant.
+
+David Aspinall
+
+  Fixes and improvements in Oct 2006 - Jan 2007.
+
+
+Other contributors:
+
+ Christoph Lueth: design of PGIP framework
+ Ahsan Fayyaz: Broker-branch of Proof General Eclipse (port pending)
+ Hua Yang: experiments on code folding
+ Elina Timiriassova: graphical viewer for proof dependencies
+

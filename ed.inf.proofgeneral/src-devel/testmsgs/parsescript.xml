@@ -1,0 +1,181 @@
+<pgips>
+
+<pgip class="pa" id="X" seq="1">
+<parsescript><![CDATA[theory Foo = List + Nat:]]></parsescript>
+</pgip>
+
+<!-- with reply: -->
+
+<pgip class = "pg" origin = "Isabelle/Isar" id = "foundation.dcs.ed.ac.uk/da/1094131985.974" refseq = "1" refid = "X" seq = "3"><parseresult><opentheory thyname = "Foo" parentnames = "List Nat">theory Foo = List + Nat:</opentheory></parseresult></pgip>
+
+
+<pgip class="pa" id="X" seq="1">
+<parsescript><![CDATA[theory Foo = "Two Word Name" + "Three Word Name":]]></parsescript>
+</pgip>
+
+
+<pgip class="pa" id="X" seq="1">
+<parsescript><![CDATA[theory Foo = 
+List 
++ Nat
+:
+
+(* that's 
+it! *)
+]]></parsescript>
+</pgip>
+
+<pgip class="pa" id="X" seq="1">
+<parsescript>-- {* foo bar *} -- {* wiglge *} qed lemma P (* so there *)a</parsescript>
+</pgip>
+
+
+
+<pgip class="pa" id="X" seq="1">
+<parsescript>lemma foo: &quot;P-->P&quot;</parsescript>
+</pgip>
+
+<!-- with reply: -->
+
+<pgip class = "pg" origin = "Isabelle/Isar" id = "choice.davesnet/da/1092792106.738" refseq = "1" refid = "X" seq = "57"><parseresult><opentheory thyname = "Foo">theory Foo = List + Nat:</opentheory></parseresult></pgip>
+
+<!-- going back in: -->
+
+<pgip class = "pa" origin = "Isabelle/Isar" id = "choice.davesnet/da/1092792106.738" refseq = "1" refid = "X" seq = "57"><opentheory thyname = "Foo">theory Foo = List + Nat:</opentheory></pgip>
+
+<!-- result: -->
+
+<pgip class = "pg" origin = "Isabelle/Isar" id = "choice.davesnet/da/1092826610.201" refseq = "57" refid = "choice.davesnet/da/1092792106.738" seq = "11"><proofstate><pgml><statedisplay>theory Foo =
+  {ProtoPure, CPure, HOL, Set, Typedef, Fun, Product_Type, Lfp, Gfp,
+    Sum_Type, Relation, Record, Inductive, Transitive_Closure,
+    Wellfounded_Recursion, LOrder, OrderedGroup, Ring_and_Field, Nat,
+    NatArith, Divides, Power, Finite_Set, Equiv, IntDef, Numeral, IntArith,
+    Wellfounded_Relations, Datatype_Universe, Datatype, Recdef, IntDiv,
+    NatBin, NatSimprocs, SetInterval, Presburger, Relation_Power, Parity,
+    PreList, List, #}</statedisplay></pgml></proofstate></pgip>
+<pgip class = "pg" origin = "Isabelle/Isar" id = "choice.davesnet/da/1092826610.201" refseq = "57" refid = "choice.davesnet/da/1092792106.738" seq = "12"><ready/></pgip>
+
+
+<pgip class="pa" id="X" seq="1">
+  <parsescript><![CDATA[  lemma foo: "P-->P" apply auto done]]></parsescript>
+</pgip>
+
+
+<pgip class="pa" id="X" seq="1">
+  <parsescript><![CDATA[  lemma foo: "P-->P" apply auto -- {* automatically!! *} done]]></parsescript>
+</pgip>
+
+
+<!-- going back in: -->
+
+
+
+
+<pgip class="pa" id="X" seq="1">
+<parsescript><![CDATA[theory Foo = List + Nat:]]></parsescript>
+</pgip>
+
+
+<!-- other test cases: a complete theory -->
+
+<pgip class="pa" id="X" seq="1">
+  <parsescript><![CDATA[(*
+      Example proof document for Isabelle/Isar Proof General.
+   
+      $Id: parsescript.xml,v 1.1 2007/02/17 16:33:07 da Exp $
+*)
+
+theory Example = Main:
+
+text {* Proper proof text -- \textit{naive version}. *}
+
+theorem and_comms: "A & B --> B & A"
+proof
+  assume "A & B"
+  then show "B & A"
+  proof
+    assume B and A
+    then
+   show ?thesis ..
+ qed
+qed
+
+
+text {* Proper proof text -- \textit{advanced version}. *}
+
+theorem "A & B --> B & A"
+proof
+  assume "A & B"
+  then obtain B and A ..
+  then show "B & A" ..
+qed
+
+
+text {* Unstructured proof script. *}
+
+theorem "A & B --> B & A"
+  apply (rule impI)
+  apply (erule conjE)
+  apply (rule conjI)
+  apply assumption
+  apply assumption
+done
+
+end
+]]></parsescript>
+</pgip>
+
+
+<!--- which produces: -->
+
+<pgip class = "pg" origin = "Isabelle/Isar" id = "montague.davesnet/da/1092865146.794" refseq = "1" refid = "X" seq = "3"><errorresponse fatality = "nonfatal"><pgmltext>### script-&gt;PGIP markup parser: Internal inconsistency, unrecognized keyword kind: &quot;theory-end&quot;</pgmltext></errorresponse></pgip>
+<pgip class = "pg" origin = "Isabelle/Isar" id = "montague.davesnet/da/1092865146.794" refseq = "1" refid = "X" seq = "4"><parseresult><comment>(*
+      Example proof document for Isabelle/Isar Proof General.
+   
+      $Id: parsescript.xml,v 1.1 2007/02/17 16:33:07 da Exp $
+*)
+
+</comment><opentheory thyname = "Example">theory Example = Main:</opentheory><comment>
+
+</comment><litcomment>text {* Proper proof text -- \textit{naive version}. *}</litcomment><comment>
+
+</comment><opengoal thmname = "and_comms">theorem and_comms: &quot;A &amp; B --&gt; B &amp; A&quot;</opengoal><comment>
+</comment><proofstep>proof</proofstep><comment>
+  </comment><proofstep>assume &quot;A &amp; B&quot;</proofstep><comment>
+  </comment><proofstep>then</proofstep><comment> </comment><opengoal>show &quot;B &amp; A&quot;</opengoal><comment>
+  </comment><proofstep>proof</proofstep><comment>
+    </comment><proofstep>assume B and A</proofstep><comment>
+    </comment><proofstep>then</proofstep><comment>
+   </comment><opengoal>show ?thesis</opengoal><comment> </comment><closegoal>..</closegoal><comment>
+ </comment><closegoal>qed</closegoal><comment>
+</comment><closegoal>qed</closegoal><comment>
+
+
+</comment><litcomment>text {* Proper proof text -- \textit{advanced version}. *}</litcomment><comment>
+
+</comment><opengoal>theorem &quot;A &amp; B --&gt; B &amp; A&quot;</opengoal><comment>
+</comment><proofstep>proof</proofstep><comment>
+  </comment><proofstep>assume &quot;A &amp; B&quot;</proofstep><comment>
+  </comment><proofstep>then</proofstep><comment> </comment><proofstep>obtain B and A</proofstep><comment> </comment><closegoal>..</closegoal><comment>
+  </comment><proofstep>then</proofstep><comment> </comment><opengoal>show &quot;B &amp; A&quot;</opengoal><comment> </comment><closegoal>..</closegoal><comment>
+</comment><closegoal>qed</closegoal><comment>
+
+
+</comment><litcomment>text {* Unstructured proof script. *}</litcomment><comment>
+
+</comment><opengoal>theorem &quot;A &amp; B --&gt; B &amp; A&quot;</opengoal><comment>
+  </comment><proofstep>apply (rule impI)</proofstep><comment>
+  </comment><proofstep>apply (erule conjE)</proofstep><comment>
+  </comment><proofstep>apply (rule conjI)</proofstep><comment>
+  </comment><proofstep>apply assumption</proofstep><comment>
+  </comment><proofstep>apply assumption</proofstep><comment>
+</comment><closegoal>done</closegoal><comment>
+
+</comment><spuriouscmd>end</spuriouscmd><comment>
+</comment></parseresult></pgip>
+<pgip class = "pg" origin = "Isabelle/Isar" id = "montague.davesnet/da/1092865146.794" refseq = "1" refid = "X" seq = "5"><ready/></pgip>
+
+
+
+</pgips>
+

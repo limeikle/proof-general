@@ -1,0 +1,19 @@
+The following tags are used in the sources:
+
+TODO
+FIXME
+
+[PROVERNAME] SPECIFIC:  a piece of code specific for some prover
+                        ideally should be removed and somehow merged into
+                        PGIP.
+
+
+NB: You can configure the task list search for tags in the
+Preferences -> Java Compiler -> Task Tags  
+
+---
+
+Old tags used by Daniel (to remove):
+
+HACK!        some ugly hack in sources
+ASSUMPTION   some assumption about behaviour

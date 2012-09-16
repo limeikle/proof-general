@@ -1,0 +1,19 @@
+<!--
+	This file defines the *lexical* syntax, used for syntax highlighting.
+ -->
+
+<lexicalstructure> 
+
+	<!-- TODO: This bit is not used yet! -->
+	<identifiersyntax allowedchars="java" /> <!-- java indicates that we should just use java word definitions -->
+
+	<escapecharacter>\</escapecharacter>
+
+	<stringdelimiter>&quot;</stringdelimiter>
+
+	<commentdelimiter start="(*" end="*)" />
+
+	<commentdelimiter start="{*" end="*}" />
+
+</lexicalstructure> 
+

@@ -1,0 +1,113 @@
+<?xml version="1.0" ?>
+
+<syntax>
+
+<type name="proofstep"
+	start="^."
+	end="$"
+	contains="COMMENT.FORMAL,COMMENT.INFORMAL"
+	rank="0"
+	/>
+
+<type name="proofstep"
+	start="\.\."
+	end=""
+	contains=""
+	rank="0"
+	/>
+
+<type name="misccommand"
+	start="term"
+	end="$"
+	contains="COMMENT.FORMAL,COMMENT.INFORMAL"
+	rank="9"
+	/>	
+	
+
+<type name="opengoal"
+	start='(theorem|lemma) (\w+): "'
+	attributes="dummy,thmname"
+	end='"'
+	contains="COMMENT.FORMAL,COMMENT.INFORMAL"
+	rank="10"
+	/>
+
+<type name="opengoal"
+	start='(theorem|lemma) "'
+	end='"'
+	contains="COMMENT.FORMAL,COMMENT.INFORMAL"
+	rank="5"
+	/>
+
+<type name="proof"
+	start=" *proof"
+	end=" *qed"
+	contains="proofstep,proof,COMMENT.INFORMAL"
+	blockedby="opengoal,COMMENT.FORMAL"
+	rank="10"
+	/>
+	
+<type name="COMMENT.FORMAL"
+	start="\b([a-zA-Z_0-9\.]+) \{\*"
+	end="\*\}"
+	attributes="type"
+	contains="COMMENT.INFORMAL"
+	rank="20"
+	/>
+	
+<type name="COMMENT.INFORMAL"
+	start="\(\*"
+	end="\*\)"
+	contains="COMMENT.INFORMAL"
+	rank="20"
+	/>	
+
+<type name="COMMENT.FORMAL"
+	start="-- \{\*"
+	end="\*\}"
+	contains=""
+	rank="0"
+	/>
+
+<type name="SECTION"
+	start="^\S*subsection \{\*\S*\b(.*)\b\S*\*\}"
+	attributes="title"
+	end="^PG.NEVER"
+	blockedby="SECTION"
+	contains="COMMENT.INFORMAL,COMMENT.FORMAL,opengoal,proof,proofstep"
+	rank="30"
+	/>
+<type name="COMMENT.FORMAL"
+	start="\{\*"
+	end="\*\}"
+	attributes="type"
+	contains="COMMENT.INFORMAL"
+	rank="15"
+	/>
+
+</syntax>
+
+<!-- 
+
+Types should be unique, or StartEndParser will get confused
+
+This file should define the following types:
+	COMMAND
+	COMMENT
+
+'start' and 'end' are (Java) regular expressions
+(c.f. http://java.sun.com/j2se/1.4.2/docs/api/java/util/regex/Pattern.html )
+'start' MUST consume at least 1 character! (i.e. '^.' is  ok, but not '^')
+'contains' is a list of types
+
+If two 'start' sequences match at the same point, then rank is used to decide which to
+accept: the higher ranked pattern is chosen.
+Hence low ranks should be assigned to ambiguous patterns that could match almomst anywhere.
+
+They use multiline mode:
+	 In multiline mode the expressions <tt>^</tt> and <tt>$</tt> match
+     just after or just before, respectively, a line terminator or the end of
+     the input sequence.  By default these expressions only match at the
+     beginning and the end of the entire input sequence.
+
+-->

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--AgileJ Ltd. (http://www.agilej.com)-->
+<ajsv>
+    <diagram scope="scopeElementSets.elementSet.Switchable Types In Package" style="standardDiagramStyles.diagramStyle.Standard Basic Style" version="1.4.5">
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Manhattan Lines" switchValue="dependence, fields"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Line Types" switchValue="dependence, field, inheritance"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Signature Length" switchValue="short"/>
+        <switch switchID="scopeElementSets.stylePatternSwitch.Scope Package" switchValue="ed\.inf\.proofgeneral\.document"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Visibility" switchValue="public, protected, package, private"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Members" switchValue="fields, methods, inners, initializers"/>
+        <class className="ed.inf.proofgeneral.document.OpenStartPositionUpdater" project="ed.inf.proofgeneral" xLocation="1978" yLocation="1434"/>
+        <class className="ed.inf.proofgeneral.document.Folding" project="ed.inf.proofgeneral" xLocation="2064" yLocation="2953"/>
+        <class className="ed.inf.proofgeneral.document.SymbolisedSearch" project="ed.inf.proofgeneral" xLocation="1196" yLocation="2827"/>
+        <class className="ed.inf.proofgeneral.document.ProofScriptDocumentProvider" project="ed.inf.proofgeneral" xLocation="1104" yLocation="1875"/>
+        <class className="ed.inf.proofgeneral.document.FoldingPosition" project="ed.inf.proofgeneral" xLocation="2111" yLocation="3593"/>
+        <class className="ed.inf.proofgeneral.document.ProofScriptDocument" project="ed.inf.proofgeneral" xLocation="1560" yLocation="1699"/>
+        <class className="ed.inf.proofgeneral.document.DocElement" project="ed.inf.proofgeneral" xLocation="2268" yLocation="1590"/>
+        <class className="ed.inf.proofgeneral.document.ProofScriptDocumentException" project="ed.inf.proofgeneral" xLocation="1083" yLocation="2471"/>
+        <class className="ed.inf.proofgeneral.document.SymbolisedDocument" project="ed.inf.proofgeneral" xLocation="1428" yLocation="1230"/>
+        <class className="ed.inf.proofgeneral.document.ScriptManagementDocumentEvent" project="ed.inf.proofgeneral" xLocation="1063" yLocation="2192"/>
+        <class className="ed.inf.proofgeneral.document.ISymbolisedDocument" project="ed.inf.proofgeneral" xLocation="1504" yLocation="1160"/>
+        <class className="ed.inf.proofgeneral.document.CmdElement" project="ed.inf.proofgeneral" xLocation="2194" yLocation="2468"/>
+        <class className="ed.inf.proofgeneral.document.ContainerElement" project="ed.inf.proofgeneral" xLocation="2599" yLocation="2209"/>
+    </diagram>
+</ajsv>

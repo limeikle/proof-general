@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<introContent>
+
+  <page style="intro/shared.css" id="root" style-id="page">
+    <title style-id="intro-header">Welcome to Eclipse ProofGeneral -- Eclipse</title>
+    <group id="links-background">
+      <group id="page-links">
+      
+      <link label="  About PG  " url="none" id="a1"><text>
+        ProofGeneral is a front-end to a number of theorem-proving systems. 
+        This is the Eclipse version of ProofGeneral, a re-implementation
+        of the old Emacs version, for the modern Java-based IDE
+        (that's an Integrated Development Environment).
+      </text></link>
+      <link label="  Get Started  " url="none" id="a2"><text>
+        To get started, you should create a new simple project
+        (from the File/New menu), and link in external files or
+        folders (again from File/New once your new project is
+        highlighted; make sure to select "Advanced" and "Link",
+        otherwise you will be editting a copy of your files!).
+      </text></link>
+      <link label="  Done With This  " url="none" id="a3"><text>
+        You can double click the tab for this window to
+        see the rest of the views Eclipse Proof General provides.
+        The "Outline" view next to the Navigator is particularly
+        useful if you're working in a large file -- you may want
+        to drag it and move it.
+        Oh, and of course you can close this window when you're done with it.
+      </text></link>
+      
+    </group>
+    </group>
+  </page>
+
+</introContent>

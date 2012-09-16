@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<preferences>
+	<pref name="Enable Broker support" class="Boolean" default="False"
+	tooltip="Enable/Disable Broker support for provers" >
+	<description>Enable or Disable broker support for a prover from here.</description>
+	</pref>
+	
+</preferences>

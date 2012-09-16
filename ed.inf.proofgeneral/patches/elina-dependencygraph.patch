@@ -1,0 +1,4083 @@
+### Eclipse Workspace Patch 1.0
+#P ed.inf.proofgeneral
+Index: src/ed/inf/proofgeneral/ProofGeneralPlugin.java
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/ProofGeneralPlugin.java,v
+retrieving revision 1.92
+diff -u -r1.92 ProofGeneralPlugin.java
+--- src/ed/inf/proofgeneral/ProofGeneralPlugin.java	18 Oct 2006 11:48:11 -0000	1.92
++++ src/ed/inf/proofgeneral/ProofGeneralPlugin.java	20 Oct 2006 12:24:45 -0000
+@@ -621,8 +621,8 @@
+ 		}
+ 		// register this as a temp file
+ 		fTempFiles.add(file);
+-		assert file.canRead() : "Cannot read temporary file?!";
+-		assert file.canWrite() : "Cannot write to temporary file?!";
++		//assert file.canRead() : "Cannot read temporary file?!";
++		//assert file.canWrite() : "Cannot write to temporary file?!";
+ 		// done
+ 		return file;
+ 	}
+Index: src/ed/inf/proofgeneral/Constants.java
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/Constants.java,v
+retrieving revision 1.16
+diff -u -r1.16 Constants.java
+--- src/ed/inf/proofgeneral/Constants.java	18 Oct 2006 09:57:51 -0000	1.16
++++ src/ed/inf/proofgeneral/Constants.java	20 Oct 2006 12:24:44 -0000
+@@ -71,8 +71,8 @@
+     public static final String VIEW_SESSIONLOG = "ed.inf.proofgeneral.views.SessionLogView";
+     public static final String VIEW_ID_LIST = "ed.inf.proofgeneral.views.idview";
+     public static final String VIEW_LATEST_OUTPUT = "ed.inf.proofgeneral.views.latestoutput";
+-    public static final String VIEW_TEACHERVIEW = "ed.inf.proofgeneral.teacher.view";    
+-    
++    public static final String VIEW_TEACHERVIEW = "ed.inf.proofgeneral.teacher.view"; 
++    public static final String VIEW_DEPENDENCY_GRAPH = "ed.inf.proofgeneral.dependencygraph.GraphMultiPageEditor";
+     /**
+      * Temp project - used to store temporary files (this allows Eclipse to handle them properly)
+      */
+Index: src/ed/inf/proofgeneral/PGPerspective.java
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/PGPerspective.java,v
+retrieving revision 1.11
+diff -u -r1.11 PGPerspective.java
+--- src/ed/inf/proofgeneral/PGPerspective.java	18 Oct 2006 09:57:51 -0000	1.11
++++ src/ed/inf/proofgeneral/PGPerspective.java	20 Oct 2006 12:24:44 -0000
+@@ -62,7 +62,9 @@
+ 		// bottomRow.addView(Constants.VIEW_SESSIONLOG);
+         // bottomRow.addView(Constants.VIEW_TEACHERVIEW);
+ 		
+-		
++		IFolderLayout topRight = layout.createFolder("topRight", IPageLayout.RIGHT, 0.25f,
++				editorArea);
++		//topRight.addView(Constants.VIEW_DEPENDENCY_GRAPH);
+ 	}
+ 	
+ }
+Index: src/ed/inf/proofgeneral/editor/ProofScriptEditor.java
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/editor/ProofScriptEditor.java,v
+retrieving revision 1.57
+diff -u -r1.57 ProofScriptEditor.java
+--- src/ed/inf/proofgeneral/editor/ProofScriptEditor.java	19 Oct 2006 14:48:36 -0000	1.57
++++ src/ed/inf/proofgeneral/editor/ProofScriptEditor.java	20 Oct 2006 12:24:46 -0000
+@@ -58,6 +58,7 @@
+ import ed.inf.proofgeneral.Constants;
+ import ed.inf.proofgeneral.ErrorUI;
+ import ed.inf.proofgeneral.ProofGeneralPlugin;
++import ed.inf.proofgeneral.dependencygraph.GraphMultiPageEditor;
+ import ed.inf.proofgeneral.editor.actions.ActivateScriptingAction;
+ import ed.inf.proofgeneral.editor.actions.IsaPlannerAction;
+ import ed.inf.proofgeneral.editor.actions.OpenDefinition;
+@@ -425,6 +426,7 @@
+ 				if (getEditorInput() != null)
+ 					fOutlinePage.setInput(getEditorInput());
+ 			}
++			GraphMultiPageEditor.fOutlinePage=fOutlinePage;
+ 			return fOutlinePage;
+ 		}
+ 		return super.getAdapter(required);
+Index: src/ed/inf/proofgeneral/editor/PGOutlineLabelProvider.java
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/editor/PGOutlineLabelProvider.java,v
+retrieving revision 1.21
+diff -u -r1.21 PGOutlineLabelProvider.java
+--- src/ed/inf/proofgeneral/editor/PGOutlineLabelProvider.java	18 Oct 2006 11:48:13 -0000	1.21
++++ src/ed/inf/proofgeneral/editor/PGOutlineLabelProvider.java	20 Oct 2006 12:24:45 -0000
+@@ -6,6 +6,7 @@
+ import java.util.List;
+ 
+ import org.dom4j.Attribute;
++import org.eclipse.jface.resource.ImageDescriptor;
+ import org.eclipse.jface.text.Position;
+ import org.eclipse.jface.text.TypedPosition;
+ import org.eclipse.jface.text.TypedRegion;
+@@ -18,6 +19,9 @@
+ import ed.inf.proofgeneral.ProofGeneralPlugin;
+ import ed.inf.proofgeneral.sessionmanager.DocElement;
+ import ed.inf.proofgeneral.sessionmanager.PGIPSyntax;
++import ed.inf.proofgeneral.dependencygraph.Graph;
++import ed.inf.proofgeneral.dependencygraph.GraphMultiPageEditor;
++import ed.inf.proofgeneral.sessionmanager.*;
+ import ed.inf.winterstein.methods.Methods;
+ 
+ 
+@@ -98,14 +102,13 @@
+ 			if (syntax.subType(type, PGIPSyntax.PROOF_CONTAINER)) {
+ 				if (syntax.subType(firstChild.getType(), PGIPSyntax.OPENTHEOREM)) {
+ 				  if (firstChild.attribute(PGIPSyntax.THEOREM_NAME) != null) {
++					  System.out.println("add: "+firstChild.attributeValue(PGIPSyntax.THEOREM_NAME));
++					  Graph.addDocElement(firstChild);
+ 					  return //"Thm: "+ 
+ 						  firstChild.attributeValue(PGIPSyntax.THEOREM_NAME);
+ 				  }
+-				  //goal doesn't have a name, take value
+-				  return firstChild.getStringValue();
+ 				}
+-				//return "(incomplete)";   //shouldn't happen				
+-//	commented out 'cos this catches unnamed subproofs - dan							
++//	commented out 'cos this catches unnamed subproofs - dan			return "(confused proof)";   //shouldn't happen				
+ 			}
+ 			//containers otherwise get the text of their first element
+ 			text = getBasicOutlineText(firstChild);
+@@ -164,12 +167,14 @@
+ 			} else if (syntax.subType(type,PGIPSyntax.PROOF_CONTAINER)) {
+ 				// does this proof contain sorrys or oopses?
+ 				if (elementContains(de, PGIPSyntax.POSTPONE_GOAL))
+-					return ProofGeneralPlugin.getImage(PROOF_POSTPONE_ICON);
++					return ProofGeneralPlugin.getImage(PROOF_OOPS_ICON);
+ 				if (elementContains(de, PGIPSyntax.GIVE_UP_GOAL))
+-					return ProofGeneralPlugin.getImage(PROOF_GIVEUP_ICON);
++					return ProofGeneralPlugin.getImage(PROOF_SORRY_ICON);
+ 				if (elementContains(de, PGIPSyntax.CLOSETHEOREM))
+ 					return ProofGeneralPlugin.getImage(PROOF_OKAY_ICON);
+-				return ProofGeneralPlugin.getImage(PROOF_POSTPONE_ICON);
++				//		    	if (elementContains(de, PGIPSyntax.POSTPONE_GOAL))
++				//		    		return ProofGeneralPlugin.getImage(PROOF_TODO_ICON);
++				return ProofGeneralPlugin.getImage(PROOF_SORRY_ICON);
+ 			} else if (syntax.subType(type,PGIPSyntax.CONTAINER)) {
+ 				return ProofGeneralPlugin.getImage(SECTION_ICON);
+ 			} else if (syntax.subType(type,PGIPSyntax.PROOF)) {
+@@ -233,7 +238,7 @@
+ 	
+ 	private static final String SECTION_ICON = "section.gif";
+ 	private static final String PROOF_OKAY_ICON = "bullet-check.gif";
+-	private static final String PROOF_GIVEUP_ICON = "bullet-question.gif";
+-	private static final String PROOF_POSTPONE_ICON = "bullet-bang.gif";
++	private static final String PROOF_SORRY_ICON = "bullet-bang.gif";
++	private static final String PROOF_OOPS_ICON = "bullet-question.gif";
+ 	
+ }
+Index: src/ed/inf/proofgeneral/editor/PGContentOutlinePage.java
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/editor/PGContentOutlinePage.java,v
+retrieving revision 1.21
+diff -u -r1.21 PGContentOutlinePage.java
+--- src/ed/inf/proofgeneral/editor/PGContentOutlinePage.java	8 Jul 2005 11:58:36 -0000	1.21
++++ src/ed/inf/proofgeneral/editor/PGContentOutlinePage.java	20 Oct 2006 12:24:45 -0000
+@@ -249,6 +249,7 @@
+ 	
+ 	public void selectionChanged(SelectionChangedEvent event) {
+ 		super.selectionChanged(event);
++		System.out.println("selectionChanged");
+ 		ISelection selection= event.getSelection();
+ 		if (selection.isEmpty()) {
+ 			fTextEditor.resetHighlightRange();
+@@ -256,10 +257,15 @@
+ 		}
+ 		if (((IStructuredSelection) selection).getFirstElement() instanceof DocElement) {
+ 		    try {
+-		        DocElement segment= (DocElement) ((IStructuredSelection) selection).getFirstElement();
+-		        int start= segment.getPosition().offset;
++		    	DocElement segment= (DocElement) ((IStructuredSelection) selection).getFirstElement();
++		    	System.out.println("selectionChanged name: "+segment.getName());
++		    	
++		    	
++		    	int start= segment.getPosition().offset;
+ 		        int length= segment.getPosition().length;			
+ 				fTextEditor.setHighlightRange(start, length, true);
++				System.out.println("selectionChanged: "+start+" "+length);
++				//fTextEditor.setHighlightRange(200,300,true);
+ 				if (ProofGeneralPlugin.debug(this)) {
+ 				    ISelection sel = new TextSelection(segment.fDocument,start,length);
+ 				    fTextEditor.getSelectionProvider().setSelection(sel);
+Index: src/ed/inf/proofgeneral/editor/package.html
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/editor/package.html,v
+retrieving revision 1.1
+diff -u -r1.1 package.html
+--- src/ed/inf/proofgeneral/editor/package.html	27 Oct 2004 18:03:32 -0000	1.1
++++ src/ed/inf/proofgeneral/editor/package.html	20 Oct 2006 12:24:46 -0000
+@@ -1,12 +1,12 @@
+-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+-<html>
+-<head>
+-</head>
+-<body bgcolor="white">
+-A key package, defining a document and an editor for proof scripts.
+-<p>
+-The ProofScriptDocument class stores a script and provides an interface for locking/unlocking.
+-The ProofScriptEditor does lots of stuff, but most of it indirectly through other classes which
+-it links together.
+-</body>
++<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
++<html>
++<head>
++</head>
++<body bgcolor="white">
++A key package, defining a document and an editor for proof scripts.
++<p>
++The ProofScriptDocument class stores a script and provides an interface for locking/unlocking.
++The ProofScriptEditor does lots of stuff, but most of it indirectly through other classes which
++it links together.
++</body>
+ </html>
+\ No newline at end of file
+Index: src/ed/inf/proofgeneral/editor/lazyparser/package.html
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/editor/lazyparser/package.html,v
+retrieving revision 1.1
+diff -u -r1.1 package.html
+--- src/ed/inf/proofgeneral/editor/lazyparser/package.html	4 Nov 2004 12:37:30 -0000	1.1
++++ src/ed/inf/proofgeneral/editor/lazyparser/package.html	20 Oct 2006 12:24:46 -0000
+@@ -1,10 +1,10 @@
+-<html>
+-<body>
+-This package contains classes used to perform "deep" parsing, 
+-also called lazy-parsing because it is only performed when requested 
+-(as opposed to light-parsing, which is performed as the user types). 
+-
+-Deep parsing detects proof-commands and document structure. 
+-It is used by the indexing and outline features, and the script-management actions.
+-</body>
++<html>
++<body>
++This package contains classes used to perform "deep" parsing, 
++also called lazy-parsing because it is only performed when requested 
++(as opposed to light-parsing, which is performed as the user types). 
++
++Deep parsing detects proof-commands and document structure. 
++It is used by the indexing and outline features, and the script-management actions.
++</body>
+ </html>
+\ No newline at end of file
+Index: src/ed/inf/proofgeneral/outputviewer/LatestOutputView.java
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/outputviewer/LatestOutputView.java,v
+retrieving revision 1.10
+diff -u -r1.10 LatestOutputView.java
+--- src/ed/inf/proofgeneral/outputviewer/LatestOutputView.java	18 Oct 2006 11:48:11 -0000	1.10
++++ src/ed/inf/proofgeneral/outputviewer/LatestOutputView.java	20 Oct 2006 12:24:47 -0000
+@@ -11,6 +11,8 @@
+ 
+ import ed.inf.heneveld.utils.General;
+ import ed.inf.proofgeneral.ProofGeneralPlugin;
++import ed.inf.proofgeneral.dependencygraph.Graph;
++import ed.inf.proofgeneral.dependencygraph.MyModel;
+ import ed.inf.proofgeneral.editor.lazyparser.PGIPParseResult;
+ import ed.inf.proofgeneral.pgip2html.Converter;
+ import ed.inf.proofgeneral.sessionmanager.PGIPSyntax;
+@@ -75,6 +77,7 @@
+ 	
+ 	boolean thinkDead = false;
+ 	String textBeforeError = null;
++	
+ 	//	 given an incoming pgip event, set it as the new message
+ 	public void pgipEvent(PGIPEvent event) {
+ 		if (event instanceof ProverState.ProverStateChangeEvent) {
+@@ -108,7 +111,12 @@
+ 			}
+ 			try {
+ 				String eName = ((Element)event.parseTree.elements().get(0)).getName(); 
+-				if (eName.equals(PGIPSyntax.METAINFO)) return ;
++				if (eName.equals(PGIPSyntax.METAINFO)) {
++					//System.out.println("METAINFO:"+event.toString());
++										
++					return;
++					
++				} ;
+ 				String text = event.getText(); 
+ 				if (text == null || text.equals("")) return ;
+ 
+@@ -156,7 +164,7 @@
+ //		text = text.replaceAll(Methods.LINEEND,"<br/>");
+ //		super.setText(text);
+ //	}
+-	
++
+ 	public void setText(String text) {
+ 		super.setText(text);
+ 		textBeforeError = text;
+Index: src/ed/inf/proofgeneral/outputviewer/SessionLogView.java
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/outputviewer/SessionLogView.java,v
+retrieving revision 1.15
+diff -u -r1.15 SessionLogView.java
+--- src/ed/inf/proofgeneral/outputviewer/SessionLogView.java	18 Oct 2006 10:16:55 -0000	1.15
++++ src/ed/inf/proofgeneral/outputviewer/SessionLogView.java	20 Oct 2006 12:24:47 -0000
+@@ -74,6 +74,7 @@
+ 	 * Displays a long list of the event text. New text is added at the bottom. 
+ 	 */
+ 	public void pgipEvent(PGIPEvent event) {
++		
+ 		if (!eventFilter(event)) return;
+         String s="";
+         if (!event.parseTree.getName().equals("pgip") || ProofGeneralPlugin.getBooleanPref("DEBUG Report PGIP packet details")) {
+Index: plugin.xml
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/plugin.xml,v
+retrieving revision 1.86
+diff -u -r1.86 plugin.xml
+--- plugin.xml	19 Oct 2006 14:54:29 -0000	1.86
++++ plugin.xml	20 Oct 2006 12:24:44 -0000
+@@ -139,6 +139,15 @@
+             name="PG Symbol Table Editor"
+             id="ed.inf.proofgeneral.symboltableeditor"
+             extensions="sym"/>
++       <editor
++            class="ed.inf.proofgeneral.dependencygraph.GraphMultiPageEditor"
++            icon="icons/star16.gif"
++            default="true"
++            contributorClass="ed.inf.proofgeneral.dependencygraph.MultiPageEditorContributor"
++            name="Multy-page editor"
++            id="ed.inf.proofgeneral.dependencygraph.MultiPageEditor"
++            extensions="graph">
++      </editor>
+    </extension>
+    
+    <extension
+@@ -178,6 +187,7 @@
+          <part id="ed.inf.proofgeneral.PGPerspective"/>
+          <part id="ed.inf.proofgeneral.symboltableeditor"/>
+          <part id="ed.inf.proofgeneral.teacher.view"/>
++         <part id="ed.inf.proofgeneral.dependencygraph.GraphMultiPageEditor"/>
+       </actionSetPartAssociation>
+    </extension>
+    
+@@ -211,7 +221,15 @@
+     <separator name="ed.inf.proofgeneral.separator2"/>
+     <groupMarker name="ed.inf.proofgeneral.toolbargroup"/>
+  </menu>
+-
++<action
++      toolbarPath="ed.inf.proofgeneral.toolbargroup"
++      label="&amp;ShowGraph"
++      icon="icons/tree.gif"
++      definitionId="ed.inf.proofgeneral.commands.activate"
++      tooltip="Show the dependency graph"
++      class="ed.inf.proofgeneral.editor.actions.ShowDependencyGraph"
++      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
++      id="ed.inf.proofgeneral.actions.showGraph"/>
+ <action
+       toolbarPath="ed.inf.proofgeneral.toolbargroup"
+       label="&amp;Activate"
+@@ -636,7 +654,7 @@
+                value="icons/branding/star16.png,icons/branding/star32.png,icons/branding/star48.png,icons/branding/star64.png,icons/branding/star128.png"/>
+          <property
+                name="aboutText"
+-               value="Proof General Eclipse&#x0A;Version 1.0.x (a beta version).&#x0A;&#x0A;Developed at the School of Informatics, University of Edinburgh.&#x0A;&#x0A;Project website: http://proofgeneral.inf.ed.ac.uk&#x0A;&#x0A;(c) Copyright University of Edinburgh contributors and others, 2005-6."/>
++               value="Proof General Eclipse&#x0A;Version 1.0.x (a beta version).&#x0A;&#x0A;Developed at the School of Informatics, University of Edinburgh&#x0A;and the Department of Mathematics and Informatics, University of Bremen.&#x0A;&#x0A;Project website: http://proofgeneral.inf.ed.ac.uk&#x0A;&#x0A;(c) Copyright University of Edinburgh, University of Bremen, contributors and others, 2005-6."/>
+          <property
+                name="aboutImage"
+                value="icons/pg-text-twolines.png"/>
+@@ -675,7 +693,41 @@
+             nameFilter="*.thy"
+             objectClass="org.eclipse.core.resources.IFile"/>
+    </extension>
+-
++ 
++ <extension
++         point="org.eclipse.ui.popupMenus">
++      <objectContribution
++            id="ed.inf.proofgeneral.contribution1"
++            nameFilter="plugin.xml"
++            objectClass="org.eclipse.core.resources.IFile">
++         <menu
++               id="ed.inf.proofgeneral.dependencygraph.mymenu"
++               label="New Submenu"
++               path="additions">
++            <separator name="group1"/>
++         </menu>
++         <action
++               class="ed.inf.proofgeneral.popup.actions.NodeAction"
++               enablesFor="multiple"
++               id="ed.inf.proofgeneral.newAction1"
++               label="Node Actions"
++               menubarPath="ed.inf.proofgeneral.menu1/group1"/>
++         <action
++               class="ed.inf.proofgeneral.popup.actions.NodeAction"
++               enablesFor="multiple"
++               id="ed.inf.proofgeneral.newAction2"
++               label="Node Actions"
++               menubarPath="ed.inf.proofgeneral.menu1/group1"/>
++         <action
++               class="ed.inf.proofgeneral.popup.actions.NodeAction"
++               enablesFor="multiple"
++               id="ed.inf.proofgeneral.newAction3"
++               label="Node Actions"
++               menubarPath="ed.inf.proofgeneral.menu1/group1"/>              
++               
++               
++      </objectContribution>
++   </extension>
+ 
+ 
+ <!--- da: incomplete, need to add content
+Index: pgeclipseplugin.product
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/pgeclipseplugin.product,v
+retrieving revision 1.3
+diff -u -r1.3 pgeclipseplugin.product
+--- pgeclipseplugin.product	5 Oct 2006 23:10:56 -0000	1.3
++++ pgeclipseplugin.product	20 Oct 2006 12:24:43 -0000
+@@ -47,43 +47,33 @@
+    <plugins>
+       <plugin id="com.ibm.icu"/>
+       <plugin id="ed.inf.proofgeneral"/>
++      <plugin id="org.apache.xerces"/>
+       <plugin id="org.eclipse.ant.core"/>
+       <plugin id="org.eclipse.core.commands"/>
+       <plugin id="org.eclipse.core.contenttype"/>
+       <plugin id="org.eclipse.core.expressions"/>
+       <plugin id="org.eclipse.core.filebuffers"/>
+       <plugin id="org.eclipse.core.filesystem"/>
+-      <plugin id="org.eclipse.core.filesystem.hpux.PA_RISC" fragment="true"/>
+-      <plugin id="org.eclipse.core.filesystem.linux.x86" fragment="true"/>
+-      <plugin id="org.eclipse.core.filesystem.linux.x86_64" fragment="true"/>
+       <plugin id="org.eclipse.core.filesystem.macosx" fragment="true"/>
+-      <plugin id="org.eclipse.core.filesystem.win32.x86" fragment="true"/>
+       <plugin id="org.eclipse.core.jobs"/>
+       <plugin id="org.eclipse.core.resources"/>
+       <plugin id="org.eclipse.core.resources.compatibility" fragment="true"/>
+-      <plugin id="org.eclipse.core.resources.win32" fragment="true"/>
+       <plugin id="org.eclipse.core.runtime"/>
+       <plugin id="org.eclipse.core.runtime.compatibility"/>
+       <plugin id="org.eclipse.core.runtime.compatibility.auth"/>
+       <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
+       <plugin id="org.eclipse.core.variables"/>
++      <plugin id="org.eclipse.draw2d"/>
+       <plugin id="org.eclipse.equinox.common"/>
+       <plugin id="org.eclipse.equinox.preferences"/>
+       <plugin id="org.eclipse.equinox.registry"/>
++      <plugin id="org.eclipse.gef"/>
+       <plugin id="org.eclipse.help"/>
+       <plugin id="org.eclipse.jface"/>
+       <plugin id="org.eclipse.jface.text"/>
+       <plugin id="org.eclipse.osgi"/>
+       <plugin id="org.eclipse.swt"/>
+       <plugin id="org.eclipse.swt.carbon.macosx" fragment="true"/>
+-      <plugin id="org.eclipse.swt.gtk.linux.ppc" fragment="true"/>
+-      <plugin id="org.eclipse.swt.gtk.linux.x86" fragment="true"/>
+-      <plugin id="org.eclipse.swt.gtk.linux.x86_64" fragment="true"/>
+-      <plugin id="org.eclipse.swt.gtk.solaris.sparc" fragment="true"/>
+-      <plugin id="org.eclipse.swt.motif.aix.ppc" fragment="true"/>
+-      <plugin id="org.eclipse.swt.motif.hpux.PA_RISC" fragment="true"/>
+-      <plugin id="org.eclipse.swt.motif.linux.x86" fragment="true"/>
+-      <plugin id="org.eclipse.swt.win32.win32.x86" fragment="true"/>
+       <plugin id="org.eclipse.text"/>
+       <plugin id="org.eclipse.ui"/>
+       <plugin id="org.eclipse.ui.carbon" fragment="true"/>
+@@ -91,13 +81,10 @@
+       <plugin id="org.eclipse.ui.forms"/>
+       <plugin id="org.eclipse.ui.ide"/>
+       <plugin id="org.eclipse.ui.views"/>
+-      <plugin id="org.eclipse.ui.win32" fragment="true"/>
+       <plugin id="org.eclipse.ui.workbench"/>
+       <plugin id="org.eclipse.ui.workbench.texteditor"/>
+       <plugin id="org.eclipse.update.configurator"/>
+       <plugin id="org.eclipse.update.core"/>
+-      <plugin id="org.eclipse.update.core.linux" fragment="true"/>
+-      <plugin id="org.eclipse.update.core.win32" fragment="true"/>
+       <plugin id="org.eclipse.update.ui"/>
+    </plugins>
+ 
+Index: patches/README
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/patches/README,v
+retrieving revision 1.1
+diff -u -r1.1 README
+--- patches/README	20 Oct 2006 11:08:50 -0000	1.1
++++ patches/README	20 Oct 2006 12:24:44 -0000
+@@ -29,7 +29,31 @@
+                  to the proof script model --- but hopefully in a read-only way.
+                  We also need to turn on/off the generation of dependencies but
+                  we may have a generic design for that soon.
+-                 
++   
+ [ DA, Oct 06 ]
+  
+-                 
+\ No newline at end of file
++               
++NB: here is a test file for dependencies
++that *should* do something according to Elina's thesis.
++The ML_command is needed because we don't yet have a PGIP
++way of turning on the metainforesponse messages.
++
++
++theory DepedenciesTest imports Main
++begin
++
++ML_command{*print_mode:=("thm_deps"::(!print_mode));proofs:=2;*}
++
++theorem foo: "A & B --> B & A" 
++proof 
++  assume "A & B" 
++  then obtain B and A .. 
++  then show "B & A" .. 
++qed 
++
++
++end
++
++
++
++                
+\ No newline at end of file
+Index: META-INF/MANIFEST.MF
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/META-INF/MANIFEST.MF,v
+retrieving revision 1.8
+diff -u -r1.8 MANIFEST.MF
+--- META-INF/MANIFEST.MF	17 Oct 2006 13:47:35 -0000	1.8
++++ META-INF/MANIFEST.MF	20 Oct 2006 12:24:44 -0000
+@@ -17,6 +17,7 @@
+  org.eclipse.jface.text,
+  org.eclipse.help,
+  org.eclipse.core.filesystem,
+- org.eclipse.core.runtime
++ org.eclipse.core.runtime,
++ org.eclipse.gef
+ Eclipse-LazyStart: true
+ Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Index: src/ed/inf/proofgeneral/sessionmanager/SessionManager.java
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/sessionmanager/SessionManager.java,v
+retrieving revision 1.135
+diff -u -r1.135 SessionManager.java
+--- src/ed/inf/proofgeneral/sessionmanager/SessionManager.java	18 Oct 2006 11:39:08 -0000	1.135
++++ src/ed/inf/proofgeneral/sessionmanager/SessionManager.java	20 Oct 2006 12:24:52 -0000
+@@ -58,6 +58,7 @@
+ import ed.inf.proofgeneral.ProofGeneralPlugin;
+ import ed.inf.proofgeneral.SetPrefAction;
+ import ed.inf.proofgeneral.CommandProcessor.InternalScriptingException;
++import ed.inf.proofgeneral.dependencygraph.Graph;
+ import ed.inf.proofgeneral.editor.IProofScriptDocument;
+ import ed.inf.proofgeneral.editor.IProofScriptEditor;
+ import ed.inf.proofgeneral.editor.PGTextHover;
+@@ -91,7 +92,7 @@
+ 
+ public class SessionManager 
+ implements PGIPListener,IPropertyChangeListener,PGEventMaker {
+-	
++	//private Graph gr=new Graph();
+ 	/**
+ 	 * count of unnamed objects, used by makeName
+ 	 */
+@@ -2028,6 +2029,7 @@
+ 				long ts = System.nanoTime();
+ 				if (ProofGeneralPlugin.LOG_EVENTS_RUNNING) System.out.println(General.makeDateString()+"  event ["+mySequenceNumber+"] sending to "+listener);
+ 				//System.out.println("EVENT "+mySequenceNumber+": "+event+" to "+listener);//.getClass().toString());
++			
+ 				listener.pgipEvent(event);
+ 				ts = System.nanoTime() - ts;
+ 				if (ProofGeneralPlugin.LOG_EVENTS_RUNNING) System.out.println(General.makeDateString()+"  event ["+mySequenceNumber+"] done in "+
+@@ -2067,6 +2069,9 @@
+ 	 */
+ //	Object firingLock = new Object();
+ 	public void firePGIPEvent(PGIPEvent event) {
++		//System.out.println("Session manager:"+event.getText());
++		//System.out.println("event type:"+event.type);
++		//System.out.println("event all:"+event.toString());
+ 		assert event!=null : "firePGIPEvent was given a null event";		
+ 		if (logging) {			
+ 			messageHistory.push(event);
+Index: src/ed/inf/proofgeneral/sessionmanager/DocElement.java
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/sessionmanager/DocElement.java,v
+retrieving revision 1.18
+diff -u -r1.18 DocElement.java
+--- src/ed/inf/proofgeneral/sessionmanager/DocElement.java	18 Oct 2006 10:57:49 -0000	1.18
++++ src/ed/inf/proofgeneral/sessionmanager/DocElement.java	20 Oct 2006 12:24:47 -0000
+@@ -18,6 +18,8 @@
+ import ed.inf.proofgeneral.pgip2html.Converter;
+ import ed.inf.winterstein.methods.Methods;
+ 
++import ed.inf.proofgeneral.dependencygraph.Graph;
++import ed.inf.proofgeneral.dependencygraph.GraphMultiPageEditor;/**
+ /**
+  * All proof script objects are made out of these. 
+  @author Daniel Winterstein
+@@ -37,6 +39,10 @@
+ 	public DocElement(String name,ProofScriptDocument doc) {
+ 		super(name);
+ 		fDocument = doc;
++		if (Graph.getDefault()!=null
++				&& (name.equals(PGIPSyntax.OPENTHEOREM)
++						||name.equals(PGIPSyntax.OPENTHEORY)))
++			Graph.getDefault().addDocElement(this);
+ 	}
+ 
+ 	
+Index: src/ed/inf/proofgeneral/sessionmanager/ProverState.java
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/sessionmanager/ProverState.java,v
+retrieving revision 1.29
+diff -u -r1.29 ProverState.java
+--- src/ed/inf/proofgeneral/sessionmanager/ProverState.java	18 Oct 2006 11:39:08 -0000	1.29
++++ src/ed/inf/proofgeneral/sessionmanager/ProverState.java	20 Oct 2006 12:24:48 -0000
+@@ -91,6 +91,7 @@
+ 	Collection listeners=new ArrayList(); //Objects who listen to our events.
+ 	
+ 	public void firePGIPEvent(PGIPEvent e) {
++	
+ 		for(Iterator i = listeners.iterator(); i.hasNext();) {
+ 			try {
+ 				PGIPListener psl = (PGIPListener) i.next();
+@@ -167,6 +168,7 @@
+ 	 * @throws ModellingException if the state is different to expected (shouldn't happen)
+ 	 */
+ 	public void modelEvent(PGIPEvent e) throws ModellingException {
++		//System.out.println("ProverState:"+e.getText());
+ 		//now events aren't modelled until we get a CmdProc (or cleared on CmdCancel event) -AH
+ 		//another advantage of this is that prover output is available in currentModelChanges
+ 		
+@@ -298,6 +300,7 @@
+ 		modelOutgoingElement(e.parseTree, e);
+ 	}
+ 	void modelOutgoingElement(Element xe, PGIPEvent e) throws ModellingException {
++		//System.out.println("modelOutgoingElement:"+e.getText());
+ 		//TODO may want to model multiple events (ie do this recursively)
+ 		//(this used to do a "selectNodes" search, but i don't think that should be necessary ??)  -AH
+ 		//TODO multiple responses arrive sequentially, and each of them is processed
+Index: src/ed/inf/proofgeneral/sessionmanager/ProverSyntax.java
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/sessionmanager/ProverSyntax.java,v
+retrieving revision 1.10
+diff -u -r1.10 ProverSyntax.java
+--- src/ed/inf/proofgeneral/sessionmanager/ProverSyntax.java	18 Oct 2006 10:57:49 -0000	1.10
++++ src/ed/inf/proofgeneral/sessionmanager/ProverSyntax.java	20 Oct 2006 12:24:48 -0000
+@@ -463,7 +463,8 @@
+         }        
+     }
+     public void firePGIPEvent(PGIPEvent e) {
+-        for(Iterator i = listeners.iterator(); i.hasNext();) {
++    	
++    	for(Iterator i = listeners.iterator(); i.hasNext();) {
+             try {
+                 PGIPListener psl = (PGIPListener) i.next();
+                 psl.pgipEvent(e);
+Index: src/ed/inf/proofgeneral/editor/lightparser/package.html
+===================================================================
+RCS file: /disk/cvs/proofgen/Kit/eclipse/maindev/ed.inf.proofgeneral/src/ed/inf/proofgeneral/editor/lightparser/package.html,v
+retrieving revision 1.3
+diff -u -r1.3 package.html
+--- src/ed/inf/proofgeneral/editor/lightparser/package.html	23 Jun 2005 12:30:54 -0000	1.3
++++ src/ed/inf/proofgeneral/editor/lightparser/package.html	20 Oct 2006 12:24:46 -0000
+@@ -1,12 +1,12 @@
+-<html>
+-<body>
+-This package contains classes used to perform "shallow" or "light" parsing. 
+-Shallow parsing (which is perhaps more akin to lexing) 
+-detects comment blocks, proof-text blocks and keywords.
+-It is used by the PGSourceViewerConfiguration to provide syntax highlighting.
+-
+-Note: The PartitionScanner has hard-coded recognition of Isabelle comments.
+-
+-@see PGSourceViewerConfiguration
+-</body>
++<html>
++<body>
++This package contains classes used to perform "shallow" or "light" parsing. 
++Shallow parsing (which is perhaps more akin to lexing) 
++detects comment blocks, proof-text blocks and keywords.
++It is used by the PGSourceViewerConfiguration to provide syntax highlighting.
++
++Note: The PartitionScanner has hard-coded recognition of Isabelle comments.
++
++@see PGSourceViewerConfiguration
++</body>
+ </html>
+\ No newline at end of file
+Index: src/ed/inf/proofgeneral/dependencygraph/NodeAction.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/NodeAction.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/NodeAction.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/NodeAction.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,69 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import java.util.List;
++
++import org.eclipse.gef.EditPart;
++import org.eclipse.gef.Request;
++import org.eclipse.gef.commands.Command;
++import org.eclipse.gef.commands.CompoundCommand;
++import org.eclipse.gef.ui.actions.SelectionAction;
++import org.eclipse.ui.IWorkbenchPart;
++
++public class NodeAction extends SelectionAction {
++
++	private static final String NODE_REQUEST = "node"; //$NON-NLS-1$
++
++	public static final String NODE = "node";
++	public static final String DEP1_REQUEST = "show_descendants";
++	public static final String DEP2_REQUEST = "show_ascendants";
++	public static final String DEP3_REQUEST = "hide_descendants";
++	
++	private String name;
++
++	Request request;
++
++	private List editParts;
++
++	public NodeAction(IWorkbenchPart part, String name) {
++		super(part);
++		System.out.println("IWorkbenchPart "+part.toString());
++		this.name=name;
++		request = new Request(name);
++		request.setType(name);
++		setText(name);
++		setId(name);
++
++}
++
++	protected boolean calculateEnabled() {
++		return canPerformAction();
++	}
++
++	private boolean canPerformAction() {
++		return true;
++	}
++
++	private Command getCommand() {
++		List editparts = getSelectedObjects();
++		CompoundCommand cc = new CompoundCommand();
++		for (int i = 0; i < editparts.size(); i++) {
++			EditPart part = (EditPart) editparts.get(i);
++			cc.add(part.getCommand(request));
++			part.performRequest(request);
++			System.out.println("request: "+part.getModel().toString()+"-->"+request.getType());
++		}
++		return cc;
++	}
++
++	public void run() {
++		execute(getCommand());
++	}
++	public void setSelectedObjects(List editParts){
++		this.editParts=editParts;
++	}
++	public List getSelectedObjects(){
++		return editParts;
++		
++	}
++//
++}
+Index: src/ed/inf/proofgeneral/popup/actions/NodeAction.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/popup/actions/NodeAction.java
+diff -N src/ed/inf/proofgeneral/popup/actions/NodeAction.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/popup/actions/NodeAction.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,42 @@
++package ed.inf.proofgeneral.popup.actions;
++
++import org.eclipse.jface.action.IAction;
++import org.eclipse.jface.dialogs.MessageDialog;
++import org.eclipse.jface.viewers.ISelection;
++import org.eclipse.swt.widgets.Shell;
++import org.eclipse.ui.IObjectActionDelegate;
++import org.eclipse.ui.IWorkbenchPart;
++
++public class NodeAction implements IObjectActionDelegate {
++
++	/**
++	 * Constructor for Action1.
++	 */
++	public NodeAction() {
++		super();
++	}
++
++	/**
++	 * @see IObjectActionDelegate#setActivePart(IAction, IWorkbenchPart)
++	 */
++	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
++	}
++
++	/**
++	 * @see IActionDelegate#run(IAction)
++	 */
++	public void run(IAction action) {
++		Shell shell = new Shell();
++		MessageDialog.openInformation(
++			shell,
++			"Proof General",
++			"Node Actions was executed.");
++	}
++
++	/**
++	 * @see IActionDelegate#selectionChanged(IAction, ISelection)
++	 */
++	public void selectionChanged(IAction action, ISelection selection) {
++	}
++
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/MyNode.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/MyNode.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/MyNode.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/MyNode.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,425 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import java.beans.PropertyChangeListener;
++import java.beans.PropertyChangeSupport;
++import java.util.ArrayList;
++import java.util.Iterator;
++import java.util.List;
++
++import org.eclipse.draw2d.ColorConstants;
++import org.eclipse.swt.graphics.Color;
++
++public class MyNode extends MyNodeModel {
++
++	private boolean visible = true;
++
++	private MyLayOut layout;
++
++	private static int MAX_X = 0;
++
++	private static int MAX_Y = 0;
++
++	public final static String PROPERTY_COLOR = "property_color";
++
++	public final static String PROPERTY_VISIBILITY = "property_visibility";
++
++	private PropertyChangeSupport listeners;
++
++	private int level;
++
++	private int x;
++
++	private int y;
++
++	private boolean debug = true;
++
++	private int size = 0;
++
++	private boolean selection = false;
++
++	private int color = 0;
++
++	private boolean hide = false;
++
++	public MyNode(String name, MyLayOut layout, MyModel model) {
++		super(name, model);
++		this.layout = layout;
++		listeners = new PropertyChangeSupport(this);
++
++	}
++
++	public void addChild(MyNode node) {
++
++		super.addChild(node);
++		node.addParent(this);
++
++		MyConnection connection = new MyConnection(this, node);
++		this.outcomingConnections.add(connection);
++		node.incomingConnections.add(connection);
++		layout.addNode(node);
++		// setVisible(visible);
++	}
++
++	public void addOldChild(MyNode node) {
++
++		super.addOldChild(node);
++
++		node.addParent(this);
++		MyConnection connection = new MyConnection(this, node);
++		this.outcomingConnections.add(connection);
++		node.incomingConnections.add(connection);
++
++		layout.addOldNode(node);
++		// setVisible(visible);
++
++	}
++
++	public void setVisible() {
++		if (this.visible != true) {
++			this.visible = true;
++			listeners.firePropertyChange(this.PROPERTY_VISIBILITY, false, true);
++			System.out.println("node is visible: " + this.getName());
++
++			Iterator it = this.getIncomingConnections().iterator();
++			while (it.hasNext()) {
++				((MyConnection) it.next()).setVisible();
++			}
++			it = this.getOutgoingConnections().iterator();
++			while (it.hasNext()) {
++				((MyConnection) it.next()).setVisible();
++			}
++
++		}
++
++	}
++
++	public void setInvisible() {
++		if (this.visible != false) {
++			this.visible = false;
++			listeners.firePropertyChange(this.PROPERTY_VISIBILITY, true, false);
++			System.out.println("node is invisible: " + this.getName());
++			Iterator it = this.getIncomingConnections().iterator();
++			while (it.hasNext()) {
++				((MyConnection) it.next()).setInvisible();
++			}
++			it = this.getOutgoingConnections().iterator();
++			while (it.hasNext()) {
++				((MyConnection) it.next()).setInvisible();
++			}
++
++		}
++
++	}
++
++	public void deleteNode() {
++		collapseConnections();
++		setInvisible();
++
++	}
++
++	public void collapseConnections() {
++		Iterator it = this.getIncomingConnections().iterator();
++		while (it.hasNext()) {
++			((MyConnection) it.next()).setInvisible();
++		}
++		it = this.getOutgoingConnections().iterator();
++		while (it.hasNext()) {
++			((MyConnection) it.next()).setInvisible();
++		}
++
++	}
++
++	public void collapseNode(MyNode node) {
++		node.collapseConnections();
++		ArrayList children = node.children;
++		Iterator it = children.iterator();
++		while (it.hasNext()) {
++
++		}
++
++	}
++
++	public boolean isVisible() {
++
++		return visible;
++	}
++
++	public void addPropertyChangeListener(PropertyChangeListener listener) {
++		listeners.addPropertyChangeListener(listener);
++	}
++
++	public void removePropertyChangeListener(PropertyChangeListener listener) {
++		listeners.removePropertyChangeListener(listener);
++	}
++
++	private void print(String string) {
++		if (debug)
++			System.out.println(string);
++
++	}
++
++	public void removeConnectionTo(MyNode node) {
++		Iterator it = this.outcomingConnections.iterator();
++		while (it.hasNext()) {
++			MyConnection connx = (MyConnection) it.next();
++			if ((connx).getTarget() == node) {
++				if (this.children.contains(node))
++					this.children.remove(node);
++				if (this.outcomingConnections.contains(connx))
++					this.outcomingConnections.remove(connx);
++				if (node.parents.contains(this))
++					node.parents.remove(this);
++				if (node.incomingConnections.contains(connx))
++					node.incomingConnections.remove(connx);
++			}
++		}
++
++	}
++
++	public void setSize(int i) {
++		size = i;
++
++	}
++
++	public int getSize() {
++		return size;
++
++	}
++
++	public void showDependencies() {
++		print("showdependencies: " + this.getName());
++		this.changeColor(ColorConstants.lightGreen);
++		ArrayList deps = this.getChildren();
++		Iterator it = deps.iterator();
++		while (it.hasNext()) {
++			MyNode dep = ((MyNode) it.next());
++			dep.changeColor(ColorConstants.lightGreen);
++			List connx = dep.getIncomingConnections();
++			Iterator itr = connx.iterator();
++			while (itr.hasNext()) {
++				MyConnection con = ((MyConnection) itr.next());
++				if (deps.contains(con.getSource())) {
++					con.changeColor(ColorConstants.lightGreen);
++				}
++			}
++
++		}
++		List connx = this.getOutgoingConnections();
++		Iterator itr = connx.iterator();
++		while (itr.hasNext()) {
++			((MyConnection) itr.next()).changeColor(ColorConstants.lightGreen);
++		}
++	}
++
++	public void showDependants() {
++		print("showdependants: " + this.getName());
++		this.changeColor(ColorConstants.red);
++		ArrayList deps = this.getParents();
++		Iterator it = deps.iterator();
++		while (it.hasNext()) {
++			MyNode dep = ((MyNode) it.next());
++			dep.changeColor(ColorConstants.red);
++
++			List connx = dep.getOutgoingConnections();
++			Iterator itr = connx.iterator();
++			while (itr.hasNext()) {
++				MyConnection con = ((MyConnection) itr.next());
++				if (deps.contains(con.getTarget())) {
++					con.changeColor(ColorConstants.red);
++				}
++			}
++
++		}
++		List connx = this.getIncomingConnections();
++		Iterator itr = connx.iterator();
++		while (itr.hasNext()) {
++			((MyConnection) itr.next()).changeColor(ColorConstants.red);
++		}
++	}
++
++	private void changeColor(Color color) {
++		if (this.visible != false) {
++			listeners.firePropertyChange(this.PROPERTY_COLOR,
++					ColorConstants.lightBlue, color.toString());
++		}
++
++	}
++
++	public void hideDependencies() {
++		print("hide dependencies: " + this.getName());
++		ArrayList deps=new ArrayList();
++		
++		List connx = this.getOutgoingConnections();
++		Iterator itr = connx.iterator();
++		while (itr.hasNext()) {
++			MyConnection currentConnx = (MyConnection) itr.next();
++			if(currentConnx.getVisible())
++				deps.add(currentConnx.getTarget());
++				currentConnx.changeColor(ColorConstants.white);
++		}
++		this.hide = true;
++		Iterator it1 = deps.iterator();
++		while (it1.hasNext()) {
++			MyNode child = ((MyNode) it1.next());
++			child.hide=true;
++		}
++
++		Iterator it2 = deps.iterator();
++		while (it2.hasNext()) {
++			MyNode child = ((MyNode) it2.next());
++			if(child.hidedParents()){
++				child.changeColor(ColorConstants.white);		
++				
++			}
++			else 
++				child.hide=false;
++		}
++		Iterator it3 = deps.iterator();
++		while (it3.hasNext()) {
++			MyNode child = ((MyNode) it3.next());
++			if(child.hide){
++				child.hideDependencies();		
++			}
++			
++		}
++		
++	}
++
++	protected boolean hidedParents() {
++		ArrayList parents=new ArrayList();
++		List connx=getIncomingConnections();
++		Iterator itr=connx.iterator();
++		while (itr.hasNext()) {
++			MyConnection currentConnx = (MyConnection) itr.next();
++			if(currentConnx.getVisible())
++				parents.add(currentConnx.getSource());
++		}
++		Iterator it = parents.iterator();
++		while (it.hasNext()) {
++			MyNode parent = (MyNode) it.next();
++			if (!parent.hide) {
++				return false;
++			}
++		}
++		return true;
++	}
++
++
++	
++	
++	protected boolean getSelection() {
++		return selection;
++	}
++
++	public void setLevel(int number) {
++		level = number;
++	}
++
++	public int getLevel() {
++		return level;
++	}
++
++	public void setX(int number) {
++		x = number;
++	}
++
++	public int getX() {
++		return x;
++	}
++
++	public void setY(int number) {
++		y = number;
++	}
++
++	public int getY() {
++		return y;
++	}
++
++	public void setOpaqueConnx(MyNode node1, MyNode node2) {
++		ArrayList cons = (ArrayList) node1.getOutgoingConnections();
++		Iterator it = cons.iterator();
++		while (it.hasNext()) {
++			MyConnection currentConnx = (MyConnection) it.next();
++			if (currentConnx.getSource().equals(node1)
++					&& currentConnx.getTarget().equals(node2)) {
++				currentConnx.setInvisible();
++				System.out.println("connection: " + node1.getName() + " to "
++						+ node2.getName() + " is invisible");
++			}
++
++		}
++
++	}
++	protected void unHide(){
++		this.hide=false;
++	}
++
++}
++/*
++ * private boolean connected(MyNode node) { ArrayList children = getChildren();
++ * Iterator it = children.iterator(); while (it.hasNext()) { MyNode child =
++ * (MyNode) it.next(); if (child.children.contains(node)) { //
++ * print(this.getName() + " is connected with " + // node.getName()); return
++ * true; } else return child.connected(node); } // print(this.getName() + " is
++ * not connected with " + node.getName()); // TODO Auto-generated method stub
++ * return false; }
++ * 
++ * public void evaluateConnections1(MyNode node) { // System.out.println("this=" +
++ * this.getName()); ArrayList parents = getParents(); Iterator it =
++ * parents.iterator(); while (it.hasNext()) { MyNode parent = (MyNode)
++ * it.next(); // System.out.println("parent=" + parent.getName()); if
++ * (parent.children.contains(node)) { print(parent.getName() + " is connected!!!
++ * with " + node.getName()); parent.removeConnectionTo(node); //
++ * node.removeConnectionFrom(parent); print(parent.getName() + " evaluated from " +
++ * node.getName()); }
++ * 
++ * parent.evaluateConnections1(node); } }
++ * 
++ * public boolean evaluateConnections2(MyNode node) { MyNode root = this; //
++ * System.out.println("this=" + this.getName()); ArrayList children =
++ * node.getChildren(); Iterator it = children.iterator(); while (it.hasNext()) {
++ * MyNode child = (MyNode) it.next(); // System.out.println("parent=" +
++ * child.getName()); if (child.getParents().contains(root)) {
++ * root.removeConnectionTo(child); print(root.getName() + " is connected!!! with " +
++ * child.getName());
++ * 
++ * print(root.getName() + " evaluated to " + child.getName()); return false; }
++ * ArrayList nodeChildren = child.getChildren(); Iterator it2 =
++ * nodeChildren.iterator(); while (it.hasNext()) { MyNode nodeChild = (MyNode)
++ * it2.next(); root.evaluateConnections2(nodeChild); } } // print(this.getName() + "
++ * is not !!!! connected with " + // node.getName()); // TODO Auto-generated
++ * method stub return true; }
++ */
++/*
++ * public boolean evaluateTriangles() { System.out.println("evaluate triangles
++ * for: " + this.getName()); // MyNode root = this; ArrayList children =
++ * this.getChildren(); Iterator it1 = children.iterator(); while (it1.hasNext()) {
++ * MyNode child = (MyNode) it1.next(); if (!eval(child)) return false; //
++ * child.evaluateTriangles(); } System.out.println("end for " + this.getName());
++ * return true; }
++ */
++
++/*
++ * public boolean eval(MyNode target) { boolean result = true;
++ * 
++ * System.out.println("evaluate triangles for: " + this.getName() + " " +
++ * target.getName()); ArrayList children = target.getChildren(); Iterator it =
++ * children.iterator(); while (it.hasNext()) { MyNode child = (MyNode)
++ * it.next();
++ * 
++ * if (child.getParents().contains(this)) { System.out.println("remove: " +
++ * this.getName() + " " + child.getName()); // this.removeConnectionTo(child); //
++ * this.collapseConnections(); return false; } }
++ * 
++ * return true; }
++ */
++
++/*
++ * public void removeConnectionFrom(MyNode node) { Iterator it =
++ * this.incomingConnections.iterator(); while (it.hasNext()) { MyConnection
++ * connx = (MyConnection) it.next(); if ((connx).getSource() == node) if (
++ * this.children.contains(node)) this.children.remove(node);
++ * this.incomingConnections.remove(connx); node.parents.remove(this);
++ * node.outcomingConnections.remove(connx); } }
++ */
++
+Index: src/ed/inf/proofgeneral/dependencygraph/MyCommand.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/MyCommand.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/MyCommand.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/MyCommand.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,13 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import org.eclipse.gef.commands.Command;
++
++public class MyCommand extends Command {
++
++	public MyCommand(String string) {
++	
++		super(string);
++		System.out.println(string);
++	}
++
++}
+Index: src/ed/inf/proofgeneral/editor/actions/ShowDependencyGraph.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/editor/actions/ShowDependencyGraph.java
+diff -N src/ed/inf/proofgeneral/editor/actions/ShowDependencyGraph.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/editor/actions/ShowDependencyGraph.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,29 @@
++package ed.inf.proofgeneral.editor.actions;
++
++import ed.inf.proofgeneral.Constants;
++import ed.inf.proofgeneral.dependencygraph.GraphMultiPageEditor;
++
++public class ShowDependencyGraph extends ShowView {
++	public ShowDependencyGraph() {
++		super(Constants.VIEW_DEPENDENCY_GRAPH);
++	//	new GraphMultiPageEditor();
++	}
++
++	public void run() {
++
++		System.out.println("ShowDependencyGraph");
++
++		
++		// DependencyGraph graph = DependencyGraph.getDefault();
++		GraphMultiPageEditor graph = GraphMultiPageEditor.getDefault();
++		if (graph == null) {
++			System.out.println("graph is null");
++			// graph=new GraphMultiPageEditor();
++
++		} else
++			graph.showDependencyTree();
++		System.out.println("editor show dep graph done");
++
++	}
++
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/NOTES.da.tmp
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/NOTES.da.tmp
+diff -N src/ed/inf/proofgeneral/dependencygraph/NOTES.da.tmp
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/NOTES.da.tmp	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,18 @@
++This has several things in plugin.xml:
++
++ editor contribution: edits multi-page editors with extn .graph
++   (perhaps because she couldn't get ordinary view working?)
++ popup menu contribution extension
++ toolbar action
++ 
++ two packages:
++ 
++  ed.inf.proofgeneral.popup.actions
++  ed.inf.proofgeneral.dependencygraph
++  
++ What needs doing:
++ 
++  - getting it working!!!
++  - moving to a separate plugin: need to define extension point suitably
++  - testing, improving the code  (Elina's report claimed to have a test package)
++  
+Index: src/ed/inf/proofgeneral/dependencygraph/GraphMultiPageEditor.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/GraphMultiPageEditor.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/GraphMultiPageEditor.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/GraphMultiPageEditor.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,635 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import java.util.ArrayList;
++import java.util.EventObject;
++import java.util.Iterator;
++import java.util.List;
++
++import org.eclipse.core.resources.IMarker;
++import org.eclipse.core.resources.IResourceChangeEvent;
++import org.eclipse.core.resources.IResourceChangeListener;
++import org.eclipse.core.resources.ResourcesPlugin;
++import org.eclipse.core.runtime.IProgressMonitor;
++import org.eclipse.gef.ContextMenuProvider;
++import org.eclipse.gef.DefaultEditDomain;
++import org.eclipse.gef.EditDomain;
++import org.eclipse.gef.GraphicalViewer;
++import org.eclipse.gef.commands.CommandStack;
++import org.eclipse.gef.commands.CommandStackListener;
++import org.eclipse.gef.ui.actions.ActionBarContributor;
++import org.eclipse.gef.ui.actions.ActionRegistry;
++import org.eclipse.gef.ui.actions.DeleteAction;
++import org.eclipse.gef.ui.actions.EditorPartAction;
++import org.eclipse.gef.ui.actions.PrintAction;
++import org.eclipse.gef.ui.actions.RedoAction;
++import org.eclipse.gef.ui.actions.SaveAction;
++import org.eclipse.gef.ui.actions.SelectAllAction;
++import org.eclipse.gef.ui.actions.SelectionAction;
++import org.eclipse.gef.ui.actions.StackAction;
++import org.eclipse.gef.ui.actions.UndoAction;
++import org.eclipse.gef.ui.actions.UpdateAction;
++import org.eclipse.gef.ui.parts.SelectionSynchronizer;
++import org.eclipse.gef.ui.properties.UndoablePropertySheetEntry;
++import org.eclipse.jface.action.IAction;
++import org.eclipse.jface.viewers.ISelection;
++import org.eclipse.swt.SWT;
++import org.eclipse.swt.widgets.Composite;
++import org.eclipse.swt.widgets.Display;
++import org.eclipse.ui.IEditorInput;
++import org.eclipse.ui.IEditorPart;
++import org.eclipse.ui.IEditorSite;
++import org.eclipse.ui.IFileEditorInput;
++import org.eclipse.ui.ISelectionListener;
++import org.eclipse.ui.ISelectionService;
++import org.eclipse.ui.IWorkbenchPage;
++import org.eclipse.ui.IWorkbenchPart;
++import org.eclipse.ui.PartInitException;
++import org.eclipse.ui.ide.IDE;
++import org.eclipse.ui.part.FileEditorInput;
++import org.eclipse.ui.part.MultiPageEditorPart;
++import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
++import org.eclipse.ui.views.properties.PropertySheetPage;
++
++import ed.inf.proofgeneral.editor.PGContentOutlinePage;
++
++public class GraphMultiPageEditor extends MultiPageEditorPart implements
++		IResourceChangeListener, CommandStackListener, ISelectionListener {
++
++	public static PGContentOutlinePage fOutlinePage = null;
++
++	private static GraphMultiPageEditor graph = null;
++
++	private EditDomain editDomain;
++
++	private ActionRegistry actionRegistry;
++
++	private SelectionSynchronizer synchronizer;
++
++	private boolean isDirty;
++	
++	private List nodeActions=new ArrayList();
++
++	private List editPartActionIDs = new ArrayList();
++
++	private List stackActionIDs = new ArrayList();
++
++	private List selectionActions = new ArrayList();
++
++	private List stackActions = new ArrayList();
++
++	private List propertyActions = new ArrayList();
++
++	private List editorActionIDs = new ArrayList();
++
++	private boolean debug = true;
++
++	private ArrayList viewers = new ArrayList();
++
++	/**
++	 * This class listens for command stack changes of the pages contained in
++	 * this editor and decides if the editor is dirty or not.
++	 * 
++	 * @author Gunnar Wagenknecht
++	 */
++
++	private MultiPageCommandStackListener commandStackListener = new MultiPageCommandStackListener(
++			this);
++
++	/*
++	 * private CommandStackListener commandStackListener = new
++	 * CommandStackListener() {
++	 * 
++	 * public void commandStackChanged(EventObject event) {
++	 * updateActions(stackActionIDs); setDirty(getCommandStack().isDirty()); } };
++	 */
++	private ISelectionListener selectionListener = new ISelectionListener() {
++
++		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
++		//	System.out.println("update selection");
++			// if (this.equals(getSite().getPage().getActiveEditor()))
++			part.setFocus();
++			updateActions(selectionActions);
++			updateActions(nodeActions);
++			
++		}
++
++	};
++
++	/**
++	 * Creates a multi-page editor .
++	 */
++	public GraphMultiPageEditor() {
++		super();
++		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
++		graph = this;
++		getEditDomain();
++	}
++
++	public boolean isDirty() {
++		return isDirty;
++	}
++
++	protected void setDirty(boolean b) {
++	
++		if (isDirty != b) {
++			isDirty = b;
++			firePropertyChange(IEditorPart.PROP_DIRTY);
++		}
++	}
++
++	/**
++	 * Saves the multi-page editor's document.
++	 */
++	public void doSave(IProgressMonitor monitor) {
++		// getEditor(0).doSave(monitor);
++		getCommandStack().markSaveLocation();
++	}
++
++	/**
++	 * Saves the multi-page editor's document as another file. Also updates the
++	 * text for page 0's tab, and updates this multi-page editor's input to
++	 * correspond to the nested editor's.
++	 */
++	public void doSaveAs() {
++		IEditorPart editor = getEditor(0);
++		editor.doSaveAs();
++		setPageText(0, editor.getTitle());
++		setInput(editor.getEditorInput());
++		getCommandStack().markSaveLocation();
++	}
++
++	/*
++	 * (non-Javadoc) Method declared on IEditorPart
++	 */
++	public void gotoMarker(IMarker marker) {
++		setActivePage(0);
++		IDE.gotoMarker(getEditor(0), marker);
++	}
++
++	/**
++	 * The <code>MultiPageEditorExample</code> implementation of this method
++	 * checks that the input is an instance of <code>IFileEditorInput</code>.
++	 */
++	public void init(IEditorSite site, IEditorInput editorInput)
++			throws PartInitException {
++		if (!(editorInput instanceof IFileEditorInput))
++			throw new PartInitException(
++					"Invalid Input: Must be IFileEditorInput");
++		setSite(site);
++		setInput(editorInput);
++		getCommandStack().addCommandStackListener(getCommandStackListener());
++		getSite().getWorkbenchWindow().getSelectionService()
++				.addSelectionListener(getSelectionListener());
++		initializeActionRegistry();
++		
++		
++	}
++
++	/**
++	 * The <code>MultiPageEditorPart</code> implementation of this
++	 * <code>IWorkbenchPart</code> method disposes all nested editors.
++	 * Subclasses may extend.
++	 */
++	public void dispose() {
++		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
++		getCommandStack().removeCommandStackListener(getCommandStackListener());
++		getSite().getWorkbenchWindow().getSelectionService()
++				.removeSelectionListener(getSelectionListener());
++		getEditDomain().setActiveTool(null);
++		getActionRegistry().dispose();
++		super.dispose();
++	}
++
++	/*
++	 * (non-Javadoc) Method declared on IEditorPart.
++	 */
++	public boolean isSaveAsAllowed() {
++		return true;
++	}
++
++	/**
++	 * Closes all project files on project close.
++	 */
++	public void resourceChanged(final IResourceChangeEvent event) {
++		if (event.getType() == IResourceChangeEvent.PRE_CLOSE) {
++			Display.getDefault().asyncExec(new Runnable() {
++				public void run() {
++					IWorkbenchPage[] pages = getSite().getWorkbenchWindow()
++							.getPages();
++					for (int i = 0; i < pages.length; i++) {
++						if (((FileEditorInput) graph.getEditorInput())
++								.getFile().getProject().equals(
++										event.getResource())) {
++							IEditorPart editorPart = pages[i].findEditor(graph
++									.getEditorInput());
++							pages[i].closeEditor(editorPart, true);
++						}
++					}
++				}
++			});
++		}
++	}
++
++	public EditDomain getEditDomain() {
++		if (editDomain == null)
++			editDomain = new DefaultEditDomain(this);
++		return editDomain;
++	}
++
++	/**
++	 * Constructs the editor part
++	 */
++
++	/**
++	 * Creates actions for this editor. Subclasses should override this method
++	 * to create and register actions with the {@link ActionRegistry}.
++	 */
++	protected void createActions() {
++		ActionRegistry registry = getActionRegistry();
++		IAction action;
++
++		action = new UndoAction(this);
++		registry.registerAction(action);
++		getStackActions().add(action.getId());
++
++		action = new RedoAction(this);
++		registry.registerAction(action);
++		getStackActions().add(action.getId());
++
++		action = new SelectAllAction(this);
++		registry.registerAction(action);
++
++		action = new DeleteAction((IWorkbenchPart) this);
++		registry.registerAction(action);
++		getSelectionActions().add(action.getId());
++
++		action = new SaveAction(this);
++		registry.registerAction(action);
++		getPropertyActions().add(action.getId());
++
++		action = new PrintAction(this);
++		registry.registerAction(action);
++		
++		action = new NodeAction(this,NodeAction.DEP1_REQUEST);
++		registry.registerAction(action);
++		getNodeActions().add(action.getId());
++		
++		
++		action = new NodeAction(this,NodeAction.DEP2_REQUEST);
++		registry.registerAction(action);
++		getNodeActions().add(action.getId());
++		
++		
++		action = new NodeAction(this,NodeAction.DEP3_REQUEST);
++		registry.registerAction(action);
++		getNodeActions().add(action.getId());
++	}
++
++	private List getNodeActions() {
++		// TODO Auto-generated method stub
++		return nodeActions;
++	}
++
++	/**
++	 * @see org.eclipse.ui.part.WorkbenchPart#firePropertyChange(int)
++	 */
++	protected void firePropertyChange(int property) {
++		super.firePropertyChange(property);
++		//updateActions(propertyActions);
++		updateActions(nodeActions);
++	}
++
++	/**
++	 * Lazily creates and returns the action registry.
++	 * 
++	 * @return the action registry
++	 */
++	protected ActionRegistry getActionRegistry() {
++		if (actionRegistry == null){
++			actionRegistry = new ActionRegistry();
++			//print("ActionRegistry created"+actionRegistry.toString());
++		}
++		return actionRegistry;
++	}
++
++	/**
++	 * Returns the adapter for the specified key.
++	 * 
++	 * <P>
++	 * <EM>IMPORTANT</EM> certain requests, such as the property sheet, may be
++	 * made before or after {@link #createPartControl(Composite)} is called. The
++	 * order is unspecified by the Workbench.
++	 * 
++	 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
++	 */
++	public Object getAdapter(Class type) {
++
++		if (type == IContentOutlinePage.class)
++			if (fOutlinePage != null)
++				return fOutlinePage;
++			else
++				return null;
++
++		if (type == org.eclipse.ui.views.properties.IPropertySheetPage.class) {
++			PropertySheetPage page = new PropertySheetPage();
++			page
++					.setRootEntry(new UndoablePropertySheetEntry(
++							getCommandStack()));
++			return page;
++		}
++
++		if (type == CommandStack.class)
++			return getCommandStack();
++		if (type == ActionRegistry.class)
++			return getActionRegistry();
++
++		return super.getAdapter(type);
++	}
++
++	/**
++	 * Returns the command stack.
++	 * 
++	 * @return the command stack
++	 */
++	protected CommandStack getCommandStack() {
++		return getEditDomain().getCommandStack();
++	}
++
++	private CommandStackListener getCommandStackListener() {
++		// TODO Auto-generated method stub
++		return commandStackListener;
++	}
++
++	private ISelectionListener getSelectionListener() {
++
++		return selectionListener;
++	}
++
++	/**
++	 * Returns the list of {@link IAction IActions} dependant on property
++	 * changes in the Editor. These actions should implement the
++	 * {@link UpdateAction} interface so that they can be updated in response to
++	 * property changes. An example is the "Save" action.
++	 * 
++	 * @return the list of property-dependant actions
++	 */
++	protected List getPropertyActions() {
++		return propertyActions;
++	}
++
++	/**
++	 * Returns the list of {@link IAction IActions} dependant on changes in the
++	 * workbench's {@link ISelectionService}. These actions should implement
++	 * the {@link UpdateAction} interface so that they can be updated in
++	 * response to selection changes. An example is the Delete action.
++	 * 
++	 * @return the list of selection-dependant actions
++	 */
++	protected List getSelectionActions() {
++		return selectionActions;
++	}
++
++	/**
++	 * Returns the selection syncronizer object. The synchronizer can be used to
++	 * sync the selection of 2 or more EditPartViewers.
++	 * 
++	 * @return the syncrhonizer
++	 */
++	protected SelectionSynchronizer getSelectionSynchronizer() {
++		if (synchronizer == null)
++			synchronizer = new SelectionSynchronizer();
++		return synchronizer;
++	}
++
++	/**
++	 * Returns the list of {@link IAction IActions} dependant on the
++	 * CommmandStack's state. These actions should implement the
++	 * {@link UpdateAction} interface so that they can be updated in response to
++	 * command stack changes. An example is the "undo" action.
++	 * 
++	 * @return the list of stack-dependant actions
++	 */
++	protected List getStackActions() {
++		return stackActions;
++	}
++
++	/**
++	 * Hooks the GraphicalViewer to the rest of the Editor. By default, the
++	 * viewer is added to the SelectionSynchronizer, which can be used to keep 2
++	 * or more EditPartViewers in sync. The viewer is also registered as the
++	 * ISelectionProvider for the Editor's PartSite.
++	 */
++	/*
++	 * protected void hookGraphicalViewer(GraphicalViewer viewer) {
++	 * print("hookGraphicalViewer()"); if (viewer == null) //
++	 * print("getGraphicalViewer()==null");
++	 * getSelectionSynchronizer().addViewer(viewer);
++	 * getSite().setSelectionProvider(viewer); }
++	 */
++	/**
++	 * Initializes the ActionRegistry. This registry may be used by {@link
++	 * ActionBarContributor ActionBarContributors} and/or
++	 * {@link ContextMenuProvider ContextMenuProviders}.
++	 * <P>
++	 * This method may be called on Editor creation, or lazily the first time
++	 * {@link #getActionRegistry()} is called.
++	 */
++	protected void initializeActionRegistry() {
++		createActions();
++		//updateActions(propertyActions);
++		//updateActions(stackActions);
++		updateActions(nodeActions);
++	}
++
++	/**
++	 * @see org.eclipse.ui.ISelectionListener#selectionChanged(IWorkbenchPart,
++	 *      ISelection)
++	 */
++	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
++		// If not the active editor, ignore selection changed.
++		if (this.equals(getSite().getPage().getActiveEditor()))
++			updateActions(nodeActions);
++			updateActions(selectionActions);
++			
++			
++	}
++
++	/**
++	 * Sets the ActionRegistry for this EditorPart.
++	 * 
++	 * @param registry
++	 *            the registry
++	 */
++	protected void setActionRegistry(ActionRegistry registry) {
++		actionRegistry = registry;
++	}
++
++	/**
++	 * Sets the EditDomain for this EditorPart.
++	 * 
++	 * @param ed
++	 *            the domain
++	 */
++	protected void setEditDomain(DefaultEditDomain ed) {
++		this.editDomain = ed;
++	}
++
++	/**
++	 * @see org.eclipse.ui.IWorkbenchPart#setFocus()
++	 */
++	public void setFocus() {
++		
++		// print("setFocus()");
++		// if (getGraphicalViewer() == null)
++		// ;
++		// print("getGraphicalViewer()==null");
++		// getGraphicalViewer().getControl().setFocus();
++		// print("done setFocus()");
++	}
++
++	/**
++	 * A convenience method for updating a set of actions defined by the given
++	 * List of action IDs. The actions are found by looking up the ID in the
++	 * {@link #getActionRegistry() action registry}. If the corresponding
++	 * action is an {@link UpdateAction}, it will have its
++	 * <code>update()</code> method called.
++	 * 
++	 * @param actionIds
++	 *            the list of IDs to update
++	 */
++	protected void updateActions(List actionIds) {
++		ActionRegistry registry = getActionRegistry();
++		Iterator iter = actionIds.iterator();
++		while (iter.hasNext()) {
++			IAction action = registry.getAction(iter.next());
++			if (action instanceof UpdateAction)
++				((UpdateAction) action).update();
++		}
++	}
++
++	public void showDependencyTree() {
++		// Composite composite = new Composite(getContainer(), SWT.NONE);
++		String stat="";
++		
++		System.out.println("show dep graph1");
++		if (this != null && this.getPageText(this.getActivePage())!=null&&this.getPageText(this.getActivePage()).equals("")) {
++			System.out.println("show dep graph2");
++			this.removePage(0);
++			//this.removePage(1);
++			//this.removePage(2);
++			displayPages();
++		}
++		System.out.println("show dep graph3");
++		Graph graph = Graph.getDefault();
++		ArrayList models = graph.getModels();
++		for (int i = 0; i < models.size(); i++) {
++			print("setContest for page " + i);
++			GraphicalViewer viewer = ((GraphView) viewers.get(i))
++					.getGraphicalViewer();
++			MyModel mod = (MyModel) models.get(i);
++			stat.concat("model: "+mod.getText()+" contains "+mod.getChildren().size() +"processed messages: "+graph.statElements+"\n");
++			mod.evaluate();
++			// print(mod.map.entrySet().toString());
++			if(mod!=null){
++				viewer.setContents(mod);
++				mod.getLayout().arrange();
++				viewer.setContents(mod);
++			}
++			print("end setContest for page " + i);
++			System.out.println(stat);
++		}
++
++	}
++
++	public static GraphMultiPageEditor getDefault() {
++		if (graph == null) {
++			// System.out.println("GraphMultiPageEditor getDefault()=null");
++		}
++		return graph;
++	}
++
++	protected Object getContent() {
++		return null;
++
++	}
++
++
++	protected void addEditPartAction(SelectionAction action) {
++		getActionRegistry().registerAction(action);
++		editPartActionIDs.add(action.getId());
++
++	}
++
++	protected void addStackAction(StackAction action) {
++		getActionRegistry().registerAction(action);
++		stackActionIDs.add(action.getId());
++	}
++
++	protected void addEditorAction(EditorPartAction action) {
++		getActionRegistry().registerAction(action);
++		editorActionIDs.add(action.getId());
++	}
++
++	protected void addAction(IAction action) {
++		getActionRegistry().registerAction(action);
++
++	}
++	
++	protected void addNodeAction(EditorPartAction action) {
++		getActionRegistry().registerAction(action);
++		nodeActions.add(action.getId());
++	}
++	
++	public void commandStackChanged(EventObject event) {
++		// TODO Auto-generated method stub
++		updateActions(stackActionIDs);
++		setDirty(getCommandStack().isDirty());
++	}
++
++	protected void displayPages() {
++		Composite composite = new Composite(getContainer(), SWT.NONE);
++		System.out.println("start dependency graph with edit domain");
++		int index = 0;
++		Graph graph = Graph.getDefault();
++		ArrayList models = graph.getModels();
++		Iterator it = models.iterator();
++		while (it.hasNext()) {
++			MyModel model = (MyModel) it.next();
++			GraphView view = new GraphView(this, getEditDomain());
++			//view.createGraphicalViewer(composite);
++			try {
++				
++				index = addPage(view, view.getEditorInput());
++				// graphicalViewer.setContents(model);
++			} catch (PartInitException e1) {
++				e1.printStackTrace();
++			}
++			GraphicalViewer graphicalViewer = view.getGraphicalViewer();
++			if (graphicalViewer == null)
++				print("graphicalViewer==null");
++			NodeMenuProvider provider=new NodeMenuProvider(graphicalViewer,getActionRegistry());
++			graphicalViewer.setContextMenu(provider);
++			getSite().registerContextMenu("ed.inf.proofgeneral.dependencygraph.mymenu", provider, graphicalViewer);
++			viewers.add(index, view);
++			setPageText(index, model.getText());
++
++		}
++	}
++
++	protected void createPages() {
++		Composite composite = new Composite(getContainer(), SWT.NONE);
++		System.out.println("start dependency graph with edit domain");
++		addPage(composite);
++		//addPage(composite);
++		//addPage(composite);
++		
++	}
++
++	// dependencyView=new DependencyView(getEditDomain());
++
++	private void print(String msg) {
++		if (debug)
++			System.out.println(msg);
++
++	}
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/MultiPageCommandStackListener.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/MultiPageCommandStackListener.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/MultiPageCommandStackListener.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/MultiPageCommandStackListener.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,81 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import java.util.ArrayList;
++import java.util.EventObject;
++import java.util.Iterator;
++import java.util.List;
++
++import org.eclipse.gef.commands.CommandStack;
++import org.eclipse.gef.commands.CommandStackListener;
++
++class MultiPageCommandStackListener implements CommandStackListener {
++	private GraphMultiPageEditor editor;
++
++	/** the observed command stacks */
++	private List commandStacks = new ArrayList();
++
++	public MultiPageCommandStackListener(GraphMultiPageEditor editor) {
++		this.editor = editor;
++
++	}
++
++	/**
++	 * Adds a <code>CommandStack</code> to observe.
++	 * 
++	 * @param commandStack
++	 */
++	public void addCommandStack(CommandStack commandStack) {
++		commandStacks.add(commandStack);
++		commandStack.addCommandStackListener(this);
++	}
++
++	/*
++	 * (non-Javadoc)
++	 * 
++	 * @see org.eclipse.gef.commands.CommandStackListener#commandStackChanged(java.util.EventObject)
++	 */
++	public void commandStackChanged(EventObject event) {
++		if (((CommandStack) event.getSource()).isDirty()) {
++			// at least one command stack is dirty,
++			// so the multi page editor is dirty too
++			setDirty(true);
++		} else {
++			// probably a save, we have to check all command stacks
++			boolean oneIsDirty = false;
++			for (Iterator stacks = commandStacks.iterator(); stacks.hasNext();) {
++				CommandStack stack = (CommandStack) stacks.next();
++				if (stack.isDirty()) {
++					oneIsDirty = true;
++					break;
++				}
++			}
++			setDirty(oneIsDirty);
++		}
++	}
++
++	protected void setDirty(boolean b) {
++		// TODO Auto-generated method stub
++		editor.setDirty(b);
++	}
++
++	/**
++	 * Disposed the listener
++	 */
++	public void dispose() {
++		for (Iterator stacks = commandStacks.iterator(); stacks.hasNext();) {
++			((CommandStack) stacks.next()).removeCommandStackListener(this);
++		}
++		commandStacks.clear();
++	}
++
++	/**
++	 * Marks every observed command stack beeing saved. This method should be
++	 * called whenever the editor/model was saved.
++	 */
++	public void markSaveLocations() {
++		for (Iterator stacks = commandStacks.iterator(); stacks.hasNext();) {
++			CommandStack stack = (CommandStack) stacks.next();
++			stack.markSaveLocation();
++		}
++	}
++}
+Index: icons/sample.gif
+===================================================================
+RCS file: icons/sample.gif
+diff -N icons/sample.gif
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ icons/sample.gif	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,2 @@
++GIF89a  ˜  E>AÃ∞÷¸ÙˇŸû¸œ∫‹ˆÁˇπÉ€ ©ÊË‰ÏH@Q“ €kDùy[ûü}Ã•å»©ûπäm∏∂ñÁzfö≠ôÕzlêX7ëE4ctZûP?mNBc™ê’_Gå®ö¡JQ?vRGhzköQHcπ¨”Á‰ÌYGÉZJÅXJy«∞˝ƒ∏ﬂ]LäÄm¥¨£√¶¢∞E2|K<wH:rSDÄaQëXMzµÆ…XIã\Lê[NÖÄqØB;Y€◊ÈJ=|VHäZLéÂ‚ÒH:ÜQCêibäsnãZNï^Sù\Pó_SúYPà\TÑvrã†ú∂ŒÃŸÁÊÏcY°’”‚Â‰ÎPHãaX¢]VòUNód]Øc\≠b[®`Z¢g`¶d^≥VRöc`•ig™§•ˆ‚‚Ô‚‚ËWYØoqºGL¢ox€s|›Z_§qu©xÖÔzáÒwÇÏuËuÊt~„s}·wÉÂö¢Ïíò–IRòyàÙwÜ{âızàÛwÑÌwÑÍq|’àï˘~âﬂnx¬àô˝ò¶˝1=|WbúÂÊÎˇˇˇ                                                                                                                                                                                                                                                                                                                                                                                             !˘  Ä ,       ¥ 	H∞†¡É{LÄ∞†¬#Ê ` ¬ç>ZHPP∞K @»¿…"ÂâzP∆è(CÑÏpÒÄ†à`˙lπ¬§0(ƒÉgO9sËú1S«Nõ<yj‡Êñ)T™Xâb‰»P7|–àI£f
++õ1wÙºy3p∆h‘HaCF ,˛Aq"Ü%L|HÄdI¡&(0Ä!é JzY·`√ Iú ‹Ãys@  ;
+Index: src/ed/inf/proofgeneral/dependencygraph/MyNodeModel.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/MyNodeModel.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/MyNodeModel.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/MyNodeModel.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,91 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import java.beans.PropertyChangeSupport;
++import java.util.ArrayList;
++import java.util.List;
++
++public class MyNodeModel {
++
++	protected ArrayList parents = new ArrayList();
++
++	protected ArrayList children = new ArrayList();
++
++	protected PropertyChangeSupport listener;
++
++	final protected static String ADD_PARENT = "add_parent";
++
++	final protected static String ADD_CHILD = "add_child";
++
++	protected ArrayList incomingConnections = new ArrayList();
++
++	protected ArrayList outcomingConnections = new ArrayList();
++
++	private String name;
++
++	private MyModel model;
++
++	public MyNodeModel(String name,MyModel model) {
++		this.model=model;
++		this.name = name;
++		// System.out.println("node created :" + name);
++		listener = new PropertyChangeSupport(this);
++	}
++
++	public void addParent(MyNode node) {
++		//System.out.println("incomingconnection");
++		parents.add(node);
++		//MyConnection connection = new MyConnection(node);
++		//incomingConnections.add(connection);
++	}
++
++	public void addChild(MyNode node) {
++		//System.out.println("outcomingconnection");
++		children.add(node);
++	//	MyConnection connection = new MyConnection(node);
++	//	if (!((MyNode) this).isVisible())
++	//		connection.setVisible(false);
++		//outcomingConnections.add(connection);
++		
++		
++	}
++
++
++
++	public void addOldChild(MyNode node) {
++		//System.out.println("outcomingconnection");
++		children.add(node);
++	//	MyConnection connection = new MyConnection(node);
++	//	if (!((MyNode) this).isVisible())
++	//		connection.setVisible(false);
++	//	outcomingConnections.add(connection);
++		
++	}
++
++	public List getOutgoingConnections() {
++		return this.outcomingConnections;
++	}
++
++	public List getIncomingConnections() {
++		return incomingConnections;
++	}
++
++	public String getName() {
++		return name;
++	}
++
++	public int countChildren() {
++		return outcomingConnections.size();
++	}
++
++	public ArrayList getParents() {
++		return parents;
++	}
++	public ArrayList getChildren() {
++		return children;
++	}
++	public MyModel getModel(){
++		
++		return model;
++	}
++
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/NodeMenuProvider.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/NodeMenuProvider.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/NodeMenuProvider.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/NodeMenuProvider.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,79 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import java.util.List;
++
++import org.eclipse.gef.ContextMenuProvider;
++import org.eclipse.gef.EditPartViewer;
++import org.eclipse.gef.GraphicalViewer;
++import org.eclipse.gef.ui.actions.ActionRegistry;
++import org.eclipse.gef.ui.actions.GEFActionConstants;
++import org.eclipse.jface.action.Action;
++import org.eclipse.jface.action.IAction;
++import org.eclipse.jface.action.IMenuManager;
++import org.eclipse.jface.action.Separator;
++
++public class NodeMenuProvider extends ContextMenuProvider {
++	
++	private ActionRegistry actionRegistry;
++	GraphicalViewer viewer;
++	private Action sampleAction;
++	public NodeMenuProvider(EditPartViewer viewer, ActionRegistry registry) {
++		super(viewer);
++		// setActionRegistry(registry);
++		System.out.println("NodeMenuProvider created "+registry.toString());
++		this.viewer=(GraphicalViewer) viewer;
++		this.actionRegistry=registry;
++		setRemoveAllWhenShown(true);
++		viewer.setContextMenu(this);
++		
++		
++	}
++	
++	public void buildContextMenu(IMenuManager manager) {
++		manager.removeAll();
++		GEFActionConstants.addStandardActionGroups(manager);
++		//manager.removeAll();
++		IAction action;
++		if (viewer.getSelectedEditParts().isEmpty())
++			System.out.println("selection empty");
++		else{
++		List parts = viewer.getSelectedEditParts();
++		for (int i = 0; i < parts.size(); i++) {
++			Object node = parts.get(i);
++			if (node instanceof MyNodeEditPart)
++			{
++				String name=((MyNode)((MyNodeEditPart)node).getModel()).getName();
++				System.out.println("node: "+name);
++			}
++			
++		}
++		manager.add(new Separator("actions"));
++		//System.out.println("getActionRegistry().toString() "+getActionRegistry().toString());
++		action =getActionRegistry().getAction(NodeAction.DEP1_REQUEST);
++		((NodeAction)action).setSelectedObjects(viewer.getSelectedEditParts());
++		manager.add(action);
++		action =getActionRegistry().getAction(NodeAction.DEP2_REQUEST);
++		((NodeAction)action).setSelectedObjects(viewer.getSelectedEditParts());
++		manager.add(action);
++		action =getActionRegistry().getAction(NodeAction.DEP3_REQUEST);
++		((NodeAction)action).setSelectedObjects(viewer.getSelectedEditParts());
++		manager.add(action);
++		}
++		
++
++	}
++
++
++	private void setActionRegistry(ActionRegistry registry) {
++		
++		actionRegistry = registry;
++	}
++
++	protected ActionRegistry getActionRegistry() {
++		return actionRegistry;
++	}
++	private void menuAboutToShow(){
++		
++		System.out.println("bebbebe");
++	}
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/MyConnectionEditPart.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/MyConnectionEditPart.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/MyConnectionEditPart.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/MyConnectionEditPart.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,84 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import java.beans.PropertyChangeEvent;
++import java.beans.PropertyChangeListener;
++
++import org.eclipse.draw2d.BendpointConnectionRouter;
++import org.eclipse.draw2d.ColorConstants;
++import org.eclipse.draw2d.PolygonDecoration;
++import org.eclipse.draw2d.PolylineConnection;
++import org.eclipse.gef.editparts.AbstractConnectionEditPart;
++
++public class MyConnectionEditPart extends AbstractConnectionEditPart implements
++		PropertyChangeListener {
++	private boolean debug = true;
++
++	protected void createEditPolicies() {
++
++	}
++
++	protected void refreshVisuals() {
++		PolylineConnection figure = (PolylineConnection) getFigure();
++		// figure.setOpaque(false);
++		PolygonDecoration dec = new PolygonDecoration();
++		dec.setScale(20, 5);
++
++		figure.setTargetDecoration(dec);
++		// figure.setConnectionRouter(new ManhattanConnectionRouter());
++		figure.setConnectionRouter(new BendpointConnectionRouter());
++
++		MyConnection connx = (MyConnection) getModel();
++		if (connx.getSelection())
++			figure.setForegroundColor(ColorConstants.lightGreen);
++		// else
++		// figure.setBackgroundColor(ColorConstants.lightBlue);
++		else
++			figure.setForegroundColor(ColorConstants.lightBlue);
++		// figure.setVisible(connx.getVisible());
++		if (!connx.getVisible()) {
++			// figure.setOpaque(false);
++			figure.setVisible(false);
++		}
++	}
++
++	public void propertyChange(PropertyChangeEvent evt) {
++		if (evt.getPropertyName().equals(MyConnection.PROPERTY_VSIBILITY)) {
++			MyConnection connx = (MyConnection) getModel();
++			if (connx.getVisible() == true)
++				connx.setInvisible();
++			else if (connx.getVisible() == false)
++				connx.setVisible();
++			refreshVisuals();
++			// print("propertyChange for Connection");
++		}
++		if (evt.getPropertyName().equals(MyConnection.PROPERTY_COLOR)) {
++			print("propertyColor for Connection");
++			PolylineConnection figure = (PolylineConnection) getFigure();
++			if(evt.getNewValue().equals(ColorConstants.lightGreen.toString()));
++			figure.setForegroundColor(ColorConstants.lightGreen);
++		if(evt.getNewValue().equals(ColorConstants.red.toString()))
++			figure.setForegroundColor(ColorConstants.red);
++		if(evt.getNewValue().equals(ColorConstants.white.toString()))
++			figure.setForegroundColor(ColorConstants.white);
++		}
++	}
++
++	public void activate() {
++		MyConnection connx = (MyConnection) getModel();
++		connx.addPropertyChangeListener(this);
++
++		super.activate();
++	}
++
++	public void deactivate() {
++		MyConnection connx = (MyConnection) getModel();
++		connx.removePropertyChangeListener(this);
++		super.deactivate();
++	}
++
++	private void print(String string) {
++		if (debug)
++			System.out.println(string);
++
++	}
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/DependencyView.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/DependencyView.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/DependencyView.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/DependencyView.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,89 @@
++package ed.inf.proofgeneral.dependencygraph;
++/*
++import java.util.HashMap;
++import java.util.Map;
++
++
++
++//import org.eclipse.core.runtime.adaptor.IModel;
++import org.eclipse.swt.widgets.Composite;
++import org.eclipse.ui.part.ViewPart;
++
++
++
++	import org.eclipse.core.resources.IMarker;
++	import org.eclipse.core.runtime.IProgressMonitor;
++	import org.eclipse.gef.DefaultEditDomain;
++import org.eclipse.gef.EditDomain;
++	import org.eclipse.gef.ui.parts.GraphicalEditor;
++
++import ed.inf.proofgeneral.ProofGeneralPlugin;
++
++	public class DependencyView extends GraphicalEditor{
++		private static DependencyView graph=null;
++		
++		public DependencyView(EditDomain domain) {
++	        System.out.println("start dependency graph");
++			//setEditDomain(domain);
++			graph=this;
++	    }
++
++
++		protected void configureGraphicalViewer() {
++	        super.configureGraphicalViewer(); //Sets the viewer's background to System "white"
++	        getGraphicalViewer().setEditPartFactory(new MyGraphicalEditpartFactory());
++	    }
++
++	    protected void initializeGraphicalViewer() {
++			  System.out.println("initialise dep1 graph");
++	       // MyModel model=new MyModel();
++	    	//model.create();
++	    	System.out.println("model created" );
++	    	//getGraphicalViewer().setContents(model);
++	    	System.out.println("content done");
++	    }
++		
++		public void showDependencyTree(MyModel model){
++			  System.out.println("show dep graph");
++			if(model!=null){
++				System.out.println("Start set Content");
++				//getGraphicalViewer().refreshChildren();
++				getGraphicalViewer().setContents(model);
++				System.out.println("finish set Content");
++				}
++			else System.out.println("tree null");
++		}
++		
++		
++		public static DependencyView getDefault() {
++			if (graph==null) {
++				try {
++					ProofGeneralPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow()
++					.getActivePage().showView("ed.inf.proofgeneral.views.dependencygraph");
++				} catch (Exception e) {
++					e.printStackTrace();
++				}
++			}
++			return graph;
++		}
++		
++		public void gotoMarker(IMarker marker) {
++
++		}
++	    public void doSave(IProgressMonitor monitor) {
++	     
++	    }
++	    public void doSaveAs() {
++	       
++	    }
++	   
++	    public boolean isDirty() {
++	      return false; 
++	    }
++	    public boolean isSaveAsAllowed() {
++	       return false;
++	    }
++
++
++	}
++*/
+Index: src/ed/inf/proofgeneral/dependencygraph/Graph.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/Graph.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/Graph.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/Graph.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,317 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import java.io.FileNotFoundException;
++import java.io.FileOutputStream;
++import java.io.PrintStream;
++import java.util.ArrayList;
++import java.util.Collection;
++import java.util.HashMap;
++import java.util.Iterator;
++import java.util.List;
++import java.util.StringTokenizer;
++
++import ed.inf.proofgeneral.ProofGeneralPlugin;
++import ed.inf.proofgeneral.sessionmanager.DocElement;
++import ed.inf.proofgeneral.sessionmanager.PGEventMaker;
++import ed.inf.proofgeneral.sessionmanager.PGIPListener;
++import ed.inf.proofgeneral.sessionmanager.PGIPSyntax;
++import ed.inf.proofgeneral.sessionmanager.SessionManager;
++import ed.inf.proofgeneral.sessionmanager.events.PGIPEvent;
++
++public class Graph implements PGIPListener {
++
++	public int statElements=0;
++	
++	private FileOutputStream fileWriter;
++
++	private PrintStream p;
++
++	private MyNode treeHead;
++
++	// private MyLayOut layout = new MyLayOut();
++
++	private boolean debug = true;
++
++	public boolean connected = false;
++
++	private static Graph graph;
++
++	// static HashMap map = new HashMap();
++
++	private String theoryName = "";
++
++	private ArrayList theoryDeps = new ArrayList();
++
++	private static HashMap trees = new HashMap();
++
++	private ArrayList history = new ArrayList();
++
++	public Graph() {
++		this.graph = this;
++		try {
++			fileWriter = new FileOutputStream("debug" + ".txt");
++			System.out.println("file created");
++		} catch (FileNotFoundException e) {
++			e.printStackTrace();
++		}
++		p = new PrintStream(fileWriter);
++
++		SessionManager[] sms = ProofGeneralPlugin.getDefault()
++				.getSessionManagers();
++		for (int i = 0; i < sms.length; i++) {
++			SessionManager sm = sms[i];
++			if (sm != null) {
++				System.out.println("Session manager conected!");
++				sm.addListener(this); // this is mirrored in SessionManager(),
++				// to protect against odd starting
++				// orders
++				connected = true;
++
++			}
++		}
++
++	}
++
++	/*
++	 * private MyNode createRoot(String rootName) {
++	 * 
++	 * MyNode result = new MyNode(rootName); print("root: " + rootName); return
++	 * result; }
++	 */
++
++	public static List getDiagramChildren() {
++
++		Collection list = trees.values();
++		Iterator it = list.iterator();
++		ArrayList st = new ArrayList();
++		while (it.hasNext()) {
++			MyModel mod = (MyModel) it.next();
++			// mod.evaluate();
++			st.add(mod);
++		}
++		System.out.println("getDiagramChildren()");
++		return st;
++	}
++
++	private static HashMap docElements = new HashMap();
++
++	public static void addDocElement(DocElement element) {
++		docElements.put(element.attributeValue(PGIPSyntax.THEOREM_NAME),
++				element);
++		// System.out.println("addDocElement"
++		// + element.attribute(PGIPSyntax.THEOREM_NAME) + ";"
++		// + element.getName());
++		// System.out.println("addDocElement" + element.rawText);
++	}
++
++	public static Graph getDefault() {
++		return graph;
++	}
++
++	public void pgipEvent(PGIPEvent event) {
++		if (eventFilter(event)) {
++			
++			// System.out.println("pgipEvent:" + event.getText());
++			printFile("pgipEvent:" + event.getText());
++			// System.out.println("event type:" + event.type);
++			printFile("event type:" + event.type);
++			printFile("event all:" + event.toString());
++			// process("event all:" + event.toString());
++			if (event.type.equals("proofstate")) {
++				if (event.getText().indexOf("theory") != -1) {
++					String msg = event.getText();
++
++					theoryName = msg.substring(msg.indexOf("theory") + 7, msg
++							.indexOf("=") - 1);
++					theoryName = theoryName.trim();
++					System.out.println("theoryName:" + theoryName);
++					String inside = msg.substring(msg.indexOf("{") + 1,
++							msg.indexOf("}")).trim();
++					StringTokenizer st = new StringTokenizer(inside, ",");
++					while (st.hasMoreTokens()) {
++						String next = (String) st.nextToken().trim();
++						if (next.equals("Main"))
++							next = "HOL";
++							
++						System.out.println("theoryDeps:" + next);
++						theoryDeps.add(next);
++					}
++					initTree();
++					processHistory();
++				}
++			}
++			if (event.type.equals("metainforesponse")) {
++					statElements+=1;
++					history.add(event);
++				if (trees.size() != 0) 
++					processEvent(event);
++				// System.out.println("process done");
++				ArrayList ar = getModels();
++				Iterator it = ar.iterator();
++				while (it.hasNext()) {
++					MyModel model = (MyModel) it.next();
++					print(model.getText());
++
++				}
++
++			}
++			if(event.type.equals("abortgoal")){
++				System.out.println(event.toString());
++				System.out.println("msg undo "+event.getText());
++				event.parseTree.toString();
++			}
++			if(event.type.equals("undoitem")){
++				System.out.println(event.toString());
++				System.out.println("msg undo item "+event.getText());
++				
++			}
++		}
++	}
++
++	private void processHistory() {
++		Iterator it = history.iterator();
++		while (it.hasNext()) {
++			processEvent((PGIPEvent) it.next());
++		}
++
++	}
++
++	private void processEvent(PGIPEvent event) {
++		String msg = event.getText();
++		StringTokenizer st = new StringTokenizer(msg, "\" ");
++		String childName = "";
++		ArrayList parentsName = new ArrayList();
++		if (st.hasMoreTokens()) {
++			childName = (String) st.nextToken();
++		}
++		while (st.hasMoreTokens()) {
++			String s = (String) st.nextToken();
++			// if (!s.equals(""))
++			parentsName.add(s);
++		}
++
++		processMessage(childName, parentsName);
++	}
++
++	private void processMessage(String childName, ArrayList parentsName) {
++		MyModel model = null;
++		print("process" + childName + parentsName.toString());
++		String subName = childName.substring(0, childName.indexOf("."));
++		Iterator it = parentsName.iterator();
++		int index=childName.indexOf(".")+1;
++		String childShort=childName.substring(index);
++		while (it.hasNext()) {
++			String parent = (String) it.next();
++			if (!parent.equals(childName)) {
++				String parentTheory = parent.substring(0, parent.indexOf("."));
++				print("parentTheory" + parentTheory);
++				
++				if (trees.containsKey(parentTheory)) {
++					 model= (MyModel) trees.get(parentTheory);
++					
++				}
++				else{
++					model=new MyModel(parentTheory);
++				}
++				String parentShort=parent.substring(parent.indexOf(".")+1);
++				
++				model.addChild(parent, childName);
++			}
++		}
++		System.out.println("evaluate "+childShort);
++		
++		//evaluate(childName);
++		
++		
++	}
++
++
++
++	private void evaluate(String childShort) {
++		ArrayList models=getModels();
++		Iterator it=models.iterator();
++		while(it.hasNext()){
++			MyModel model=(MyModel)it.next();
++			model.evaluate(childShort);
++		}
++	}
++
++	private void initTree() {
++		MyModel mainTree = new MyModel(theoryName);
++		trees.put(theoryName, mainTree);
++		Iterator it = theoryDeps.iterator();
++		while (it.hasNext()) {
++			MyModel tree = new MyModel((String) it.next());
++			trees.put(tree.getText(), tree);
++
++		}
++
++	}
++
++	public void dispose() {
++		SessionManager[] sms = ProofGeneralPlugin.getDefault()
++				.getSessionManagers();
++		for (int i = 0; i < sms.length; i++) {
++			SessionManager sm = sms[i];
++			if (sm != null) {
++				sm.removeListener(this);
++				connected = false;
++			}
++		}
++		for (Iterator i = talkers.iterator(); i.hasNext();) {
++			try {
++				((PGEventMaker) i.next()).removeListener(this);
++			} catch (Exception x) {
++			}
++		}
++	}
++
++	Collection talkers = new ArrayList(); // Objects whose events we are
++
++	// listening to - should be used by
++	// dispose.
++	public void addTalker(PGEventMaker talker) {
++		talkers.add(talker);
++	}
++
++	public void removeTalker(PGEventMaker talker) {
++		talkers.remove(talker);
++	}
++
++	public boolean eventFilter(PGIPEvent event) {
++		if (event.type != null) {
++			if (event.type.equals("proofstate") && trees.size() == 0)
++				return true;
++			if (event.type.equals("metainforesponse"))
++				return true;
++			if(event.type.equals("undoitem")||event.type.equals("abortgoal"))
++				return true;
++
++		}
++		return false;
++	}
++
++	public ArrayList getModels() {
++		Collection list = trees.values();
++		Iterator it = list.iterator();
++		ArrayList st = new ArrayList();
++		while (it.hasNext())
++			st.add((MyModel) it.next());
++
++		return st;
++
++	}
++
++	private void print(String info) {
++		if (debug)
++			System.out.println(info);
++
++	}
++
++	public void printFile(String message) {
++		if (debug) {
++			p.println(message + "\n");
++			p.flush();
++		}
++	}
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/GraphPart.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/GraphPart.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/GraphPart.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/GraphPart.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,25 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import java.util.List;
++
++import org.eclipse.draw2d.IFigure;
++import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
++
++public class GraphPart extends AbstractGraphicalEditPart {
++
++	protected IFigure createFigure() {
++		// TODO Auto-generated method stub
++		return null;
++	}
++
++	protected void createEditPolicies() {
++		// TODO Auto-generated method stub
++		
++	}
++	
++	  protected List getModelChildren() {
++	    	
++	     	return Graph.getDiagramChildren();
++	    }
++
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/Level.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/Level.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/Level.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/Level.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,116 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import java.util.ArrayList;
++import java.util.Iterator;
++
++public class Level {
++	private static int maxX = -1;
++
++	private int number;
++
++	private ArrayList level = new ArrayList();
++
++	private int offset=-1;
++
++	private int dim;
++
++	public Level(int num) {
++		number = num;
++
++	}
++	 private int maxSize;
++
++	public void add(MyNode node) {
++
++		level.add(node);
++		node.setLevel(number);
++		node.setY((number - 1) * 100);
++		arrangeLevel();
++		System.out.println("node: " + node.getName() + " level: " + number
++				+ " x: " + node.getX() + " y: " + number * 100);
++
++	}
++
++	public void delete(MyNode node) {
++		level.remove(node);
++		arrangeLevel();
++	}
++
++	public void arrangeLevel() {
++		Iterator it = level.iterator();
++		int x = 1;
++		while (it.hasNext()) {
++			MyNode curNode = (MyNode) it.next();
++			curNode.setX(x+offset);
++			if(curNode.getSize()!=0)
++				x+=curNode.getSize()+30;
++			else{
++				x+=200;
++				//System.out.println("size is zero: "+curNode.getName());
++			}
++		}
++
++	}
++
++	public ArrayList getNodes() {
++		return level;
++	}
++
++	public void setOffset(int i) {
++		offset = i;
++		Iterator it = level.iterator();
++		int x = 1;
++		while (it.hasNext()) {
++			MyNode curNode = (MyNode) it.next();
++			curNode.setX(x + i);
++			x += 200;
++		}
++
++	}
++
++	public int getNumber() {
++		
++		return number;
++	}
++
++
++	public int getSize() {
++		ArrayList nodes=getNodes();
++		int size=0;
++		for(int i=0;i<nodes.size();i++){
++			size+=((MyNode)nodes.get(i)).getSize();
++		}
++		size+=30*(nodes.size()-1);
++		return size;
++		
++	}
++
++	public void shift(int i) {
++		this.offset=i;
++		
++	}
++	
++	public void adaptLevel(){
++		ArrayList nodes=getNodes();
++		int space=30+((maxSize-getSize())/(nodes.size()+1));
++		if(nodes.size()>0){
++			MyNode nodeOld=(MyNode)nodes.get(0);
++			nodeOld.setX(space);
++		//int size=0;
++		for(int i=1;i<nodes.size();i++){
++			MyNode nod=(MyNode)nodes.get(i);
++			nod.setX(nodeOld.getX()+nodeOld.getSize()+space);
++			
++			//int sec=maxSize/nodes.size();
++			//nod.setX(i*sec+((sec-nod.getSize())/2));
++			nodeOld=nod;
++		}
++		}
++	}
++
++	public void setMaxSize(int maxLevelSize) {
++		maxSize=maxLevelSize;
++		
++	}
++
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/MyLayOut.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/MyLayOut.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/MyLayOut.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/MyLayOut.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,111 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import java.util.ArrayList;
++import java.util.Iterator;
++
++public class MyLayOut {
++	private ArrayList levels = new ArrayList();
++
++	public MyLayOut() {
++		levels.add(new Level(0));
++
++	}
++
++	public void addNode(MyNode node) {
++		int level = adjustToParents(node);
++		getLevel(level).add(node);
++
++		int biggestLevel=0;
++		Iterator it=levels.iterator();
++		while(it.hasNext()){
++			Level curLevel=(Level)it.next();
++			if(curLevel.getNodes().size()>getLevel(biggestLevel).getNodes().size())
++				biggestLevel=curLevel.getNumber();
++		}
++		centralise(biggestLevel);
++	}
++
++	private void centralise(int biggestLevel) {
++		int adj=getLevel(biggestLevel).getNodes().size();
++		Iterator it=levels.iterator();
++		while (it.hasNext()){
++			Level current=(Level)it.next();
++			int diff=(adj-current.getNodes().size())*100;
++			current.setOffset(diff);
++			
++		}
++			
++		
++	}
++
++	public int adjustToParents(MyNode node) {
++		ArrayList parents = node.parents;
++		Iterator it = parents.iterator();
++		int level = 1;
++		while (it.hasNext()) {
++			MyNode parent = (MyNode) it.next();
++			if (parent.getLevel() >= level)
++				level = parent.getLevel() + 1;
++
++		}
++		return level;
++
++	}
++
++	public void addOldNode(MyNode node) {
++		ArrayList children;
++		int level = adjustToParents(node);
++		if (level > node.getLevel()) {
++			getLevel(node.getLevel()).delete(node);
++			getLevel(level).add(node);
++			children=node.children;
++			Iterator it=children.iterator();
++			while(it.hasNext())
++				addOldNode((MyNode)it.next());
++			
++		}
++
++	}
++	
++	public Level getLevel(int level){
++		while (levels.size() <= level) {
++			Level newLevel = new Level(levels.size());
++			levels.add(newLevel);
++
++		}
++		return ((Level) levels.get(level));
++		
++		
++	}
++	public int size(){
++		
++		return levels.size();
++	}
++	
++	public ArrayList getLevelNodes(int n){
++		return getLevel(n).getNodes();
++	}
++
++	public void arrange() {
++		Iterator it=levels.iterator();
++		int maxLevelSize=0;
++		//int maxLevel=0;
++		while(it.hasNext()){
++			Level level=(Level)it.next();
++			if (maxLevelSize<level.getSize()) {
++				maxLevelSize=level.getSize();
++				//maxLevel=level.getNumber();
++			}
++		}
++		Iterator itr=levels.iterator();
++		while(itr.hasNext()){
++			Level level=(Level)itr.next();
++			level.shift((maxLevelSize-level.getSize())/2);
++			level.setMaxSize(maxLevelSize);
++			level.adaptLevel();
++		}
++		
++		
++	}
++
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/GraphView.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/GraphView.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/GraphView.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/GraphView.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,214 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import org.eclipse.core.runtime.IProgressMonitor;
++import org.eclipse.draw2d.ColorConstants;
++import org.eclipse.gef.EditDomain;
++import org.eclipse.gef.GraphicalViewer;
++import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
++import org.eclipse.swt.widgets.Composite;
++import org.eclipse.ui.IEditorInput;
++import org.eclipse.ui.IEditorSite;
++import org.eclipse.ui.PartInitException;
++import org.eclipse.ui.part.EditorPart;
++
++public class GraphView extends EditorPart {
++
++	private EditDomain editDomain;
++
++	private GraphicalViewer graphicalViewer;
++
++	private MyGraphicalEditpartFactory editpartFactory = new MyGraphicalEditpartFactory();
++
++	private boolean debug = true;
++
++	private GraphMultiPageEditor editor;
++
++	/**
++	 * Constructs the editor part
++	 * 
++	 * @param editor
++	 */
++	public GraphView(GraphMultiPageEditor editor, EditDomain editDomain) {
++
++		setEditDomain(editDomain);
++		this.editor = editor;
++	}
++
++	/**
++	 * Called to configure the graphical viewer before it receives its contents.
++	 * This is where the root editpart should be configured. Subclasses should
++	 * extend or override this method as needed.
++	 */
++	protected void configureGraphicalViewer() {
++
++		getGraphicalViewer().getControl().setBackground(
++				ColorConstants.listBackground);
++		getGraphicalViewer().setEditPartFactory(editpartFactory);
++		
++	}
++
++	
++
++	/**
++	 * Creates the GraphicalViewer on the specified <code>Composite</code>.
++	 * 
++	 * @param parent
++	 *            the parent composite
++	 * @return
++	 */
++	protected GraphicalViewer createGraphicalViewer(Composite parent) {
++		if (getGraphicalViewer() == null) {
++			GraphicalViewer viewer = new ScrollingGraphicalViewer();
++			setGraphicalViewer(viewer);
++			print("setGraphicalViewer()");
++			viewer.createControl(parent);
++			configureGraphicalViewer();
++			hookGraphicalViewer();
++			initializeGraphicalViewer();
++		}
++		return getGraphicalViewer();
++	}
++
++	/**
++	 * Realizes the Editor by creating it's Control.
++	 * <P>
++	 * WARNING: This method may or may not be called by the workbench prior to
++	 * {@link #dispose()}.
++	 * 
++	 * @param parent
++	 *            the parent composite
++	 */
++	public void createPartControl(Composite parent) {
++		createGraphicalViewer(parent);
++
++	}
++
++	/**
++	 * /** Returns the edit domain.
++	 * 
++	 * @return the edit domain
++	 */
++	protected EditDomain getEditDomain() {
++		return editDomain;
++	}
++
++	/**
++	 * Returns the graphical viewer.
++	 * 
++	 * @return the graphical viewer
++	 */
++	protected GraphicalViewer getGraphicalViewer() {
++		return graphicalViewer;
++	}
++
++	/**
++	 * Override to set the contents of the GraphicalViewer after it has been
++	 * created.
++	 * 
++	 * @see #createGraphicalViewer(Composite)
++	 */
++	protected void initializeGraphicalViewer() {
++	}
++
++	/**
++	 * Sets the EditDomain for this EditorPart.
++	 * 
++	 * @param ed
++	 *            the domain
++	 */
++	protected void setEditDomain(EditDomain ed) {
++		this.editDomain = ed;
++	}
++
++	/**
++	 * @see org.eclipse.ui.IWorkbenchPart#setFocus()
++	 */
++	public void setFocus() {
++		getGraphicalViewer().getControl().setFocus();
++	}
++
++	/**
++	 * Hooks the GraphicalViewer to the rest of the Editor. By default, the
++	 * viewer is added to the SelectionSynchronizer, which can be used to keep 2
++	 * or more EditPartViewers in sync. The viewer is also registered as the
++	 * ISelectionProvider for the Editor's PartSite.
++	 */
++	protected void hookGraphicalViewer() {
++
++		//print("hookGraphicalViewer()");
++		if (getGraphicalViewer() == null)
++			print("getGraphicalViewer()==null");
++		editor.getSelectionSynchronizer().addViewer(getGraphicalViewer());
++		editor.getSite().setSelectionProvider(getGraphicalViewer());
++	}
++
++	/**
++	 * Sets the graphicalViewer for this EditorPart.
++	 * 
++	 * @param viewer
++	 *            the graphical viewer
++	 */
++	protected void setGraphicalViewer(GraphicalViewer viewer) {
++		getEditDomain().addViewer(viewer);
++		this.graphicalViewer = viewer;
++	}
++
++	public void doSave(IProgressMonitor monitor) {
++		// TODO Auto-generated method stub
++
++	}
++
++	public void doSaveAs() {
++		// TODO Auto-generated method stub
++
++	}
++
++	public boolean isSaveAsAllowed() {
++		// TODO Auto-generated method stub
++		return false;
++	}
++
++	public void init(IEditorSite site, IEditorInput input)
++			throws PartInitException {
++		setSite(site);
++		setInput(input);
++
++		// TODO Auto-generated method stub
++
++	}
++
++	public boolean isDirty() {
++		// TODO Auto-generated method stub
++		return false;
++	}
++
++	protected MyGraphicalEditpartFactory getEditpartFactory() {
++		return editpartFactory;
++	}
++
++	public void showDependencyTree(MyModel model) {
++
++		System.out.println("show dep graph");
++		if (model != null) {
++			System.out.println("Start set Content");
++			model.evaluate();
++			getGraphicalViewer().setContents(model);
++			System.out.println("finish set Content");
++		} else
++			System.out.println("tree null");
++		// int index=addPage(getGraphicalViewer().getControl());
++	}
++
++	private void print(String msg) {
++		if (debug)
++			System.out.println(msg);
++
++	}
++
++	public void changeDependencyTree(MyModel model) {
++		model.deleteNode(0);
++
++	}
++
++
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/MyConnection.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/MyConnection.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/MyConnection.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/MyConnection.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,81 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import java.beans.PropertyChangeListener;
++import java.beans.PropertyChangeSupport;
++
++import org.eclipse.draw2d.ColorConstants;
++import org.eclipse.swt.graphics.Color;
++
++public class MyConnection {
++
++	static final String PROPERTY_COLOR = "property_color";
++
++	private boolean visible = true;
++
++	private MyNode source;
++
++	private MyNode target;
++
++	public static String PROPERTY_VSIBILITY = "property_visibility";
++
++	private PropertyChangeSupport listeners;
++
++	private boolean selection=false;
++
++	public MyConnection(MyNode node1, MyNode node2) {
++		source = node1;
++		target = node2;
++
++		if (listeners == null)
++			listeners = new PropertyChangeSupport(this);
++	}
++
++	
++
++	public boolean getVisible() {
++		// TODO Auto-generated method stub
++		return visible;
++	}
++
++	public void addPropertyChangeListener(PropertyChangeListener listener) {
++		listeners.addPropertyChangeListener(listener);
++	}
++
++	public void removePropertyChangeListener(PropertyChangeListener listener) {
++		listeners.removePropertyChangeListener(listener);
++	}
++	public void setVisible() {
++		if (visible != true) {
++			visible = true;
++			//System.out.println("Connection is visible: ");
++			listeners.firePropertyChange(this.PROPERTY_VSIBILITY, false, true);
++		}
++	}
++	public void setInvisible() {
++		// TODO Auto-generated method stub
++		if (visible != false) {
++			visible = false;
++			System.out.println("Connection is invisible: ");
++			listeners.firePropertyChange(this.PROPERTY_VSIBILITY, true, false);
++		}
++	}
++	
++	public void changeColor(Color color) {
++		if (this.visible != false) {
++			listeners.firePropertyChange(this.PROPERTY_COLOR, ColorConstants.lightBlue, color.toString());
++	}
++
++	}
++
++	protected boolean getSelection() {
++		return selection;
++	}
++	public MyNode getSource() {
++		return source;
++	}
++
++	public MyNode getTarget() {
++		return target;
++
++	}
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/ShowDependencies.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/ShowDependencies.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/ShowDependencies.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/ShowDependencies.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,51 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import java.util.List;
++
++import org.eclipse.gef.EditPart;
++import org.eclipse.gef.Request;
++import org.eclipse.gef.commands.Command;
++import org.eclipse.gef.commands.CompoundCommand;
++import org.eclipse.gef.ui.actions.SelectionAction;
++import org.eclipse.ui.IWorkbenchPart;
++
++public class ShowDependencies extends SelectionAction {
++
++	private static final String DEP1_REQUEST = "dep1"; //$NON-NLS-1$
++
++	public static final String NODE = "node";
++
++	Request request;
++
++	public ShowDependencies(IWorkbenchPart part) {
++		super(part);
++		request = new Request(DEP1_REQUEST);
++		setText("show dependencies");
++		setId(NODE);
++
++	}
++
++	protected boolean calculateEnabled() {
++		return canPerformAction();
++	}
++
++	private boolean canPerformAction() {
++		return true;
++	}
++
++	private Command getCommand() {
++		List editparts = getSelectedObjects();
++		CompoundCommand cc = new CompoundCommand();
++		// cc.setDebugLabel("Increment/Decrement LEDs");//$NON-NLS-1$
++		for (int i = 0; i < editparts.size(); i++) {
++			EditPart part = (EditPart) editparts.get(i);
++			cc.add(part.getCommand(request));
++		}
++		return cc;
++	}
++
++	public void run() {
++		execute(getCommand());
++	}
++
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/MultiPageEditorContributor.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/MultiPageEditorContributor.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/MultiPageEditorContributor.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/MultiPageEditorContributor.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,108 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import org.eclipse.jface.action.Action;
++import org.eclipse.jface.action.IAction;
++import org.eclipse.jface.action.IMenuManager;
++import org.eclipse.jface.action.IToolBarManager;
++import org.eclipse.jface.dialogs.MessageDialog;
++import org.eclipse.ui.IActionBars;
++import org.eclipse.ui.IEditorPart;
++import org.eclipse.ui.actions.ActionFactory;
++import org.eclipse.ui.ide.IDEActionFactory;
++import org.eclipse.ui.part.MultiPageEditorActionBarContributor;
++import org.eclipse.ui.texteditor.ITextEditor;
++import org.eclipse.ui.texteditor.ITextEditorActionConstants;
++
++/**
++ * Manages the installation/deinstallation of global actions for multi-page
++ * editors. Responsible for the redirection of global actions to the active
++ * editor. Multi-page contributor replaces the contributors for the individual
++ * editors in the multi-page editor.
++ */
++public class MultiPageEditorContributor extends
++		MultiPageEditorActionBarContributor {
++	private IEditorPart activeEditorPart;
++
++	private Action sampleAction;
++
++	/**
++	 * Creates a multi-page contributor.
++	 */
++	public MultiPageEditorContributor() {
++		super();
++		createActions();
++	}
++
++	/**
++	 * Returns the action registed with the given text editor.
++	 * 
++	 * @return IAction or null if editor is null.
++	 */
++	protected IAction getAction(ITextEditor editor, String actionID) {
++		return (editor == null ? null : editor.getAction(actionID));
++	}
++
++	
++	/*
++	 * (non-JavaDoc) Method declared in
++	 * AbstractMultiPageEditorActionBarContributor.
++	 */
++
++	public void setActivePage(IEditorPart part) {
++		if (activeEditorPart == part)
++			return;
++
++		activeEditorPart = part;
++
++		IActionBars actionBars = getActionBars();
++		if (actionBars != null) {
++
++			ITextEditor editor = (part instanceof ITextEditor) ? (ITextEditor) part
++					: null;
++
++			actionBars.setGlobalActionHandler(ActionFactory.DELETE.getId(),
++					getAction(editor, ITextEditorActionConstants.DELETE));
++			actionBars.setGlobalActionHandler(ActionFactory.UNDO.getId(),
++					getAction(editor, ITextEditorActionConstants.UNDO));
++			actionBars.setGlobalActionHandler(ActionFactory.REDO.getId(),
++					getAction(editor, ITextEditorActionConstants.REDO));
++			actionBars.setGlobalActionHandler(ActionFactory.CUT.getId(),
++					getAction(editor, ITextEditorActionConstants.CUT));
++			actionBars.setGlobalActionHandler(ActionFactory.COPY.getId(),
++					getAction(editor, ITextEditorActionConstants.COPY));
++			actionBars.setGlobalActionHandler(ActionFactory.PASTE.getId(),
++					getAction(editor, ITextEditorActionConstants.PASTE));
++			actionBars.setGlobalActionHandler(ActionFactory.SELECT_ALL.getId(),
++					getAction(editor, ITextEditorActionConstants.SELECT_ALL));
++			actionBars.setGlobalActionHandler(ActionFactory.FIND.getId(),
++					getAction(editor, ITextEditorActionConstants.FIND));
++			actionBars.setGlobalActionHandler(
++					IDEActionFactory.BOOKMARK.getId(), getAction(editor,
++							IDEActionFactory.BOOKMARK.getId()));
++			actionBars.updateActionBars();
++		}
++	}
++
++	private void createActions() {
++		sampleAction = new Action() {
++			public void run() {
++				MessageDialog.openInformation(null, "Proof General",
++						"Sample Action Executed");
++			}
++		};
++	
++	}
++
++	public void contributeToMenu(IMenuManager manager) {
++	
++	}
++
++	public void contributeToToolBar(IToolBarManager manager) {
++		
++		
++	
++	
++	}
++
++	
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/MyDirectEditManager.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/MyDirectEditManager.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/MyDirectEditManager.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/MyDirectEditManager.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,22 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import org.eclipse.gef.GraphicalEditPart;
++import org.eclipse.gef.tools.CellEditorLocator;
++import org.eclipse.gef.tools.DirectEditManager;
++
++public class MyDirectEditManager extends DirectEditManager {
++
++	public MyDirectEditManager(GraphicalEditPart arg0, Class arg1, CellEditorLocator arg2) {
++		super(arg0, arg1, arg2);
++		System.out.println("MyDirectEditManager");
++		// TODO Auto-generated constructor stub
++	}
++
++	protected void initCellEditor() {
++		
++		System.out.println("initCellEditor()");
++		// TODO Auto-generated method stub
++
++	}
++
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/MyContainerPolicy.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/MyContainerPolicy.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/MyContainerPolicy.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/MyContainerPolicy.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,21 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import org.eclipse.gef.Request;
++import org.eclipse.gef.commands.Command;
++import org.eclipse.gef.editpolicies.ContainerEditPolicy;
++import org.eclipse.gef.requests.CreateRequest;
++
++public class MyContainerPolicy extends ContainerEditPolicy {
++
++	protected Command getCreateCommand(CreateRequest arg0) {
++		System.out.println("getCreateCommand");
++		return null;
++	}
++	public Command getCommand(Request arg0) {
++		
++		
++		System.out.println("getCommand"+arg0.getType());
++		return null;
++	}
++	
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/PropertyChangeListener.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/PropertyChangeListener.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/PropertyChangeListener.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/PropertyChangeListener.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,8 @@
++/*package ed.inf.proofgeneral.dependencygraph;
++
++public interface PropertyChangeListener {
++
++	
++
++}
++*/
+Index: src/ed/inf/proofgeneral/dependencygraph/MyModelEditPart.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/MyModelEditPart.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/MyModelEditPart.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/MyModelEditPart.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,41 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++
++import java.util.List;
++
++import org.eclipse.draw2d.Figure;
++import org.eclipse.draw2d.IFigure;
++import org.eclipse.draw2d.XYLayout;
++import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
++
++
++public class MyModelEditPart extends AbstractGraphicalEditPart {
++    protected IFigure createFigure() {
++        Figure f = new Figure();
++        f.setOpaque(true);
++       // f.setLayoutManager((LayoutManager) new DirectedGraphLayout());
++        f.setLayoutManager(new XYLayout());
++     //   f.setLayoutManager(new FlowLayout());
++      //DirectedGraphLayout dd=new DirectedGraphLayout();
++      //dd.visit(new MyModel());
++       //f.setLayoutManager(new XYLayout());
++       // f.setLayoutManager((LayoutManager) layout);
++        //f.setLayoutManager(new ScrollBarLayout());
++       
++      return f;
++    }
++
++    protected void createEditPolicies() {
++    
++    }
++
++    protected List getModelChildren() {        	
++        //System.out.println("getModelChildren())");
++        MyModel model=(MyModel)getModel();
++    	return model.getChildren();
++ 
++    }
++ 
++
++}
++
+Index: src/ed/inf/proofgeneral/dependencygraph/MyNodeEditPart.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/MyNodeEditPart.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/MyNodeEditPart.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/MyNodeEditPart.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,178 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++
++import java.beans.PropertyChangeEvent;
++import java.beans.PropertyChangeListener;
++import java.util.List;
++
++import org.eclipse.draw2d.ChopboxAnchor;
++import org.eclipse.draw2d.ColorConstants;
++import org.eclipse.draw2d.ConnectionAnchor;
++import org.eclipse.draw2d.IFigure;
++import org.eclipse.draw2d.Label;
++import org.eclipse.draw2d.LineBorder;
++import org.eclipse.draw2d.geometry.Rectangle;
++import org.eclipse.gef.ConnectionEditPart;
++import org.eclipse.gef.EditPolicy;
++import org.eclipse.gef.GraphicalEditPart;
++import org.eclipse.gef.NodeEditPart;
++import org.eclipse.gef.Request;
++import org.eclipse.gef.RequestConstants;
++import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
++
++public class MyNodeEditPart extends AbstractGraphicalEditPart implements
++		NodeEditPart, PropertyChangeListener {
++
++
++	
++	private boolean debug = true;
++
++	private Object manager;
++
++	protected IFigure createFigure() {
++		Label label = new Label();
++		return label;
++	}
++
++	protected void createEditPolicies() {
++		installEditPolicy(EditPolicy.DIRECT_EDIT_ROLE, new SelectionPolicy());
++
++	}
++
++	protected List getModelSourceConnections() {
++		MyNode node = (MyNode) getModel();
++		return node.getOutgoingConnections();
++	}
++
++	protected List getModelTargetConnections() {
++		MyNode node = (MyNode) getModel();
++		return node.getIncomingConnections();
++	}
++
++	protected void refreshVisuals() {
++		MyNode node = (MyNode) getModel();
++		node.unHide();
++		// node.evaluateTriangles();
++		Label label = (Label) getFigure();
++		// label.setOpaque(node.getOpaque());
++		//System.out.println("selection="+node.getSelection());
++		label.setBackgroundColor(ColorConstants.lightBlue);
++		String name=node.getName();
++		if(name.startsWith(node.getModel().getText()))			
++			label.setText(name.substring(name.indexOf(".")+1));
++		else
++			label.setText(name);
++		//label.getSize();
++		label.setOpaque(node.isVisible());
++		label.setVisible(node.isVisible());
++		label.setBorder(new LineBorder());
++		label.setSize(label.getPreferredSize());
++		Rectangle r = new Rectangle(node.getX(), node.getY(), -1, -1);
++		((GraphicalEditPart) getParent()).setLayoutConstraint(this, label, r);
++		//print("label " + node.getName() + " size " + label.getSize()
++		//		+ " right bounds: " + label.getBounds().right());
++		
++		node.setSize(label.getSize().width);		
++		
++	}
++
++	public ConnectionAnchor getSourceConnectionAnchor(
++			ConnectionEditPart connection) {
++
++		// System.out.println("sourceAnchor created for ");
++		return new ChopboxAnchor((Label) getFigure());
++	}
++
++	public ConnectionAnchor getSourceConnectionAnchor(Request request) {
++
++		return new ChopboxAnchor((Label) getFigure());
++	}
++
++	public ConnectionAnchor getTargetConnectionAnchor(
++			ConnectionEditPart connection) {
++
++		// System.out.println("targetAnchor created");
++		return new ChopboxAnchor((Label) getFigure());
++	}
++
++	public ConnectionAnchor getTargetConnectionAnchor(Request request) {
++
++		return new ChopboxAnchor((Label) getFigure());
++	}
++
++	public void propertyChange(PropertyChangeEvent evt) {
++		if (evt.getPropertyName().equals(MyNode.PROPERTY_VISIBILITY))
++			refreshChildren();
++		if(evt.getPropertyName().equals(MyNode.PROPERTY_COLOR))	{
++			System.out.println("change_color "+evt.getNewValue());
++			Label label = (Label) getFigure();
++			if(evt.getNewValue().equals(ColorConstants.lightGreen.toString()));
++				label.setBackgroundColor(ColorConstants.lightGreen);
++			if(evt.getNewValue().equals(ColorConstants.red.toString()))
++				label.setBackgroundColor(ColorConstants.red);
++			if(evt.getNewValue().equals(ColorConstants.white.toString())){
++				label.setVisible(false);
++				System.out.println("hide node: "+label.getText());
++			}
++		}
++		
++		//print("propertyChange for Node");
++
++	}
++
++	public void activate() {
++
++		MyNode node = (MyNode) getModel();
++		node.addPropertyChangeListener(this);
++
++		super.activate();
++	}
++
++	public void deactivate() {
++		MyNode node = (MyNode) getModel();
++		node.removePropertyChangeListener(this);
++		super.deactivate();
++	}
++
++	private void print(String string) {
++		if (debug)
++			System.out.println(string);
++
++	}
++
++	public void performRequest(Request request) {
++		System.out.println("req=" + request.getType());
++
++		if (request.getType() == RequestConstants.REQ_SELECTION)
++			;
++		if (request.getType() == RequestConstants.REQ_OPEN)
++		{
++			MyNode node = (MyNode) getModel();
++			System.out.println("node.showDependencies();");
++			node.showDependencies();
++			
++		}
++		if (request.getType() == NodeAction.DEP1_REQUEST)
++		{
++			MyNode node = (MyNode) getModel();
++			System.out.println("node.showDependencies();");
++			node.showDependencies();
++			
++		}
++		if (request.getType() == NodeAction.DEP2_REQUEST)
++		{
++			MyNode node = (MyNode) getModel();
++			System.out.println("node.showDependants();");
++			node.showDependants();
++			
++		}
++		if (request.getType() == NodeAction.DEP3_REQUEST)
++		{
++			MyNode node = (MyNode) getModel();
++			System.out.println("node.hideNode;");
++			node.hideDependencies();
++			
++		}
++	}
++
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/SelectionPolicy.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/SelectionPolicy.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/SelectionPolicy.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/SelectionPolicy.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,42 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import org.eclipse.gef.Request;
++import org.eclipse.gef.RequestConstants;
++import org.eclipse.gef.commands.Command;
++import org.eclipse.gef.editpolicies.DirectEditPolicy;
++import org.eclipse.gef.requests.DirectEditRequest;
++
++public class SelectionPolicy extends DirectEditPolicy {
++
++	protected Command getDirectEditCommand(DirectEditRequest arg0) {
++		System.out.println("direct edit Command " + arg0.getType());
++
++		Command command = new MyCommand("new");
++
++		// TODO Auto-generated method stub
++		return command;
++	}
++
++	protected void showCurrentEditValue(DirectEditRequest arg0) {
++		// TODO Auto-generated method stub
++
++	}
++
++	public Command getCommand(Request arg0) {
++		Command result = null;
++		if (arg0.getType().equals(RequestConstants.REQ_OPEN)) {
++			result = (Command) new MyCommand("open now!");
++			System.out.println("SelectionPolicy :REQ_OPEN");
++
++		}
++		if (arg0.getType().equals(RequestConstants.REQ_DELETE)) {
++			result = (Command) new MyCommand("delete me!");
++			System.out.println("SelectionPolicy :REQ_DELETE");
++
++		}
++		System.out.println("SelectionPolicy getCommand " + arg0.getType());
++
++		return result;
++	}
++
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/MyGraphicalEditpartFactory.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/MyGraphicalEditpartFactory.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/MyGraphicalEditpartFactory.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/MyGraphicalEditpartFactory.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,26 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import org.eclipse.gef.EditPart;
++import org.eclipse.gef.EditPartFactory;
++
++public class MyGraphicalEditpartFactory implements EditPartFactory {
++
++	public EditPart createEditPart(EditPart context, Object model){
++		EditPart part = null;
++		if(model instanceof Graph){
++			part=new GraphPart();
++		}
++		if(model instanceof MyModel){
++			part = new MyModelEditPart();
++		}
++		else if(model instanceof MyNode){
++			part = new MyNodeEditPart();
++		}
++		else if(model instanceof MyConnection){
++			part = new MyConnectionEditPart();
++		}
++		part.setModel(model);
++		return part;
++		}
++
++}
+Index: src/ed/inf/proofgeneral/dependencygraph/MyModel.java
+===================================================================
+RCS file: src/ed/inf/proofgeneral/dependencygraph/MyModel.java
+diff -N src/ed/inf/proofgeneral/dependencygraph/MyModel.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ src/ed/inf/proofgeneral/dependencygraph/MyModel.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,181 @@
++package ed.inf.proofgeneral.dependencygraph;
++
++import java.io.FileOutputStream;
++import java.io.PrintStream;
++import java.util.ArrayList;
++import java.util.Collection;
++import java.util.HashMap;
++import java.util.Iterator;
++import java.util.List;
++
++public class MyModel {
++
++	private MyLayOut layout = new MyLayOut();
++
++	private String text = "Hello";
++
++	private boolean debug = true;
++
++	private FileOutputStream fileWriter;
++
++	private PrintStream p;
++
++	private MyNode treeHead;
++
++	private HashMap map = new HashMap();
++
++	public MyModel(String name) {
++
++		treeHead = new MyNode(name, layout,this);
++		addNode(treeHead);
++		setText(name);
++
++	}
++
++	public String getText() {
++		return text;
++	}
++
++	public void setText(String text) {
++		this.text = text;
++	}
++
++	private String getRootName(String msg) {
++		String result = msg.substring(msg.indexOf("thms") + 7, msg
++				.indexOf("/value") - 2);
++		return result;
++	}
++
++	private MyNode createRoot(String rootName) {
++
++		MyNode result = new MyNode(rootName, layout,this);
++		print("root: " + rootName);
++		return result;
++	}
++
++	private void print(String info) {
++		if (debug)
++			System.out.println(info);
++		p.println(info + "\n");
++		p.flush();
++
++	}
++
++	public List getChildren() {
++
++		Collection list = map.values();
++		Iterator it = list.iterator();
++		ArrayList st = new ArrayList();
++		while (it.hasNext())
++			st.add((MyNode) it.next());
++		// System.out.println("getChildren()");
++		return st;
++	}
++
++	public void addNode(MyNode node) {
++		map.put(node.getName(), node);
++	}
++
++	public MyNode getNode(String name) {
++		return (MyNode) map.get(name);
++	}
++
++	public void deleteNode(int i) {
++		MyNode node = (MyNode) map.get("DependencyTree");
++		// System.out.println("delete node 0");
++		// node.deleteNode();
++
++	}
++
++	public boolean evaluate() {
++		treeHead.collapseConnections();
++		treeHead.setInvisible();
++		return true;
++	}
++
++	public boolean evaluate(String name) {
++
++		MyNode node = (MyNode) map.get(name);
++		ArrayList parents = node.parents;
++		Iterator it = parents.iterator();
++		while (it.hasNext()) {
++			MyNode parent = (MyNode) it.next();
++			if ((node.getLevel() - parent.getLevel()) > 1) {
++				Iterator ip = parents.iterator();
++				while (ip.hasNext()) {
++					MyNode child = (MyNode) ip.next();
++					if (child.getLevel() > parent.getLevel()
++							&& child.parents.contains(parent)) {
++						parent.setOpaqueConnx(parent,node);
++					break;	
++					}
++
++				}
++
++			}
++
++		}
++
++		return true;
++	}
++
++	public void addChild(String rootName, String child) {
++		if (map.containsKey(rootName)) {
++			MyNode oldRoot = (MyNode) map.get(rootName);
++			if (map.containsKey(child)) {
++				MyNode oldChild = (MyNode) map.get(child);
++				oldRoot.addOldChild(oldChild);
++			} else {
++				MyNode node = new MyNode(child, layout,this);
++				oldRoot.addChild(node);
++				map.put(node.getName(), node);
++			}
++		} else {
++			MyNode newRoot = new MyNode(rootName, layout,this);
++			treeHead.addChild(newRoot);
++			map.put(rootName, newRoot);
++			if (map.containsKey(child)) {
++				MyNode oldChild = (MyNode) map.get(child);
++				newRoot.addOldChild(oldChild);
++			} else {
++				MyNode node = new MyNode(child, layout,this);
++				newRoot.addChild(node);
++				map.put(node.getName(), node);
++			}
++		}
++	}
++
++	public MyLayOut getLayout() {
++
++		return layout;
++	}
++
++}
++
++/*
++ * private void check(MyNode node1, MyNode node2) {
++ * System.out.println(node1.getName()+"-"+node2.getName()); for(int
++ * i=node1.getLevel()+1; i<node2.getLevel(); i++) { ArrayList
++ * nodes=layout.getLevelNodes(i); Iterator it = nodes.iterator(); while
++ * (it.hasNext()) { MyNode checker = (MyNode) it.next();
++ * if(node1.children.contains(checker)&&node2.parents.contains(checker))
++ * node1.removeConnectionTo(node2); } } } }
++ */
++/*
++ * public boolean evaluate5() { System.out.println("evaluate model");
++ * 
++ * Iterator iter = treeHead.getChildren().iterator(); while (iter.hasNext()) //
++ * if (!((MyNode) iter.next()).evaluateTriangles()) // return false;
++ * 
++ * return true; }
++ */
++/*
++ * public void evaluate6() { evaluate6(); for (int i = layout.size() - 1; i >=
++ * 0; i--) {
++ * 
++ * ArrayList list1 = layout.getLevelNodes(i); Iterator it = list1.iterator();
++ * while (it.hasNext()) { MyNode node = (MyNode) it.next(); ArrayList parents =
++ * node.getParents(); for (int j = 0; j < parents.size(); j++) { if (((MyNode)
++ * parents.get(j)).getLevel() == (node.getLevel() - 1)) { check((MyNode)
++ * parents.get(j),node); } } } } }
++ */

@@ -1,0 +1,25 @@
+<!-- some tests of idtable messages -->
+
+<pgips>
+
+<pgip class="pa" id="X" seq="1"><askids thyname="List" objtype="theorem"/></pgip>
+
+<pgip class="pa" id="X" seq="1"><askids thyname="Main" objtype="theory"/></pgip>
+
+<pgip class="pa" id="X" seq="1"><askids objtype="theorem"/></pgip>
+
+<pgip class="pa" id="X" seq="1"><showid thyname="List" objtype="theorem" name="List.zip_update"/></pgip>
+
+<pgip class="pa" id="X" seq="1"><showid name="List" objtype="theory"/></pgip>
+
+<!-- not allowed to view *anything* in empty context -->
+<pgip class="pa" id="X" seq="1"><showid objtype="theorem" name="List.zip_update"/></pgip>
+
+
+<pgip class="pa" id="X" seq="1"><proofstep>theory Example=Main:</proofstep></pgip>
+
+<pgip class="pa" id="X" seq="1"><setlinewidth>40</setlinewidth></pgip>
+
+<pgip class="pa" id="X" seq="1"><showid objtype="theorem" name="List.zip_update"/></pgip>
+
+</pgips>

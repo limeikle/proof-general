@@ -1,0 +1,17 @@
+NAME:			XSLT-OutputError
+LAST UDPATED:	$Date: 2006/11/16 15:17:44 $
+UPDATED BY:		$Author: gdutton $
+REPORTER:		da
+STATUS:			unresolved
+
+DESCRIPTION:
+
+ Bug in displaying prover output, null pointer exn when applying xslt transformation 
+
+TEST CASE:
+
+
+FURTHER INFORMATION: 
+
+
+FIX NEEDED:

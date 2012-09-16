@@ -1,0 +1,18 @@
+### Eclipse Workspace Patch 1.0
+#P net.sourceforge.texlipse
+Index: plugin.xml
+===================================================================
+RCS file: /cvsroot/texlipse/net.sourceforge.texlipse/plugin.xml,v
+retrieving revision 1.29
+diff -u -r1.29 plugin.xml
+--- plugin.xml	25 Feb 2007 10:27:27 -0000	1.29
++++ plugin.xml	11 Jul 2007 16:10:12 -0000
+@@ -3,7 +3,7 @@
+ <plugin
+    id="net.sourceforge.texlipse"
+    name="TeXlipse Plug-in"
+-   version="1.1.1"
++   version="1.1.1.qualifier"
+    provider-name="TeXlapse Team"
+    class="net.sourceforge.texlipse.TexlipsePlugin">
+ 

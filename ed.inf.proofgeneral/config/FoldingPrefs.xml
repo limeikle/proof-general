@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<preferences>
+   <pref name="Enable folding (experimental; editors must be re-opened)" class="Boolean" default="False"
+          tooltip="Use folding in the text editor."/>
+
+   <pref name="Skip over folded elements" class="Boolean" default="True"
+          tooltip="If some element of text is folded, skip over it when processing; otherwise, unfold automatically."/>
+
+   <pref name="Fold proofs after completion" class="Boolean" default="False"
+          tooltip="Once a proof element is completed during interactive processing, fold it if this option is set."/>
+           
+   <pref name="Initially fold comments" class="Boolean" default="True"
+          tooltip="Initially fold comments when files are opened"/>
+
+   <pref name="Initially fold proofs" class="Boolean" default="False"
+          tooltip="Initially fold proofs when files are opened"/>
+
+   <pref name="Initially fold theory elements" class="Boolean" default="False"
+          tooltip="Initially fold long theory elements when files are opened"/>
+          
+<!-- not yet:
+   <pref name="Folding trigger threshold" class="Integer" default="3"
+          tooltip="Number of lines an element must have before it is folded automatically"/>
+-->
+   
+</preferences>

@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<preferences>
+
+	<pref name="Use symbols in documents" class="Boolean" id="SymbolSupport" default="true"
+		tooltip="Switch symbol support (i.e. use and display of mathematical symbols) in documents on or off."/>
+
+	<pref name="Use symbol shortcuts while typing" class="Boolean" id="SymbolShortcuts"
+		default="True"
+		tooltip="Auto-convert symbol-shortcuts into symbols when typing."/>
+
+	<pref name="Use symbols for prover output" class="Boolean" id="OutputSymbols"
+		default="True"
+		tooltip="Whether mathematical symbols should be displayed in prover output or not."/>
+
+	<pref name="Prover response time-out" class="Integer" id="TimeOut" default="0"
+		tooltip="Time limit (in milliseconds) for the prover to issue some response to each command; 0 for no limit"/>
+
+ 	<pref name="Gather prover knowledge"
+	      class="Boolean"
+	      default="True"
+	      tooltip="Automatically gather knowledge about the proof environment for tooltips.  Disable on a slow machine."/>
+
+ 	<pref name="Allow editing of processed text"
+	      class="Boolean"
+	      default="False"
+	      tooltip="Allow editing of locked regions.  Breaks command boundaries and may cause loss of synchronisation!"/>
+
+
+	<pref name="Help URL" class="URL" default="http://proofgeneral.inf.ed.ac.uk/wiki/Main/ProofGeneralEclipse"
+		tooltip="URL of the help site for Proof General"
+		visible="false">
+		<description>Visit this site for more information about Proof General Eclipse</description>
+	</pref>
+
+	<pref name="Bug Report URL" class="URL" default="http://proofgeneral.inf.ed.ac.uk/trac"
+		tooltip="URL of the bug reporting site for Proof General"
+		visible="false">
+	<description>Visit this site to report a bug in Proof General</description>
+	</pref>
+
+</preferences>

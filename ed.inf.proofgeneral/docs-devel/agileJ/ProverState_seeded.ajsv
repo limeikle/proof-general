@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--AgileJ Ltd. (http://www.agilej.com)-->
+<ajsv>
+    <diagram scope="scopeElementSets.elementSet.Switchable Subtypes" style="standardDiagramStyles.diagramStyle.Standard Basic Style" version="1.4.5">
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Manhattan Lines" switchValue="dependence, fields"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Line Types" switchValue="dependence, field, inheritance"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Signature Length" switchValue="short"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Visibility" switchValue="public, protected, package, private"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Members" switchValue="fields, methods, inners, initializers"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.ProverState" project="ed.inf.proofgeneral" xLocation="645" yLocation="1095"/>
+        <class className="java.util.Observable" project="ed.inf.proofgeneral" xLocation="655" yLocation="683"/>
+        <class className="ed.inf.proofgeneral.ProofGeneralPlugin" project="ed.inf.proofgeneral" xLocation="1143" yLocation="1376"/>
+        <class className="java.util.Iterator" project="ed.inf.proofgeneral" xLocation="1540" yLocation="1237"/>
+        <class className="java.util.ArrayList" project="ed.inf.proofgeneral" xLocation="482" yLocation="2823"/>
+        <class className="java.util.List" project="ed.inf.proofgeneral" xLocation="796" yLocation="2461"/>
+        <class className="java.lang.System" project="ed.inf.proofgeneral" xLocation="1540" yLocation="1465"/>
+        <class className="java.net.URI" project="ed.inf.proofgeneral" xLocation="-178" yLocation="648"/>
+        <class className="java.util.Collection" project="ed.inf.proofgeneral" xLocation="1151" yLocation="2329"/>
+        <class className="java.lang.String" project="ed.inf.proofgeneral" xLocation="215" yLocation="741"/>
+        <class className="org.dom4j.Element" project="ed.inf.proofgeneral" xLocation="815" yLocation="3115"/>
+    </diagram>
+</ajsv>

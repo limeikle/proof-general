@@ -1,0 +1,76 @@
+Ideas for Desirable User-visible Improvements
+
+$Id: IMPROVEMENTS.txt,v 1.3 2006/12/29 14:50:31 da Exp $
+
+- Contributions/code from elsewhere that need to be re-integrated:
+
+   1) Ahsan's branch has numerous code improvements and user-level improvements 
+       (e.g. preferences, event handling)
+   2) Hua wrote some code-folding, unfortunately based on Isabelle text rather than PGIP markup,
+       but could probably be ported.
+   3) Elina wrote a graphical dependency viewer using GEF.  Should be a separate plugin, but
+       could do with some design for extension point (e.g. DOM-style API for document). 
+   4) David wrote a patch that began a prover-specific plugin architecture: although
+       we don't want to encourage prover-specific code, it might be a good way
+       of designing the instantiation mechanism: perhaps we can use PGIP to instantiate
+       a plugin dynamically, or write an EMF-style code generator if we only do this statically.
+       Needs some more thought!
+   5) David has a current patch in StateMarkersEvents that uses markers for
+      indicating document element state.  Much better design for colouring
+      text but needs efficiency tests/tuning to determine if usable.
+   
+- improve parsing mechanism.  Should do what PG Emacs Kit version does: recognise edited 
+  previously-parsed elements and just reparse within them to fix up tree.  This seems to be 
+  how JDT works as well.  Parsing should be automatic, incremental and background action
+  (triggered after idle time)
+
+- Bug tracking and unit tests
+
+- ANT build environment and cruise-control nightly builds on server
+  [low priority, development is intermittent at the moment]
+
+- product & branding: add intro, fix welcome screen
+
+- cleaner PG startup mechanism (if running as "eclipse", offer as new PG perspective
+  associated with .thy files (prover only starts on perspective start); 
+  if running as "IsabelleEclipsePG", activate that perspective
+  immediately, start prover, have a splash screen if run using a certain command line;
+  done a bit of this
+
+- better way of logging messages/errors (now as flags in PGPlugin), allow user cmd-line enablement
+
+- should have more messages on "theory" command (since it is often so slow) [? no longer an issue as latest output updates -AH ?]
+
+- Add task generation based on regexps in source comments
+  We can base on JDT's scheme, but copying that code brings
+  in a huge amount of stuff: we can be simpler and scan in parselink, perhaps
+  same place as oops/sorry tasks added (and those should be optional in preferences).
+
+- could have progress display bar
+
+- logs should use a better control (html is slow, probably want an editor ?)  [done a lot of this -AH]
+
+- document highlighted region updating could be done in a non-display thread, with display thread updated when possible
+  (likewise for other controls)  [done a lot of this -AH]
+
+- status bar should say "starting", "running (level XX)", "dead" etc; also perhaps should not be button;
+  probably should be linked to startup monitor (WaitReadyAction); ideally also say *who* is doing the action
+  (e.g. parse, send next, prover knowledge, etc; can use SessionManager.proverOwner to get clues)
+
+- better options in context popup menu
+
+- consider allowing multiple prover instances.  a lot of work, but I think 
+  Eclipse requires multiple workspaces if multiple instances are open;
+  it was useful with Emacs PG to have simultaneous provers in separate sessions;
+  depends how much of a pain it is to do this with Eclipse
+  (the UI could become nightmarish with multiple provers open...);
+  current workaround is to use different instances with different workspaces (?)
+
+- create new fonts dedicated for EclipsePG editor;
+  suggest base on FreeMono but take symbols from others; there are (a very few) fonts
+  which even implement Longrightarrow as unicode 27f9, since the = symbol is different height (on my linux at least);
+  i *think* this would be picked up automatically elsewhere if it's the only font implementing 27f9
+   da: Stix fonts are supposed to be in public beta by end of 2006.
+   I'm not sure whether they have a complete symbol set in monospace though.
+   See www.stixfonts.org
+   

@@ -1,0 +1,56 @@
+NAME:			ProcessedPosition
+LAST UDPATED:	$Date: 2006/12/18 10:53:01 $
+UPDATED BY:		$Author: da $
+REPORTER:		da
+STATUS:			unresolved
+
+DESCRIPTION:
+
+ Issues editing around processed position. Adding a command and then
+ deleting it doesn't seem to work and gets stuck trying to process old command.
+ 
+TEST CASE:
+
+* Part processing error:
+  Start Proof General for Eclipse
+  Load a file and partly process it.
+  Add a junk line after blue region (e.g. "qed").
+  Process next step, get error.  Now delete erroneous line.
+ 
+* See NewTheory.thy
+
+FURTHER INFORMATION:
+
+ Note: marker stays present, outline view still shows deleted element.
+ Seems impossible to delete element?
+ 
+ 6.12.06: On re-examination with the simple case in NewTheory.thy,
+ this doesn't seem so bad now.  The outline view doesn't get updated 
+ at the right point, which is confusing.
+ But the document seems to have the right content now, and not
+ send the wrong content.   [If this is wrong, we should add a concrete
+ test case here!]
+ 
+ 18.12.06: The remaining problem (1 below) occurs only when the user attempts to type more text directly
+ on the processed boundary.  If a new token is detected, by typing a space character
+ for instance, the new token takes the correct formatting.  Otherwise the region is
+ extended.  A fix for this would be to end tokens unconditionally when the prover says so.
+ This latter problem may be related to the position that the parse tree is
+ reported as having changed from.   It isn't present in the state-markers version.
+ It is different from the editing glitches seen previously (where the editor contents
+ did not match the text that was sent to the prover: this seems to be solved now). 
+
+ Related problems:
+  1. Editing at end of blue region extends it, which corrupts it.
+  2. Parsing with the parse button in the outline view gives parse
+  errors in dialog!  It should behave just as the parsing does before processing.
+  [Updating the parse in the processed region is probably a bad idea,
+   although it could be used as a consistency check.]
+  
+
+FIX NEEDED:
+
+  1. OBO error in document's replace method?
+  2. Remove error dialog
+  
+ 

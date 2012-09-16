@@ -1,0 +1,5 @@
+<pgip class="pa" id="X" seq="1"><quitpgip/></pgip>
+
+<!--- quitpgip is a non-standard element for Isabelle, to
+      return to ML top level in interactive shell.  -->
+

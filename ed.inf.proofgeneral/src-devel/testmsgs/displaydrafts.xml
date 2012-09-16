@@ -1,0 +1,10 @@
+<!-- Isar's new display drafts command.  Maybe this could be made
+     into a PGIP command for printing?  [But in general we would expect
+     the interface to be capable of this: it is simply a bad failing of 
+     X Symbol at present]
+
+     FIXME: at present the output from LaTeX subprocess does not
+     get passed through print mode machinery.
+ -->
+
+<pgip class="pa" id="X" seq="1"><systemcmd>display_drafts "~~/src/FOL/FOL.thy"</systemcmd></pgip>

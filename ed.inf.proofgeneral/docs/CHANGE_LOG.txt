@@ -1,0 +1,402 @@
+ Eclipse Proof General -- Developers' Change Log
+-------------------------------------------------
+$Id: CHANGE_LOG.txt,v 1.8 2007/06/27 14:46:28 da Exp $
+-------------------------------------------------
+The bug list has been moved to trac, see http://proofgeneral.inf.ed.ac.uk/trac.
+
+The change log lists the most recent edits first.
+This file has not been maintained since Nov 06: 
+check CVS ChangeLog for commit messages instead.
+-------------------------------------------------
+
+See also wiki page which documents user-oriented fixes required:
+
+  http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseFixesNeeded
+
+CHANGES
+
+2006 Nov 22 (DA)
+- Repairs and reorganisation of locked script management.
+- Remove writing to prefHelpContexts.xml.
+
+2006 Nov 20
+- Completed updates to Eclipse 3.2 compatibility
+
+2006 Nov 01
+- Massive reorganisation
+  > Applied CVS $id$ headers to all files for better tracking
+  > Moved all miscellaneous packages into a content-oriented
+    package in the ed.inf.utils parent package.
+
+2006 Oct 31
+- Numerous small updates to use Java 1.5 code.
+- Many updates to use Eclipse 3.2 code.
+- Beginning packaging into ed.inf.util
+
+2006 Oct 30
+- New prover detection searches user's path for prover file
+  > Much better feedback when prover is not available.
+  > Avoid spurious warnings if prover gets fixed
+- more general SessionManager changes
+  > Type-checked much of this class
+  > Lots of new documentation
+- added ed.inf.util class
+  > some general classes here
+  > silly tabulation class imported from my attic
+  > aiming to integrate relevant classes from 'winterstein' and 'heneveld'
+
+2006 Oct 27
+- Restructured documents some more.  Removed javadocs from repository.
+- Added ant build file
+  > so far targets are javadoc and tpwrapper, two relatively common tasks
+- Modernised (for 3.2) the customswt package
+- Improved feedback when prover is not available.
+
+2006 Oct 23 (GD)
+- Updated test theories for Isabelle 2006.
+
+2006 Oct 19 (GD)
+- restructured documents in root of repository.
+- Performed initial testing.
+
+2006 Oct 17,18 (DA)
+- Added new proof script wizard and property page for proof scripts (currently spurious)
+- Blast a pile of warnings: import (not really important) and static access (good to fix)
+- Remove PlanLiason.java, not used/empty (unless Lucas/someone has tweaked version?)
+- Some cleanups of markers: use platform marker classes (textmarker, taskmarker, problemmarker) and
+  add priority and severity levels.  Get rid of annoying modal dialog for parse warnings.
+- Workaround for 3.2 startup issue: PGColorProvider caused NullPointerException trying to get pref. store.
+  Now seems to work without org.eclipse.runtime.compatibility. 
+- Fix for editor activation
+- Cleanups for packaging: use default named jar file (.) instead of proofgeneral.jar, document
+  problem with plugin based product in devel-docs/howto/make-release.txt
+- Tweaks to welcome page.
+- Many more issues added to http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseFixesNeeded
+
+2006 Oct 12,13 (DA)
+- Move ProofGeneralPlugin to 3.2 API, try to replace org.eclipse.core.runtime.compatibility with org.eclipse.core.runtime
+- Removed PGPlatformRunnable, I don't think this is wanted (unless it was for 
+  Alex's standalone stuff -- but comments suggest it is broken anyway).
+- Removed EclipseVersionCompatibility and inlined the fix
+
+2006 Oct 07 (DA)
+- Some simplifications to preference mechanism and updates for 3.2 API; 
+  remove non-standard file attribute. More to do, see note at top of 
+  PrefsPageBackend.java
+
+2006 Oct 05 (DA)
+- fix Help menu actions to open internal browser in editor window for wiki
+- use automatically generated build version number qualifier
+- rearrange and fix up icons (icons/star48.xpm should be moved to 
+  icons/branding on product rebuild)
+
+2006 Oct 03 (DA)
+- bump version number to test update site
+- add TODO.txt documenting priority fixes to get a more usable system
+
+2006 Oct 02 (DA)
+- more tweaks to packaging: renamed product here to avoid confusion
+- user visible fixes documented in CHANGES.txt
+
+2006 Oct 01 (DA), packaging tweaks and cleanups/moving in repostitory; 
+                  more branding; attempts towards released version as 1.0.1.
+
+- made update site: proofgeneral.inf.ed.ac.uk/eclipse
+  (update project and features are in CVS repository under eclipse/)
+- manifest added for OSGi framework in Eclipse 3.2
+- name change: this is "Proof General Eclipse" or PG Eclipse for short (no slash!)
+- version numbers: use plugin version as main version number; elsewhere 1.0[.x]
+- icon source files moved to icon-src; added redrawn star in various sizes, branding
+- documents renamed devel-docs to make clear they're not for users
+- content dir for package intro added (but no working intro yet)
+- various defunct files removed, notes on bug fixes and bugs remaining
+- my experience with this code is that real use is still very difficult because
+  of too many glitches and bugs in the interface: we should work to erradicate them!  
+
+2006 Sep 9 (AH)
+
+MINOR fixes
+- Added test to wrap HTML widget text in <html> tag with meta for using UTF-8
+  (needed since we display unicode which is not usually the default in
+  external browsers such as Mozilla)
+- changed \<and> to be &, not && (since && didn't parse but & does)
+- added extra space after replacements since \<exists>x. became EXx., not EX x.
+
+
+2006 Aug 24 (DA), minor fixes for Eclipse 3.2
+
+- EclipseVersionCompatibility: small change for 3.2 release version
+- PGSourceViewier avoid null pointer exception when visiting file outside
+  workspace.  
+- Fixes to imports (a couple of broken imports commented out)
+- move pointers to old wiki to point to new wiki, remove some pointers
+  for pages which haven't been written yet.  Other minor documentation
+  changes  [I'm a bit dubious about hard-coding all these doc wiki links 
+  in the application, it would be better to include snapshots here once 
+  some documentation exists, with a single outside link.]
+
+
+2006 Jan 2 (AH)
+
+MINOR fixes
+- Symbols will display as the shortcut if unicode is unavailable or unset;
+  unset is useful for things like \<Colon> for types which is output by isabelle 
+  but we'd rather show ::  ... and crazily, Isabelle doesn't recognise \<Colon>!
+  I also removed the combination long arrows since they often don't line up;
+  the right thing to do is use chars from Unicode Supplemental Arrows A range
+  (eg U+27F9) but the Japanese font Y.OzFontN is the only free one I've found
+  that includes it correctly; and unfortunatley the "Fixed" font includes a 
+  crap version which my system picks up (I emailed the FreeSans developers to
+  ask them to include it in a future release.)
+- ProverKnowledge uses a list of names all pointing to same record;
+  includes fully-qualified names and completion works with them, eg HOL.i<ctrl+space>;
+  can refresh all local entries to get things like primrecs (needs manual command)
+- changed colours to be like Emacs PG (if this is a problem, i apologise; it was
+  *really* irritating me especially since it is difficult to read through red
+  and other users also commented they didn't like it, so i thought it would be worth doing)
+
+
+2005 Dec 19 (AH)
+
+MINOR fixes
+- fixed bug where editor scrolled to top on save (workaround, it rescrolls to where it was)
+- SessionManager uses a list to track fired events (more efficient than launched threads and calling notifyAll,
+  especially when lots of events generated/queued)
+- added "\<bar>" as symbol
+- SendCommandAction runs more in FG, so is faster
+- improved Document scroll routine and optimised offset-update routines, so "next" and auto are faster;
+  on "next", behaviour is to scroll to change but leave cursor where it was,
+  unless cursor was inside commant; on "auto", behaviour is not to scroll or move cursor
+  unless processing passes cursor location, in which both more with processing
+  (can be a little unfamiliar at first, but i think this is desired behaviour)
+- improved xml-repair so it is much faster
+
+
+2005 Dec 14  (AH)
+
+MAJOR fixes
+- workaround for isabelle bug that it puts things like \<equiv> in XML output
+  (gets replaced by \&lt;equiv&gt;); PG attempts to correct for unescaped xml chars <, >, and &
+  (and it does a pretty good job, thanks to regex support in java!)
+- fixed bug where parse results would get flummoxed when symbols were used;
+  parse results are now reconciled modulo symbols, and it seems to work well now 
+  even when symbols are on
+- support for accessing a prover programmatically, ie without eclipse open (eg. testing, and AH feature wizard);
+  see test/src/StandaloneProverExample
+
+
+MINOR fixes (recent)
+
+- content assist autocomplete proposals (Ctrl+Space) seemed to stop working; 
+  needed action def id set in ProofScriptEditor
+- Path for PG plugin wasn't always being found correctly, now it is (better at least)
+- ProverKnowledge correctly combines lazy-load definitions with preloaded definitions;
+  and it handles long method descriptions (eg "subst")
+- Isabelle2005 changes
+  - thms_of is hidden in PureThy, fixed access for ProverKnowledge
+  - ProverState recognises handshake symbol events (doesn't do anything but no longer gives error)
+- using .cvsignore files to filter out some files i have locally but aren't useful to others
+- comments in plugin.xml and EclipseVersionCompatibility to aid with Eclipse 3.2 migration (if and when desired)
+
+
+MISCELANEOUS:  these (very minor) changes were made in my codebase ages ago,
+but I didn't merge them at the time (conflicts); i think dan also fixed some of these;
+
+i include them here for the sake of completeness:
+- used to get sluggish after lots of use, fixed inefficiency in 
+	output view, seems better now
+- clean up "confused proof" message (for unnamed lemmas, display lemma; 
+	for bad state say incomplete); Dan also changed this
+- prover knowledge messages are better
+- prover knowledge no longer gets confused on unnamed lemmas
+- prover knowledge will now report on all theorems of a given name, 
+	not just the first
+- PGProverAction has one more overridable post-init function
+- fixed error where Display.async(SessionManager.unlockAll) was called after eclipse classloaders closed
+- removed manifest .MF file; as this seems to prevent exporting plugin classes
+- Ctrl+R still sometimes conflicts with "Run to line" (should be using contexts... maybe installed wrong?;
+  seems fixed now, by whom I don't know)
+
+
+2005 July 08  (Dan?)
+
+BUG-BASHING:
+	Some work done in the SessionManager package (startSession changed slightly).
+	Changed the behaviour of ProverState.onUndo... methods to handle nested proofs.
+IMPROVEMENTS:
+	The symbol support is better in several ways.
+See cvs comments for more details
+
+
+
+1 jun 05, MINOR CHANGES (AH):
+- added context/scope for key bindings (was causing error when added as plugin)
+- fixed prover knowledge grab (changed as result of theory output change), also subst method is multiline (breaks)
+
+
+9 may 05, AH
+
+MAJOR CHANGES:
+- changed Outline model to include collapsible subsections
+- files can be changed after 'end'
+- added "ProverStandalone" interface for using a Prover without loading Eclipse (requires basic Eclipse jars but not DLL's);
+  see its main method for illustration
+- fixed some queueing thread-sync problems, robust send/wait functionality in SendCommandResponseAction
+- cleaned up display routines, mainly by dropping outdated display updates in OutputViews (must faster)
+- ProverKnowledge learns about new items in current file, and gets tactic/method info
+
+full change list:
+- added ProverKnowledge for current theory items (using SendCommandResponseAction)
+- refactored CommandQueued and CommandQueuedWithValues
+- created ProverStandalone for running text-based commands
+- improved new GetCommandResponseAction to allow ownership sessions
+- prover knowledge parses theory in fg, then commands in bg once things are quiet
+- ProverKnowledge gets updated as new items are parsed, including axioms and definitions
+- ProverKnowledge updates the tooltip for any marker (could get confused on same-name markers)
+- prover state model info gets set on success (except undo commands), added getLastResponse() method
+- exceptions display more nicely, and accept a parameter for whether just to silently display the log view
+- latest output view shows errors alongside state
+- errors during send next and goto show in log, not in dialog, latest output is activated
+- outline view refreshes better
+- OutputViews update less often in big runs
+- outline collapses more, into subsections; status shows currectly
+- fixed undoall
+- fixed bug where actions could get stuck on interruption
+- fixed undo all (wouldn't retract theories properly)
+- changed undo behaviour so as not to rely on scripting containers
+- open definition on right click acts on current location
+- info about active tactics
+- don't switch to error view if:  either we show error dialogs or are in latest output view
+- fixed many bad location exceptions
+- ProverKnowledge loads info about active tactics (using print_methods (theory))
+- hover looks for valid words (excluding parens and quotes), but autocomplete didn't (does now)
+- some Isabelle versions use pgmltext elements (now recognised in ProverKnowledge)
+- action set (menu and toolbar) only appears in PGPerspective
+- interrupt sends killall -2 signal
+
+
+2 may 05, -ah
+
+MAJOR:
+
+- added live prover knowledge as tooltips
+- fixed lots of parsing errors
+
+minor bug fixes:
+
+- Isabelle can occasionally give buggy XML (if sending complex ML commands with quotes and raw chars); 
+  SessMgr used to wait forever trying to parse that, now it has shortcuts & errors, 
+  it's also faster on incomplete xml
+- commands used to go funny on error; now they always wait for a CmdProc to reset (even if there is a CmdCausedError)
+- GetCommandResponseAction is now available, for sending a command in a background thread,
+  when the TP is available, and waiting for output, behaving nicely on interrupt
+  [use eg GCRA.getDefault().doCommand("ML {* thm \"sym\" *}"); ]
+- ProverKnowledge gets a list of all axioms and theorems (takes about 1s, uses low-ish level ML)
+- static option to use prover knowledge or not in ProofGeneralPlugin
+- autocompletion includes prover knowledge items
+- added tooltips/help for code completion proposals
+- added html capabilities to tooltips (copied Eclipse's internal HTMLTextPresenter); help now also showed for auto-completion
+- minor clean-ups in UndoAction, fixes in UndoAll where it got notified too many times
+- now we send a CommandSucceeded event before the CommandProcessed if it succeeds
+- now we don't update processed offset until command is processed without error
+- goto sets the lock offset immediately
+- PGTextHover word-finding now includes numbers
+- if user has chosen a logic not for preferences, then updates preferences, 
+  they didn't take effect until eclipse restart (fixed by propertyChange method in IsabellePrefsPage)
+- tooltip/hover windows can update when the information is loaded (and the window is resized) (UpdateableHTMLTextPresenter)
+- fixed error on click where there is no text; now just shows context menu without options
+- OpenDefinition only shows in context menu if it is a known term
+- clears privateListener on restart/shutdown
+- fixed autoSymbolise error where it tried to go back before start of document
+- ExternalLazyParser responds better to events (doesn't notify twice on error, responds to shutdown)
+- events can take any object as cause
+- cause gets set on outgoing events now, too
+- ExternalPrivateListener now uses itself as the cause to listen to (it was responding to send command actions)
+- interrupt first tries interrupting any paused active firing events
+- on parses which cause errors, ExternalLazyParser now stores sensible responses
+- GotoAction executes the parsed commands found when there is an error, and THEN throws the error
+  (if the error is on a different line to goto target, or if goto was run on a single line)
+- parse doc action (and outline view) also uses valid parse information located before an error
+- parsing errors tell what line it happened on, can go there
+- fixed error where wouldn't scroll if command-sent is run sent after command-processed
+- parse all usually runs in bg thread now
+- parse all takes ownership
+- when parsing for next command, it tries one line, then 4, then 16, then whole doc
+  (much faster then adding one line each time); but it's still slow (see separate bug)
+
+2005 Apr 28 -- AH
+
+minor changes:
+- added startup monitor (WaitCommandAction), shows an error window if the prover doesn't start in 10s
+- updates prover state if process quits unexpectedly (or is killed externally)
+- stopSession can now run in background with stopSessionBg 
+  (and does, on normal shutdown; also does restart in background on fresh session action)
+- PGIPShutdown is sent on shutdown, for viewing and to reset the appropriate actions/buttons
+- non-xml messages are handled a bit better, including !!! warnings
+- StreamGobbler processes output within its thread (was slower, in the display thread)
+- all PGIPEvents now get a cause set (it was only a few, done in SM.pgipEvent(XX))
+- error dialogs (eg scripting exception) are now always on top 
+  [was visually confusing] -- gets shell from ProofGeneralPlugin activeEditor now
+- race issues with generation of CommandCausedErrorEvent (would sometimes happen after
+  CommandProcessed, so commands couldn't know whether they succeeded); now always sent 
+  after Ready and before CommandProcessed, but only if the error came from the prover;
+  (or if the event is cancelled).  not sure if this is desired behaviour, but it is more
+  sensible than the old way.  [see note in bug list about documenting/discussing this]
+- choose logic params have been fixed some (also an error where it could become permanently disabled);
+  still slightly hacked (see separate bug for that)
+
+
+
+2005 Apr 24 -- AH
+
+minor changes:
+- Choose Tool allows specifying a PGPluginTool class (for quick and dirty extensions -- not included in code base, let me know if you want)
+- EclipseMethods has a messagePromptDialog method which prompts for a string
+- qUndo sends the cause
+
+2005 Apr 20 -- AH
+
+MAJOR CHANGES:
+- event firing model is synchronized to preserve order
+- dialog and menu option to select logics (ChooseLogic...) and CWD
+- uses a thread pool, kills unusued threads on stopSession
+- scrolls in window on next and undo (see ProofGeneralPlugin.SCROLL_ON_NEXT_COMMAND)
+- actions are properly synced with prover and each other (ie goto now works)
+
+minor changes:
+- comments are now stepped through individually (see ProofGeneral.STEP_COMMENTS)
+- undoitem wasn't recognised in my code (set to use ProofGeneral.undo as spurious command, incl on lit comments); see ProofGeneralPlugin.SEND_OLD_STYLE_UNDO
+- static instance avail of ProofGeneral and PreferenceStore, for use outside Eclipse
+- markers (eg theory/lemma) caused eclipse errors (shown in log), changed so id is recorded just as pgmarker/theorem/etc 
+  (the ed.inf.pg is prepended automatically), and set super type of pgmarker to be core resources marker
+- support in pgip2html.Converter for text conversion (partial, should live elsewhere :);
+  also dodgy attempt to clean up escaped XML (probably can be removed)
+- lots of places, UI code switched to run in UI thread
+- Session Log and Latest Output perspective names were reversed in their ShowXXX classes
+- got rid of "retract script" message on shutting down
+- force switch message no longer displayed on shutdown (PGPlugin has better isShuttingDown method)
+- ActivateScriptAction close now has boolean semantics (instead of throwing an error)
+- when disposing an editor and calling ActivateScriptAction--retract, the document was not passed, so the new editor not the old was being used!
+- scripting in a new file when an old is active is a bit smarter 
+  about checking whether old really is active (eg okay to swap if finished or not started);
+  activeCheck does this
+- session log wasn't getting all its info [setText call in wrong thread, and data gets lost by different threads]
+- non-xml messages ruined state, eg. 'Warning -- increasing stack'; now they are displayed and discarded
+- parser checks if command avail fast; also, better error checking
+- external lazy parser would deadlock on interrupt, then resumes when we don't want it to; now it catches CommandCausedError
+- parsing was off by one sometimes; fixed so Parser doesn't ignore ' and " chars (which was causing this error)
+- session manager now generates an object for prover commands (CommandQueued, containing DocElement and cause)
+  with preFire and postFire methods called before relevant events fired
+  (eg for setting temporary a privateListener setting, better than setting static field in sm)
+- session manager now uses seq/refSeq lookup activeCommandLookup to find commands (and other minor queueing/syncing changes)
+- quick clicks (eg Next Next) messed up communications, now PGAction implements a run-singly option, waits for responses
+- toolbar buttons can now be enabled (at least after their first use they can be)
+- new enablement mechanism for PGAction, based on prover ownership, other items
+- allows setting a single prover owner in session manager (strongly recommended to use this in new methods)
+- sends a "prover clear" message when queues are all empty, prover not busy, and prover not owned
+  (used to update enablement of buttons)
+- sends InternalEvent.ProverClear after it has all other PGIPEvents have fired
+- "goto" (undoAll, sendAll) was screwy; now it works (proper command syncing)  [may still be the odd error, but not usu fatal ??]
+- PGProverAction sets a constant value for the document within a single command run
+
+  

@@ -1,0 +1,25 @@
+[da] Something that was confusing me for a while:
+
+The "active" editor may be different from the displayed editor,
+when the Navigator is used to switch between editors.
+
+This can mean that the toolbar buttons take action in another
+editor, which can be quite confusing.  There may also be underlying
+bugs, I'm not sure.  
+
+Test case:
+
+ 1. Open NewTheory1.thy and NewTheory2.thy
+ 2. Click on activate button for NewTheory2.thy, making it active
+ 3. Click on NewTheory2.thy in Navigator: it is displayed, but not set
+    as active (maybe because editor is not active).
+ 4. Click on Next button in toolbar (or menu), repeatedly
+ 
+ Then (reasonably enough) NewTheory2 gets processed.  It's confusing
+ that it's invisible, though.  We might consider to make the 
+ PGProverAction raise the active window, although if the action is
+ called from a program that's not so great.
+ 
+ Let's leave as is for now.
+ 
+ Status: UNRESOLVED, DONT FIX

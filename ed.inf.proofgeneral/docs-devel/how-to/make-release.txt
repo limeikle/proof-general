@@ -1,0 +1,107 @@
+
+== Building Proof General ==
+
+Eclipse has two export commands (export as a deployable plugin,
+and export as a standalone product). Once setup correctly,
+these make building distributions easy.
+
+
+1. To build as a deployable plugin to deploy within an 
+existing Eclipse product (experimental, one-off), run:
+
+ File -> Export -> Plug-in Development -> Deployable plugins and fragments
+ 
+ Select the Proof General plugins you want, and export to an archive
+ file, e.g.
+  
+   /tmp/pgeclipse-zips/ed.inf.proofgeneral.zip
+
+
+2. To build fragments used in the main update site, use the update site project.
+You must check out:
+
+ cvs.inf.ed.ac.uk:/disk/cvs/proofgen/eclipse/ed.inf.proofgeneral.update-site
+ cvs.inf.ed.ac.uk:/disk/cvs/proofgen/eclipse/ed.inf.proofgeneral.feature
+
+The update site method uses wizards for constructing downloads
+in the form used by the Eclipse update mechanism.  So it provides 
+automatic installation and updates for users.
+
+
+3. To build as a standalone product, select
+
+ File -> Export -> Eclipse product
+ 
+ and load the configuration from
+ 
+   pgeclipse.product           (kept in the update site package)
+or:
+   pgeclipseplugin.product     (from a specific prover package,
+                                to bundle support for exactly one prover)
+
+Change the root directory from "eclipse" to "pgeclipse-1.0.6pre".
+ 
+As output, select an archive file, e.g.:
+
+    /tmp/pgeclipse-zips/pgeclipse-1.0.6pre.zip
+
+The plugin product configuration is a minimal configuration
+based on individually selected plugins (in fact some useful 
+plugins are missing, e.g. for help).
+
+We release the larger product based on a feature, so that it
+works with the update mechanism.  To understand that, 
+check out the additional projects mentioned above.
+
+ NB: the pgeclipseplugin.product currently cannot be used to make
+ a working standalone product.  The reason for this is that it bundles
+ the jar file for the plugin and the methods to locate default preference,
+ symbol files, etc, do not work.  The feature based product has an option
+ to unpack the plugin so things work.  The code needs improving so that
+ files can be loaded from the jar, and to remove the attempt to write
+ files into the install location.
+ 
+Suggested build platforms:
+
+  x86_gtk x86_64_gtk mac (ppc+intel) win
+
+
+== Multiple architecture/platform builds ==
+
+For product builds, the default is to build a product based on the currently 
+executing IDE, for the current platform.  To build for other platforms (possibly several), 
+you should first download and install the Eclipse RCP SDK (and "delta"
+pack).  The downloads are available with the Eclipse release files.
+Note!! They must be unpacked in a new, separate location, different from
+your Eclipse installation.  You need to install these packages 
+(FIXME: check exactly what is needed here):
+
+   RCP-SDK 
+   RCP-delta
+   eclipse-platform   [ plugins for IDE ]
+
+Make the RCP SDK the target platform for your builds by setting:
+
+   Prefences -> Plug-In Development -> Target Platform
+   
+Then issue "reload".  Now builds will be against & include the JAR files in
+the RCP SDK instead of the running IDE.  If you select an archive file
+to export to, the platform is added to the filename.
+
+
+== Build/release/package TODOs ==
+
+Low priority except first:
+
+1. Update versions, contact details, dates, copyright messages
+2. Add better branding to product (welcome, icons, intro, etc).
+   Migrate plugin.properties/plugin_customization which don't seem to be loaded?
+3. test packages: Dan had some simple scripts which tested installations.
+   (See repository pre-Sep 2006).
+4. stuff to do the same as PG emacs build would be good: automatically 
+   cvs tag release version, update web pages, etc.
+5. Fixes to preference mechanisms so that plugin can run from jar
+    
+ [ DA, Sep-Oct 06; Jun 07 ] 
+    
+

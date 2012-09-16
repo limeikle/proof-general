@@ -1,0 +1,13 @@
+PG Eclipse: desirable fixes
+===========================
+There is a master list of user-oriented desirable fixes.  
+It now maintained on the wiki, here:
+
+ http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseFixesNeeded
+
+For more low level notes on implementation level fixes, see
+  * BUG_LIST.txt		- desired fixes / enhancements
+  * CHANGE_LOG.txt		- fixed bugs
+  * the various TODO & FIXME markers scattered through the code.
+
+[ da, Oct 06 ]

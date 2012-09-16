@@ -1,0 +1,292 @@
+# 
+# RELAX NG Schema for PGIP-lite, the slimline Proof General Interface Protocol                   
+# 
+# Authors:  Daniel Winterstein, CISA, University of Edinburgh
+#           David Aspinall, LFCS, University of Edinburgh       
+#           Christoph Lueth, University of Bremen       
+#
+# Version:  0.9
+# 
+# Status:   Experimental.                                           
+#
+# Purpose:  This document serves 2 purposes:
+#           1) It sets out a slim-line subset of PGIP which is the minimum needed 
+#              to use Proof General/Eclipse. As such, it is of interest to developers 
+#              looking for a 'quick fix' way to get a good interface for their prover.
+#           2) It roughly marks those aspects of PGIP which have been implemented by the 
+#              1.0 beta-release of Proof General/Eclipse.
+# The PGIP-lite protocol is less configurable and dynamic than the full PGIP protocol.
+# However, it is smaller, simpler, and covers all of the core commands needed for proof script management.
+# 
+#
+# Contents
+#
+# 1) Top-level Messages/document
+# 2) General prover output/responses
+# 3) Proof Commands
+# 4) Parsing
+# 5) Theory-level commands
+# 6) Optional extras
+# 7) Extra Requirements / Differences from PGIP
+# Note: the elements defined in these sections interact in various ways. 
+# The ordering and structure of these sections is, of necessity, somewhat arbitrary.
+
+
+# ==============================================================================
+# 1. Top-level Messages/documents
+# ==============================================================================
+
+start = pgip                                 # Single message
+
+pgip = element pgip {                        # A PGIP packet contains:
+   pgip_attrs,                               #  - attributes with header information;
+   (toprovermsg | fromprovermsg)             #  - a message with one of four channel types 
+  }
+
+pgip_attrs =
+  attribute origin { text }?,                # name of sending PGIP component
+  attribute refseq { xsd:positiveInteger }?, # message sequence this message responds to
+  attribute seq { xsd:positiveInteger }?      # sequence number of this message
+
+
+toprovermsg =      # Messages sent to the prover
+   proverconfig    #   query Prover configuration, triggering interface configuration
+ | provercontrol   #   control some aspect of Prover
+ | proofcmd        #   issue a proof command 
+ | filecmd         #   issue a file command
+
+fromprovermsg =    # Messages from the prover to PG
+ proverinfo
+ | proveroutput    #   output messages from the prover, usually display in interface
+
+
+name_attr = attribute name { text }          # names are user-level textual identifiers
+thyname_attr = attribute thyname { text }    # names for theories (special case of name)
+thmname_attr = attribute thmname { text }    # names for theorems (special case of name)
+
+
+interruptprover = element interruptprover 
+                          { interruptlevel_attr }
+
+interruptlevel_attr  = attribute interruptlevel { "interrupt" | "stop" | "kill" }
+
+# Note: In PGIP-Lite, you can also use Control-C interrupts. This is not a valid part of Full PGIP though.
+# Provers must accept interrupts *at any point* - especially during calculations and search loops.
+
+
+proverconfig =      
+   askpgip         # what version of PGIP do you support?
+ | setpref         # please set this preference value 
+
+askpgip   = element askpgip   { empty }
+setpref   = element setpref   { name_attr, attribute value { text } }
+
+# The response to askpgip:
+proverinfo = usespgip            # I support PGIP, version ..
+
+# version reporting
+version_attr  = attribute version { "lite 0.9" }
+usespgip = element usespgip  { version_attr }
+
+
+provercontrol = 
+   proverinit      # reset prover to its initial state
+ | proverexit      # exit prover
+ | startquiet      # stop prover sending proof state displays, non-urgent messages
+ | stopquiet       # turn on normal proof state & message displays
+
+proverinit     = element proverinit { empty }  
+proverexit     = element proverexit { empty }
+startquiet     = element startquiet { empty }  
+stopquiet      = element stopquiet  { empty }  
+
+
+
+# ==============================================================================
+# 2. General prover output/responses
+# ==============================================================================
+
+proveroutput =
+   ready                # prover is ready for input
+ | proofstate           # prover outputs the proof state
+ | errorresponse        # prover indicates an error/warning/debug condition, with message
+ | metainforesponse     # prover outputs some other meta-information to interface
+ | parseresult          # results of a <parsescript> request (see later)
+
+ready = element ready { empty } # ready elements let the interface know that fresh commands can be sent
+# IMPROTANT: A ready element should be returned at the end of each block of prover output
+
+
+proofstate = 
+  element proofstate { text }   # The current proof state (ie. current assumptions, goal and sub-goals)
+# ??Introduce premise, goal, subgoal elements
+
+
+## Error messages:
+
+errorresponse = 
+   element errorresponse { 
+     attribute fatality { fatality },
+     location_attrs?,
+     text
+  }
+
+fatality =        # degree of error conditions:
+   "nonfatal"     #  - warning message (interface should show message)
+ | "fatal"        #  - error message (interface must show message)
+ | "panic"        #  - shutdown condition, component exits (interface may show message)
+
+location_attrs = # attributes describing a file location (for error messages, etc)
+     attribute location_descr    { text }?,
+     attribute location_url      { xsd:anyURI }?,
+     attribute locationline      { xsd:positiveInteger }?,
+     attribute locationcolumn    { xsd:positiveInteger }?,
+     attribute locationcharacter { xsd:positiveInteger }?
+
+
+# metainformation is an extensible place to put system-specific information
+
+value = element value { name_attr?, text }   # generic value holder
+
+metainforesponse = 
+   element metainforesponse { 
+      attribute infotype { text },      # categorization of data
+      value* }                          # data values
+
+
+# ==============================================================================
+# 3. Proof Commands
+# ==============================================================================
+
+proofcmd =
+    properproofcmd | improperproofcmd
+
+# properproofcmds are purely markup on native proof script text
+properproofcmd =
+    opengoal        # open a goal in ambient context
+  | proofstep       # a specific proof command (perhaps configured via opcmd) 
+  | closegoal       # complete & close current open proof (succeeds iff proven, may close nested pf)
+  | giveupgoal      # close current open proof, record as proof obl'n  (sorry)  
+  | postponegoal    # close current open proof, retaining attempt in script (oops)
+  | comment         # an ordinary comment; text ignored by prover
+  | spuriouscmd     # command ignored for undo, e.g. "print x", could be pruned from script
+
+# improperproofcmds are commands which are never stored in the script
+improperproofcmd =
+    undostep      # undo the last proof step issued in currently open goal     
+  | abortgoal     # give up on current open proof, close proof state, discard history
+  | parsescript    # parse a raw proof script into proofcmds
+
+# IMPORTANT: Note provers must implement the undo model assumed by the PG/Kit.
+# Alternatively, developers can look at modifying PG/Eclipse. This may be a simpler option 
+# in the short-term, but will then require the developer to distribute and maintain their 
+# modifications.
+
+opengoal     = element opengoal  { thmname_attr?, text } # FIXME: add objprefval
+proofstep    = element proofstep { name_attr?, text }
+closegoal    = element closegoal { text }
+giveupgoal   = element giveupgoal { text }
+postponegoal = element postponegoal { text }
+comment      = element comment { text }
+
+spuriouscmd  = element spuriouscmd { text }
+
+undostep     = element undostep { empty }
+abortgoal    = element abortgoal { empty }
+
+
+# =======================================================
+# 4. Parsing
+# =======================================================
+
+# NB: parsing needs only be supported for "proper" proof commands,
+# which may appear in proof texts.  
+
+parsescript = element parsescript { text }
+       
+parseresult = element parseresult { singleparseresult* }
+
+singleparseresult  = properscriptcmd | unparseable | errorresponse
+
+unparseable = element unparseable { text, location_attrs? } # text is the unparseable text
+
+# When reporting parsing errors:
+# It is acceptable to return either an errorresponse, an unparseable element or both.
+#   unparseable should be used to identify the particular text fragment responsible for the problem
+#   errorresponse should be used to provide feedback on why the text is unparseable
+
+properscriptcmd = properproofcmd | properfilecmd
+
+
+# =======================================================
+# 5. Theory/file handling
+# =======================================================
+# I.e. commands relating to top-level (non-proof) interaction.
+
+filecmd =
+   properfilecmd | improperfilecmd
+
+
+properfilecmd =     # (NB: properfilecmds are purely markup on proof script text)
+    opentheory      # begin construction of a new theory.  
+  | theoryitem      # a step in a theory (e.g. declaration/definition of type/constant).
+  | closetheory     # complete construction of the currently open theory
+
+improperfilecmd =   # improperfilecms are only generated by the user; they should not appear in a script.
+    aborttheory     # abort currently open theory
+
+opentheory    = element opentheory    { thyname_attr, parentnames_attr?, text }
+closetheory   = element closetheory   { text }
+theoryitem    = element theoryitem    { name_attr?, text }
+aborttheory   = element aborttheory   { empty }
+
+parentnames_attr = attribute parentnames { objnames }
+objnames = string                            # A sequence of objnames
+
+
+# ==============================================================================
+# 6. Optional Extras
+# ==============================================================================
+
+# These elements are not required. Supporting them enables some extra functionality.
+
+# helpdoc: advertise availability of some documentation, given a canonical
+# name, textual description, and URL or viewdoc argument.
+# 
+helpdoc = element helpdoc { name_attr, descr_attr, location_attrs*, text } # text is arg to "viewdoc"
+descr_attr   = attribute descr { text }
+
+# This is the preferred way to define help:
+keyword = element keyword {
+   attribute word { text },
+   shorthelp?,
+   longhelp? }
+
+shorthelp = element shorthelp { text }   # one-line (tooltip style) help 
+longhelp  = element longhelp { text }    # multi-line help
+
+# ==============================================================================
+# 7. Extra Requirements / Differences from PGIP
+# ==============================================================================
+# The main difference between PGIP-lite and full PGIP is in the range: PGIP-lite is a considerably simpler subset.
+# The differences listed here are where a dynamic aspect of PGIP has been replaced with a static configuration file.
+
+# Prover settings
+# In PGIP-lite, the interface requires a file called {ProverName}Prefs??.xml 
+# This file defines certain settings used by the interface to start and talk to the prover.
+
+# Preferences
+# In PGIP-lite, the interface requires a file called {ProverName}ConfigPrefs??.xml 
+# This file defines the 'exposed' preferences (i.e. those that the user will be able
+# to edit through the interface's preference gui) and default values.
+
+# Lexical Structure
+# In PGIP-lite, if the interface requires the lightparser package to be edited to respond to the lexical structure
+# of comments and whitespace. This should be straightforward.
+
+# Keywords
+# In PGIP-lite, keywords should be defined in a file ??.
+
+
+# ==============================================================================
+# end of `pgip-lite.rnc'.

@@ -1,0 +1,275 @@
+
+2006-12-28 (AH)
+- changed PGIPSyntax.DIR to be PGIPSyntax.CHANGE_DIR_ATTR, value is now 'dir', and it is used
+	(but it still complains about url syntax)
+
+BUGS:
+- undo sometimes doesn't work
+- restart doesn't work, and gets locked out (but not disabled)
+- buttons don't disable on start
+- highlighting is awkward (sometimes 
+- can go off-by-one, i.e. delete deletes the character before the character before the cursor
+- non-critical exceptions, e.g. save can throw assert-failed error (related to 'forceSet' of text), or text change after save
+- seems slow to send next command
+- if focus leaves editor (e.g. on error or prover start), many hotkeys don't work (e.g. Ctrl-N makes new project, not next command)
+
+2006-02-18
+- changed \<and> to be &, not && (since && didn't parse but & does)
+- added extra space after replacements since \<exists>x. became EXx., not EX x.
+
+
+
+2005-12-14
+
+PG TODO:
+- use symbols outwith editor if that font supports
+  (currently only after 'apply');
+  if no unicode or not available, prefer shortcut to crazy ASCII code;
+  change 'status' to 'available in editor';
+  change long arrows to use appropriate char;
+  add font support for long arrow chars;
+  apply is very slow, fix that
+  \<Colon> not recognised; but when it is it is translated (by parse or by java?)
+- whole thing seems to slow down with use ??
+
+
+FWIZ TODO:
+- forall type error in HOL feature
+- mappings don't get refreshed
+- ML error on unknown schema in top level (or mapping?)
+- fix FDL examples (higher nats unknown, and DONE: demo_feature_on expects goal not biggoal)
+- parse goals in IsabelleFeatureHelpers, eg for JavaApplyInductionExample
+
+- feature "recursive entities in goal ( [ vars ] , [ entities ] , 0.5 )"
+
+- space after feature in tostring if name has space
+- keep parens if , in feature arg eg (1,2), or if parens broken eg (1)+(1)
+
+- new HOL rules
+imp+assm tactical
+
+- a simplifier?
+
+- 'run all/auto'
+
+
+FWIX DONE:
+- feature wizard is working!
+
+
+
+
+
+MAYBE PROBLEMS (once were, not checked):
+- FP Invalid Menu Extension (Path is invalid): org.heneveld.featwizpg.eclipse.actions.SampleActionCopy
+- listeners reg'n model
+   could create multiple SM's for the same type if user clicks two files real fast
+   connected won't get set
+- latest output should show multi-lines of errors if first ends in : and second isn't "At command"...   
+
+current:
+- perhaps open definition shouldn't be new command--just new binding to old command [think not]
+- external files can be opened
+- open as links in default project
+- splash.bmp to root dir / cfg file / or location in subdir
+- ActivateScriptAction shouldn't try to do things automatically; just alert user,
+  and maybe go to active document (it screws up threads otherwise, esp if errors),
+  unless specified
+
+- prover knowledge should be menu items
+  - preferences: autoload, autoload delay
+  - commands: clear, refresh, dump current (?)
+- ProverState should lock documents on doneCloseTheory, and inform SM that other docs can be opened
+- undo, and prover knowledge might not work with nested proofs in isar scripts
+- parsing is SLOWWWW, especially on "next" with parse error near the beginning
+- go back still moves the cursor oddly
+- interrupt can leave the processed region marked wrongly (off by one command); undos+next fix it
+- try interrupts in standalone
+- have an 'Interruptible' interface that ownership can use
+
+- make latest view the default in perspective
+- markers should use theorem id, not just the name
+- run it for a while, it seems to get slowed down
+- open definition  [fixed?]
+  - runs on current caret location, not good if activated from right click menu
+  - first look for marker in KnowledgeItem (never set, at present)
+  - then for any marker
+  - finally in theory file (prompt if none)
+    ? throws illegal argument when opening file
+    - and search for it  
+- multiple theory responses don't parse [fixed?]
+- crashes completely (eclipse SWT error?) if scroll quickly in completion panel
+
+- hover information (ProverKnowledge) doesn't work where print string is different to command
+  (eg. Hyperreal/Lim.deriv_def prints as DERIV)
+- try waiting to mark "send command" over theory init as processed 
+  until theory info is loaded into ProverKnowledge
+  [see ProverKnowledge.run_in_background]  
+  [means having a dirty send-command, whose completion could pre-empt another completion]
+- prover knowledge treats derived numbered theorems like HOL.min_ac wrongly (calls it min_ac_1)
+- minor odd prover model batch event errors, SendCommand error/cancels
+
+- show errors should be a preference
+- add theory info
+- goto gets buggered if we move text around; should use a marker rather than constant location
+  (or else lock text up to goto location; may be better)
+
+- ending a theory does nothing
+- can't parse near end of file? (send all fails)
+
+- have contexts for parse to know what we can apply
+  - inside quotes, top level, tactic level, tactic option ?
+- update prover knowledge for theorems, new closed theories (and undo?)
+- reconcile prover knowledge and "marker" approach (markers may not be in scope)
+
+- compare InputDialog with EclipseMethods.xxx
+- should use same routine for sending command ??
+- binary build
+- choose logic updates assumes logic is last param on cmd line
+- still some bad location exceptions if editor not yet initialised (press key real fast on load)
+
+
+
+
+
+OLD
+
+
+
+
+2005 Dec 14  (AH)
+
+MAJOR BUGS
+- workaround for isabelle bug that it puts things like \<equiv> in XML output
+  (gets replaced by \&lt;equiv&gt;); PG attempts to correct for unescaped xml chars <, >, and &
+  (and it does a pretty good job, thanks to regex support in java!)
+- fixed bug where parse results would get flummoxed when symbols were used;
+  parse results are now reconciled modulo symbols, and it seems to work well now 
+  even when symbols are on
+  
+MINOR (recent)
+
+- content assist autocomplete proposals (Ctrl+Space) seemed to stop working; 
+  needed action def id set in ProofScriptEditor
+- Path for PG plugin wasn't always being found correctly, now it is (better at least)
+- ProverKnowledge correctly combines lazy-load definitions with preloaded definitions;
+  and it handles long method descriptions (eg "subst")
+- Isabelle2005 changes
+  - thms_of is hidden in PureThy, fixed access for ProverKnowledge
+  - ProverState recognises handshake symbol events (doesn't do anything but no longer gives error)
+
+MISCELANEOUS:  these (very minor) changes were made in my codebase ages ago,
+but I didn't merge them at the time (conflicts); i think dan also fixed some of these;
+
+i include them here for the sake of completeness:
+- used to get sluggish after lots of use, fixed inefficiency in 
+	output view, seems better now
+- clean up "confused proof" message (for unnamed lemmas, display lemma; 
+	for bad state say incomplete); Dan also changed this
+- prover knowledge messages are better
+- prover knowledge no longer gets confused on unnamed lemmas
+- prover knowledge will now report on all theorems of a given name, 
+	not just the first
+- PGProverAction has one more overridable post-init function
+- fixed error where Display.async(SessionManager.unlockAll) was called after eclipse classloaders closed
+- removed manifest .MF file; as this seems to prevent exporting plugin classes
+- Ctrl+R still sometimes conflicts with "Run to line" (should be using contexts... maybe installed wrong?;
+  seems fixed now, by whom I don't know)
+
+
+
+
+
+MAJOR:
+
+- added live prover knowledge as tooltips
+- fixed lots of parsing errors
+
+done:
+- Isabelle can occasionally give buggered XML (if sending complex ML commands with quotes and raw chars); 
+  SessMgr used to wait forever trying to parse that, now it has shortcuts & errors, 
+  it's also faster on incomplete xml
+- commands used to go funny on error; now they always wait for a CmdProc to reset (even if there is a CmdCausedError)
+- GetCommandResponseAction is now available, for sending a command in a background thread,
+  when the TP is available, and waiting for output, behaving nicely on interrupt
+  [use eg GCRA.getDefault().doCommand("ML {* thm \"sym\" *}"); ]
+- ProverKnowledge gets a list of all axioms and theorems (takes about 1s, uses low-ish level ML)
+- static option to use prover knowledge or not in ProofGeneralPlugin
+- autocompletion includes prover knowledge items
+- added tooltips/help for code completion proposals
+- added html capabilities to tooltips (copied Eclipse's internal HTMLTextPresenter); help now also showed for auto-completion
+- minor clean-ups in UndoAction, fixes in UndoAll where it got notified too many times
+- now we send a CommandSucceeded event before the CommandProcessed if it succeeds
+- now we don't update processed offset until command is processed without error
+- goto sets the lock offset immediately
+- PGTextHover word-finding now includes numbers
+- if user has chosen a logic not for preferences, then updates preferences, 
+  they didn't take effect until eclipse restart (fixed by propertyChange method in IsabellePrefsPage)
+- tooltip/hover windows can update when the information is loaded (and the window is resized) (UpdateableHTMLTextPresenter)
+- fixed error on click where there is no text; now just shows context menu without options
+- OpenDefinition only shows in context menu if it is a known term
+- clears privateListener on restart/shutdown
+- fixed autoSymbolise error where it tried to go back before start of document
+- ExternalLazyParser responds better to events (doesn't notify twice on error, responds to shutdown)
+- events can take any object as cause
+- cause gets set on outgoing events now, too
+- ExternalPrivateListener now uses itself as the cause to listen to (it was responding to send command actions)
+- interrupt first tries interrupting any paused active firing events
+- on parses which cause errors, ExternalLazyParser now stores sensible responses
+- GotoAction executes the parsed commands found when there is an error, and THEN throws the error
+  (if the error is on a different line to goto target, or if goto was run on a single line)
+- parse doc action also uses what is sensible on a parse
+- parsing errors tell what line it happened on, can go there
+- fixed error where wouldn't scroll if command-sent is run sent after command-processed
+- parse all usually runs in bg thread now
+- parse all takes ownership
+- when parsing for next command, it tries one line, then 4, then 16, then whole doc
+  (much faster then adding one line each time); but it's still slow (see separate bug)
+
+
+
+9 may 05
+
+
+
+MAJOR CHANGES:
+- changed Outline model to include collapsible subsections
+- files can be changed after 'end'
+- added "ProverStandalone" interface for using a Prover without loading Eclipse (requires basic Eclipse jars but not DLL's);
+  see its main method for illustration
+- fixed some queueing thread-sync problems, robust send/wait functionality in SendCommandResponseAction
+- cleaned up display routines, mainly by dropping outdated display updates in OutputViews (must faster)
+- ProverKnowledge learns about new items in current file, and gets tactic/method info
+
+full change list:
+- added ProverKnowledge for current theory items (using SendCommandResponseAction)
+- refactored CommandQueued and CommandQueuedWithValues
+- created ProverStandalone for running text-based commands
+- improved new GetCommandResponseAction to allow ownership sessions
+- prover knowledge parses theory in fg, then commands in bg once things are quiet
+- ProverKnowledge gets updated as new items are parsed, including axioms and definitions
+- ProverKnowledge updates the tooltip for any marker (could get confused on same-name markers)
+- prover state model info gets set on success (except undo commands), added getLastResponse() method
+- exceptions display more nicely, and accept a parameter for whether just to silently display the log view
+- latest output view shows errors alongside state
+- errors during send next and goto show in log, not in dialog, latest output is activated
+- outline view refreshes better
+- OutputViews update less often in big runs
+- outline collapses more, into subsections; status shows currectly
+- fixed undoall
+- fixed bug where actions could get stuck on interruption
+- fixed undo all (wouldn't retract theories properly)
+- changed undo behaviour so as not to rely on scripting containers
+- open definition on right click acts on current location
+- info about active tactics
+- don't switch to error view if:  either we show error dialogs or are in latest output view
+- fixed many bad location exceptions
+- ProverKnowledge loads info about active tactics (using print_methods (theory))
+- hover looks for valid words (excluding parens and quotes), but autocomplete didn't (does now)
+- some Isabelle versions use pgmltext elements (now recognised in ProverKnowledge)
+- action set (menu and toolbar) only appears in PGPerspective
+
+DONE (1 jun 05)
+- added context/scope for key bindings (was causing error when added as plugin)
+- fixed prover knowledge grab (changed as result of theory output change), also subst method is multiline (breaks)
+

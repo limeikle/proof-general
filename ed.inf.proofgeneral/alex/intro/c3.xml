@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<introContent>
+
+  <page style="intro/shared.css" id="root" style-id="page">
+    <title style-id="intro-header">Welcome to Eclipse Proof General</title>
+    <group id="overview-links">
+      <text style-id="page-description" id="page-description">
+        ProofGeneral is a front-end to a number of theorem-proving systems. 
+      </text>
+	</group>
+  </page>
+
+</introContent>

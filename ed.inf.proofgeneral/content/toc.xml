@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Proof General Help Links" topic="html/toc.html">
+   <topic label="Main Page" href="http://proofgeneral.inf.ed.ac.uk/wiki/Main/ProofGeneralEclipse" />
+   <topic label="User Documentation" href="http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseUserDocumentation" />
+   <topic label="Isabelle Tutorial" href="http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseIsabelleTutorial" />
+   <topic label="Glossary of Concepts" href="http://proofgeneral.inf.ed.ac.uk/wiki/Main/InterfaceConcepts" />   
+   <topic label="Getting Started">
+		<anchor id="gettingstarted"/>
+   </topic>
+   <topic label="Samples">
+   		<anchor id="samples"/>
+   </topic>
+</toc>

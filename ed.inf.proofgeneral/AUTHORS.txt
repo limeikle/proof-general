@@ -1,0 +1,20 @@
+The following people helped develop Proof General Eclipse.
+Cast in order of appearance:
+
+ Daniel Winterstein         Main code and initial design, 2004-5.
+ Alex Heneveld              Numerous fixes and improvements (esp Prover Knowledge).
+ Ahsan Fayyaz               A modified version for the Proof General Broker
+                             architecture (code not yet included in main branch).
+ David Aspinall             Many improvements (esp. views and markers), packaging.
+ Graham Dutton              Fixes for Eclipse 3.2, code cleanups, decorators, cheatsheet.
+ 
+Proof General project management:
+
+ David Aspinall                  Christoph Lüth
+ University of Edinburgh         Universität Bremen / DFKI
+ UK                              Germany 
+
+The Proof General Eclipse plugin development effort was supported with
+the help of two IBM Eclipse Innovation Grants, awarded to 
+Aspinall and Lüth in 2004 and 2005 respectively.  Further development
+in 2006/7 was supported by EPSRC Platform Grant GR/S01771/01.

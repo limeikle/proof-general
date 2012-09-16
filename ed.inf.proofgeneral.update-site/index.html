@@ -1,0 +1,107 @@
+<!-- For this index page to work, we
+     need links   css -> ../css   and   images -> ../images 
+     in the eclipse/ subdirectory.  These are made by hand.
+     FIXME: it would be nice to include the automatically-generated
+     updates page here.  But it doesn't work too well anyway 
+     (at least on Firefox non-locally).
+  -->
+<?php  
+  require('../functions.php3');
+  small_header("Proof General Eclipse (Update Site and Product Download)"); 
+  ?>
+
+<p>
+<a href="../wiki/Main/ProofGeneralEclipse">Proof General Eclipse</a> is an application
+based on the <a href="http://www.eclipse.org">Eclipse IDE</a>
+which supports interactive theorem provers.
+<br/>
+At the moment it only supports recent
+<a href="http://isabelle.in.tum.de/devel">development snapshots
+of Isabelle</a> (dated close to the product you download),
+or the current CVS version.  For best results we recommend building
+Isabelle with PolyML 5.0.
+<br/>
+See the <a href="http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseInstall">wiki</a> 
+for full installation instructions.  Please
+note that this is an early beta prototype and <b>not yet recommended for
+real use</b>.    There are issues documented 
+<a href="http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseFixesNeeded">here</a>
+which we are working to fix.
+If you're undeterred, please fill the 
+<a href="http://proofgeneral.inf.ed.ac.uk/register">registration form</a>
+so we can get an idea of interest.
+<br/>
+Please help us improve Proof General!  You can suggest ideas 
+and contribute documentation and discussion 
+on the <a href="http://proofgeneral.inf.ed.ac.uk/wiki/TWiki/TWikiRegistration">wiki</a>
+and <a href="http://proofgeneral.inf.ed.ac.uk/trac">trac project management system</a>.
+If you know Java you can help with 
+<a href="http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseDevelopment">development</a>.
+</p>
+
+<p>
+Proof General Eclipse is part of the
+<a href="http://proofgeneral.inf.ed.ac.uk/kit">Proof General Kit</a> project
+which is providing a suite of tools and
+novel techniques to support
+proof development, replacing the
+current <a href="http://proofgeneral.inf.ed.ac.uk">Emacs-based Proof General</a>.
+</p>
+
+<h3>
+PGEclipse standalone Eclipse product (recommended)
+</h3>
+
+<ul>
+<li>
+See: <a href="http://proofgeneral.inf.ed.ac.uk/eclipse/products" target="_top">
+     http://proofgeneral.inf.ed.ac.uk/eclipse/products</a>
+</li></ul> 
+
+<p>
+Download and unpack the zip file for your architecture. The executable
+is called <code>PGEclipse</code>.  It requires JRE 5.0.  
+To get the latest updates (or <em>in progress</em> plugins for
+other provers), go
+to <em>Help -&gt; Software Updates -&gt; Find and Install</em>.
+</p>
+
+
+<h3>
+Update Site: Proof General Plugin Feature
+</h3>
+
+<p>
+To add Proof General as an installation site to your running
+Eclipse platform: 
+</p>
+
+<ol>
+<li> Select in the menu <em>Help -&gt; Software Updates -&gt; Find and Install</em></li>
+<li> Select "search for new features to install" and click Next</li>
+<li> Click on "New Remote Site" and add the update site for Proof General:<br/>
+<blockquote>
+Name: <code>Proof General Eclipse</code><br/>
+URL:  <code>http://proofgeneral.inf.ed.ac.uk/eclipse</code>
+</blockquote>
+</li>
+<li> Then enable the new site, and install the Proof General Eclipse feature you are offered and follow the instructions.</li>
+</ol> 
+
+<p>
+After this you will have Proof General available in your Eclipse install.
+You will be able to update it via the same menu, or disable or uninstall it
+via <em>Help -&gt; Software Updates -&gt; Manage configuration</em>.
+</p>
+
+<p>
+We do not recommend extending your own Eclipse installation as it is
+more likely to throw up compatibility problems which we cannot test
+for.  Using our standalone product is simpler.  Nonetheless, please
+report any problems you have if you follow this route.
+</p>
+
+
+<?php
+  include('../footer.html'); 
+?>

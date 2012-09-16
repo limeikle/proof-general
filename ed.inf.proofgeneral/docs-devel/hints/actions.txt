@@ -1,0 +1,19 @@
+Actions in Proof General Eclipse
+[David Aspinall, July 2007]
+
+I have simplified the handling of actions:
+
+1. The main actions are now retargetable, which means that they can be switched to track
+the active editor.  This happens in  ProofScriptEditorActionContributor.  Retargetable
+actions are created in ProofScriptEditor and do not have a class attribute
+in the plugin.xml, unlike global actions.  This is the standard Eclipse mechanism
+and removes old code which attempted to track the active editor.
+
+2. The previous intricate locking mechanism has been simplified to the following strategy:
+
+  (i)   Synchronize on the action object (preventing active editor switching)
+  (ii)  Execute the action immediately; queue up the commands; or schedule another thread (least preferred)
+  (iii) Exit swiftly
+
+  Executing the action in another thread may lose if something else gets scheduled in between;
+  the other thread should check that the action still makes sense.

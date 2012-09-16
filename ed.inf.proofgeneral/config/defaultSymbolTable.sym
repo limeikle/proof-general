@@ -1,0 +1,107 @@
+<proofgeneral>
+<!-- Symbol table file, created by the PG Symbol Table Editor -->
+   <addsymbol family="Arrows" name="Right Arrow" ascii="\&lt;Rightarrow&gt;" shortcut="=&gt;" unicode="21d2" html="&amp;rArr;"/>
+   <addsymbol family="Arrows" name="Left Arrow" ascii="\&lt;Leftarrow&gt;" shortcut="&lt;=" unicode="21d0" html="&amp;lArr;"/>
+   <addsymbol family="Arrows" name="right arrow" ascii="\&lt;rightarrow&gt;" shortcut="-&gt;" unicode="2192" html="&amp;rarr;"/>
+   <addsymbol family="Arrows" name="left arrow" ascii="\&lt;leftarrow&gt;" shortcut="&lt;-" unicode="2190" html="&amp;larr;"/>
+   <addsymbol family="logic" name="Forall" ascii="\&lt;forall&gt;" shortcut="ALL" unicode="2200" html="&amp;forall;"/>
+   <addsymbol family="logic" name="Exist" ascii="\&lt;exists&gt;" shortcut="EX" unicode="2203" html="&amp;exist;"/>
+   <addsymbol family="logic" name="and" ascii="\&lt;and&gt;" shortcut="&amp;" unicode="2227" html="&amp;and;"/>
+   <!-- da: this next one was also buggy and broke proof scripts: OR isn't defined in isabelle-->
+   <addsymbol family="logic" name="or" ascii="\&lt;or&gt;" shortcut="|" unicode="2228" html="&amp;or;"/>
+   <addsymbol family="logic" name="And (n-ary)" ascii="\&lt;And&gt;" shortcut="!!" unicode="22c0"/>
+   <addsymbol family="logic" name="Or (n-ary)" ascii="\&lt;Or&gt;" unicode="22c1"/>
+   <addsymbol family="logic" name="turnstile" ascii="|-" unicode="22a6"/>
+   <addsymbol family="logic" name="Turnstile" ascii="|=" unicode="22a7"/>
+   <addsymbol family="logic" name="Not" ascii="\&lt;not&gt;" unicode="00ac" html="&amp;not;"/>
+   <addsymbol name="Left square bracket" ascii="\&lt;lbrakk&gt;" shortcut="[|" unicode="27e6"/>
+   <addsymbol name="Right square bracket" ascii="\&lt;rbrakk&gt;" shortcut="|]" unicode="27e7"/>
+   <addsymbol name="Equivalent" ascii="\&lt;equiv&gt;" shortcut="==" unicode="2261"/>
+   <addsymbol name="Less than or equal" ascii="\&lt;le&gt;" unicode="2264"/>
+   <addsymbol name="Not Equal" ascii="\&lt;noteq&gt;" unicode="2260"/>
+   <addsymbol name="Sum" ascii="\&lt;Sum&gt;" unicode="2211"/>
+   <addsymbol name="Integral" ascii="\&lt;integral&gt;" unicode="222b"/>
+   <addsymbol name="Square" ascii="\&lt;twosuperior&gt;" unicode="00b2" shortcut="^2"/>
+   <addsymbol name="Ellipsis" ascii="\&lt;dots&gt;" unicode="2026"/>
+   <addsymbol name="Times" ascii="\&lt;times&gt;" unicode="00d7"/>
+   <addsymbol name="Divides" ascii="\&lt;divides&gt;" unicode="00f7"/>
+   <addsymbol name="Infinity" ascii="\&lt;infinity&gt;" unicode="221e"/>
+   <!-- da FIXME: I haven't examined the code for managing symbols, but at some point
+        it converted back to short cut form for me, replacing \<in> with IN which is WRONG
+        and broke my file.  I'd actually rather symbols were converted into their
+        ASCII longhand forms rather than the shortcuts.
+        I've changed shortcut to \<in> to solve this.
+        Oops: actually, that broke everything: we're not allowed to use < or >
+        in shortcuts for some reason. Let's try ':' which is actually the right syntax,
+        I was just scared of using it. -->
+   <addsymbol family="Set" name="Member" ascii="\&lt;in&gt;" shortcut=":" unicode="2208" html="&amp;isin;"/>
+   <addsymbol family="Set" name="Not In" ascii="\&lt;notin&gt;" unicode="2209" html="&amp;notin;"/>
+   <addsymbol family="Set" name="Empty Set" ascii="\&lt;emptyset&gt;" unicode="2205"/>
+   <!-- da: the short cut for intersection also broke things, in  a very confusing way.
+        /\ parses as just "\" in Isabelle.  I've prevented short-cuts being sent now,
+        which means they can be whatever the user wants after all. 
+        ah: this is annoying, esp for PG add-ons which don't use unicode;
+        consider AND, which even if we enter as & in our proof script,
+        gets returned to us as unicode which is then expanded as /\
+        which isabelle doesn't understand. might be nice to have multiple shortcuts here,
+        or in isabelle...eventually (can work around the problem now -->
+   <addsymbol family="Set" name="Intersect" ascii="\&lt;inter&gt;" unicode="2229"/>
+   <addsymbol family="Set" name="Union" ascii="\&lt;union&gt;" unicode="222a"/>
+   <addsymbol family="Set" name="Subset" ascii="\&lt;subset&gt;" unicode="2282"/>
+   <addsymbol family="Set" name="Aleph" ascii="\&lt;aleph&gt;" unicode="2135"/>
+   <addsymbol family="Types" name="Naturals" ascii="\&lt;nat&gt;" shortcut="nat" unicode="2115"/>
+   <addsymbol family="Types" name="Integers" ascii="\&lt;int&gt;" unicode="2124"/>
+   <addsymbol family="Types" name="Rationals" ascii="\&lt;rat&gt;" unicode="211a"/>
+   <addsymbol family="Types" name="Reals" ascii="\&lt;real&gt;" shortcut="real" unicode="211d"/>
+   <addsymbol family="Types" name="Complex Numbers" ascii="\&lt;complex&gt;" unicode="2102"/>
+   <addsymbol family="Greek" name="alpha" ascii="\&lt;alpha&gt;" unicode="03b1"/>
+   <addsymbol family="Greek" name="beta" ascii="\&lt;beta&gt;" unicode="03b2"/>
+   <addsymbol family="Greek" name="gamma" ascii="\&lt;gamma&gt;" unicode="03b3"/>
+   <addsymbol family="Greek" name="delta" ascii="\&lt;delta&gt;" unicode="03b4"/>
+   <addsymbol family="Greek" name="epsilon" ascii="\&lt;epsilon&gt;" unicode="03b5"/>
+   <addsymbol family="Greek" name="zeta" ascii="\&lt;zeta&gt;" unicode="03b6"/>
+   <addsymbol family="Greek" name="eta" ascii="\&lt;eta&gt;" unicode="03b7"/>
+   <addsymbol family="Greek" name="theta" ascii="\&lt;theta&gt;" unicode="03b8"/>
+   <addsymbol family="Greek" name="iota" ascii="\&lt;iota&gt;" unicode="03b9"/>
+   <addsymbol family="Greek" name="kappa" ascii="\&lt;kappa&gt;" unicode="03ba"/>
+   <addsymbol family="Greek" name="lambda" ascii="\&lt;lambda&gt;" shortcut="%" unicode="03bb"/>
+   <addsymbol family="Greek" name="mu" ascii="\&lt;mu&gt;" unicode="03bc"/>
+   <addsymbol family="Greek" name="nu" ascii="\&lt;nu&gt;" unicode="03bd"/>
+   <addsymbol family="Greek" name="xi" ascii="\&lt;xi&gt;" unicode="03be"/>
+   <addsymbol family="Greek" name="pi" ascii="\&lt;pi&gt;" unicode="03bf"/>
+   <addsymbol family="Greek" name="rho" ascii="\&lt;rho&gt;" unicode="03c0"/>
+   <addsymbol family="Greek" name="sigma" ascii="\&lt;sigma&gt;" unicode="03c1"/>
+   <addsymbol family="Greek" name="tau" ascii="\&lt;tau&gt;" unicode="03c2"/>
+   <addsymbol family="Greek" name="upsilon" ascii="\&lt;upsilon&gt;" unicode="03c3"/>
+   <addsymbol family="Greek" name="phi" ascii="\&lt;phi&gt;" unicode="03c4"/>
+   <addsymbol family="Greek" name="chi" ascii="\&lt;chi&gt;" unicode="03c5"/>
+   <addsymbol family="Greek" name="psi" ascii="\&lt;psi&gt;" unicode="03c6"/>
+   <addsymbol family="Greek" name="omega" ascii="\&lt;omega&gt;" unicode="03c7"/>
+   <addsymbol family="Greek" name="Alpha" ascii="\&lt;Alpha&gt;" unicode="0391"/>
+   <addsymbol family="Greek" name="Beta" ascii="\&lt;Beta&gt;" unicode="0392"/>
+   <addsymbol family="Greek" name="Gamma" ascii="\&lt;Gamma&gt;" unicode="0393"/>
+   <addsymbol family="Greek" name="Delta" ascii="\&lt;Delta&gt;" unicode="0394"/>
+   <addsymbol family="Greek" name="Epsilon" ascii="\&lt;Epsilon&gt;" unicode="0395"/>
+   <addsymbol family="Greek" name="Zeta" ascii="\&lt;Zeta&gt;" unicode="0396"/>
+   <addsymbol family="Greek" name="Eta" ascii="\&lt;Eta&gt;" unicode="0397"/>
+   <addsymbol family="Greek" name="Theta" ascii="\&lt;Theta&gt;" unicode="0398"/>
+   <addsymbol family="Greek" name="Iota" ascii="\&lt;Iota&gt;" unicode="0399"/>
+   <addsymbol family="Greek" name="Kappa" ascii="\&lt;Kappa&gt;" unicode="039a"/>
+   <addsymbol family="Greek" name="Lambda" ascii="\&lt;Lambda&gt;" unicode="039b"/>
+   <addsymbol family="Greek" name="Mu" ascii="\&lt;Mu&gt;" unicode="039c"/>
+   <addsymbol family="Greek" name="Nu" ascii="\&lt;Nu&gt;" unicode="039d"/>
+   <addsymbol family="Greek" name="Xi" ascii="\&lt;Xi&gt;" unicode="039e"/>
+   <addsymbol family="Greek" name="Pi" ascii="\&lt;Pi&gt;" unicode="03a0"/>
+   <addsymbol family="Greek" name="Sigma" ascii="\&lt;Sigma&gt;" unicode="03a3"/>
+   <addsymbol family="Greek" name="Tau" ascii="\&lt;Tau&gt;" unicode="03a4"/>
+   <addsymbol family="Greek" name="Upsilon" ascii="\&lt;Upsilon&gt;" unicode="03a5"/>
+   <addsymbol family="Greek" name="Phi" ascii="\&lt;Phi&gt;" unicode="03a6"/>
+   <addsymbol family="Greek" name="Chi" ascii="\&lt;Chi&gt;" unicode="03a7"/>
+   <addsymbol family="Greek" name="Psi" ascii="\&lt;Psi&gt;" unicode="03a8"/>
+   <addsymbol family="Greek" name="Omega" ascii="\&lt;Omega&gt;" unicode="03a9"/>
+   <addsymbol family="Arrows" name="Long Right Arrow" ascii="\&lt;Longrightarrow&gt;" shortcut="==&gt;" html="==&amp;gt;"/>
+   <addsymbol family="Arrows" name="Long Left Arrow" ascii="\&lt;Longleftarrow&gt;" shortcut="&lt;=="/>
+   <addsymbol family="Arrows" name="long right arrow" ascii="\&lt;longrightarrow&gt;" shortcut="--&gt;" html="--&amp;gt;"/>
+   <addsymbol family="Arrows" name="long left arrow" ascii="\&lt;longleftarrow&gt;" shortcut="&lt;--"/>
+   <addsymbol name="Double colon" ascii="\&lt;Colon&gt;" shortcut="::"/>
+</proofgeneral>

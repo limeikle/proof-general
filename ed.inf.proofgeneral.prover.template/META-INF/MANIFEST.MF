@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Template: Testing Proof General Plug-in
+Bundle-SymbolicName: ed.inf.proofgeneral.prover.template;singleton:=true
+Bundle-Version: 1.0.6.pre-qualifier
+Bundle-Activator: ed.inf.proofgeneral.prover.template.Activator
+Bundle-Vendor: School of Informatics, University of Edinburgh
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ ed.inf.proofgeneral,
+ org.eclipse.ui.editors,
+ org.eclipse.core.resources
+Eclipse-LazyStart: true

@@ -1,0 +1,37 @@
+ Eclipse Proof General -- Old Bug List
+
+This is a list of old bugs.  Some of these may still apply and should
+be added as tickets to trac: proofgeneral.inf.ed.ac.uk/trac.
+
+
+OLD BUGS STILL NOTED:
+
+- error messages about accessing context/help file if installed as root and
+  run as me (config/prefHelpContext.xml should be in user's dir, not global config)
+- cancelling restart logic locks that command
+- null pointer errors in decideEnabled on prover shutdown
+- colours for locked text don't change until Eclipse is restarted
+
+- stream gobbler should implement more sophisticated thread that can tell if commands are waiting and how many
+  (would cut down unnec "avail" checks)
+- queue might get hung if cmd proc doesn't fire, or is handled by private listener (see _ON_READY in SessionManager)
+- note (somewhere) the requirement every command sent to prover generates Error or CmdProc, before sending Ready;
+  really the requirement is that all events sent to prover generate a Ready message, and the SM
+  *always* sends CmdSuccess or CmdCausedErrorEvent as appropriate, then *always* sends a CmdProc message; then Ready;
+  events not sent to prover should always generate a CmdCausedError.CmdCancelled event then CmdProc.
+- haven't tested sockets at all (probably has errors)
+- PGAction (as Delegate) can only get link to real IAction class after first run(IAction), so tool buttons don't show inactive until first click
+- possible (though rare, because waits on prover) that next tries to fire (or undo)
+  before undo updates essential lock/parse offset, undo should also wait on display thread;
+  would cause a severe error
+- we could queue "next" commands to be sent multiply (queue parsing as well) as soon as doc is updated,
+  maybe even showing number in next bracket
+- thread pool can get null (doesn't seem to affect processing)
+- multiple errors generate multiple dialogs (eg lock a region and try typing... this shouldn't even display an error probably)
+- autoscroll on "next" should be a preference
+- scrolling shouldn't move if offset is visible
+- comment-stepping -- should be a preference
+  TODO needs search for all instances of PGIPSyntax.COMMAND; also see ProofGeneralPlugin.SEND_STEP_COMMENT???
+- would like cancel option when closing an active script (see in ProofScriptEditor.dispose())
+
+

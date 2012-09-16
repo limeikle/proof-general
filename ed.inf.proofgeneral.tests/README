@@ -1,0 +1,9 @@
+Files here:
+
+ HOL-ex/    Example Isabelle proof scripts.
+            Directly copied from Isabelle distribution under HOL/ex.
+ 
+ testcases/ Some testcases to show bugs and glitches.
+ 
+ Convention:  use UNRESOLVED as a tag for unresolved problems.
+ (must search workspace for the tag, no support for tags->tasks yet)

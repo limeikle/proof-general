@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<!-- TODO: we could probably configure some/all of these extensions programmatically,
+     based on making an instance of the prover extension.  Is there a neat way
+     to do that?
+-->
+<plugin>
+ <extension
+       point="ed.inf.proofgeneral.prover">
+    <prover
+          class="ed.inf.proofgeneral.prover.isabelle.IsabelleProverPlugin"
+          name="Isabelle"
+          extensions="thy">
+    </prover>
+ </extension>
+
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="toc.xml">
+      </toc>
+      <toc
+            file="testToc.xml"
+            primary="true">
+      </toc>
+   </extension>
+
+	<extension point="org.eclipse.core.contenttype.contentTypes">
+    <content-type
+          base-type="ed.inf.proofgeneral.proofscript"
+          file-extensions="thy"
+          id="ed.inf.proofgeneral.prover.isabelle.proofscript"
+          name="Isabelle Theory File"
+          priority="high"/>
+    </extension>
+  <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="ed.inf.proofgeneral.editor.ProofScriptEditor"
+            icon="icons/proofscript.gif"
+            default="true"
+            contributorClass="ed.inf.proofgeneral.editor.actions.ProofScriptEditorActionContributor"
+            name="Isabelle Theory Editor"
+            id="ed.inf.proofgeneral.editor"
+            extensions="thy">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.documentProviders">
+      <provider
+            extensions="thy"
+            class="ed.inf.proofgeneral.document.ProofScriptDocumentProvider"
+            id="ed.inf.proofgeneral.editor.proofscriptdocumentprovider">
+      </provider>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            class="ed.inf.proofgeneral.properties.ProofScriptPropertyPage"
+            id="ed.inf.proofgeneral.properties.ProofScriptPropertyPage"
+            name="Proof Script"
+            nameFilter="*.thy">
+            <enabledWhen>
+            <instanceof value="org.eclipse.core.resources.IFile"/>
+            </enabledWhen>
+       </page>
+   </extension>
+   
+   <extension point="org.eclipse.ui.preferencePages">
+     <page
+            name="System: Isabelle"
+            category="ed.inf.proofgeneral.prefpages"
+            class="ed.inf.proofgeneral.preferences.IsabellePrefs"
+            id="ed.inf.proofgeneral.prefpages.IsabellePrefs"/>
+      <page
+            name="System Config: Isabelle"
+            category="ed.inf.proofgeneral.prefpages"
+            class="ed.inf.proofgeneral.preferences.IsabelleConfigPrefs"
+            id="ed.inf.proofgeneral.prefpages.IsabelleConfigPrefs"/>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="ed.inf.proofgeneral"
+            name="Proof General"/>
+      <wizard
+            name="Proof Script for Isabelle"
+            category="ed.inf.proofgeneral"
+            class="ed.inf.proofgeneral.prover.isabelle.wizards.NewIsabelleProofScriptWizard"
+            icon="icons/star16.gif"
+            id="ed.inf.proofgeneral.prover.isabelle.wizards.NewIsabelleProofScriptWizard"
+            project="false">
+         <description>
+            Create a new Isabelle proof script file.
+         </description>
+      </wizard>
+      <wizard
+            category="ed.inf.proofgeneral"
+            class="ed.inf.proofgeneral.prover.isabelle.wizards.NewIsabelleProjectWizard"
+            finalPerspective="ed.inf.proofgeneral.views.PGPerspective"
+            icon="icons/star16.gif"
+            id="ed.inf.proofgeneral.prover.isabelle.wizards.NewIsabelleProjectWizard"
+            name="Project for Isabelle"
+            preferredPerspectives="ed.inf.proofgeneral.views.PGPerspective"
+            project="true">
+         <description>
+            Create a new Isabelle project.
+         </description>
+      </wizard>
+   </extension>
+   
+    <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="ed.inf.proofgeneral.views.PGPerspective">
+         <perspectiveShortcut
+               id="org.eclipse.ui.resourcePerspective">
+         </perspectiveShortcut>
+         <newWizardShortcut id="ed.inf.proofgeneral.prover.isabelle.wizards.NewIsabelleProofScriptWizard"/>
+         <newWizardShortcut id="ed.inf.proofgeneral.prover.isabelle.wizards.NewIsabelleProjectWizard"/>
+      </perspectiveExtension>
+    </extension>
+       
+   <extension point="org.eclipse.ui.actionSets">
+   <actionSet
+         description="Proof General Isabelle"
+         id="ed.inf.proofgeneral.prover.isabelle.action.contribution.set"
+         label="Isabelle Proof General"
+         visible="false">
+    <action
+      label="Restart and Choose &amp;Logic"
+      icon="icons/restart2.gif"
+      definitionId="ed.inf.proofgeneral.commands.chooselogic"
+      tooltip="Choose the logic for Isabelle to use"
+      class="ed.inf.proofgeneral.prover.isabelle.editor.actions.ChooseLogicAction"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.separator1"
+      id="ed.inf.proofgeneral.actions.chooselogic"/>
+   </actionSet>
+   </extension>
+
+ <extension
+       point="org.eclipse.ui.navigator.navigatorContent">
+    <commonWizard
+          type="new"
+          wizardId="ed.inf.proofgeneral.prover.isabelle.wizards.NewIsabelleProofScriptWizard">
+       <enablement/>
+    </commonWizard>
+    <commonWizard
+          type="new"
+          wizardId="ed.inf.proofgeneral.prover.isabelle.wizards.NewIsabelleProjectWizard">
+       <enablement/>
+    </commonWizard>
+</extension>
+ 
+<extension point="org.eclipse.ui.commands">
+      <command categoryId="ed.inf.proofgeneral.commands"
+          name="Choose Logic"
+            id="ed.inf.proofgeneral.commands.chooselogic"/>
+</extension> 
+<extension
+       point="ed.inf.proofgeneral.splashExtension">
+    <splashExtension
+          icon="icons/splash/isabelle-logo50.png"
+          id="Isabelle"
+          tooltip="Isabelle Theorem Pover">
+    </splashExtension>
+ </extension>
+ 
+</plugin>

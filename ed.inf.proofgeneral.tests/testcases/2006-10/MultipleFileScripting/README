@@ -1,0 +1,76 @@
+NAME:			MultipleFileScripting
+LAST UDPATED:	$Date: 2006/12/18 12:16:26 $
+UPDATED BY:		$Author: da $
+REPORTER:		da
+STATUS:			unresolved
+
+DESCRIPTION:
+
+Multiple-file scripting properly doesn't colour dependent files.
+Files should be coloured properly on reload (currently they're sometimes pink
+[test case missing]). 
+
+Note: A, B, D are independent.  C depends on A and B. 
+
+If in doubt with these test cases (previous description in main repo was
+WRONG), please check against Proof General Emacs, which does the Right Thing.
+
+TEST CASE processing:
+
+1. Open C.thy.  Process first line which imports A,B.
+2. Open A.thy and B.thy.  Both should be coloured blue.
+   (And also if already open in editor).
+3. D.thy is independent, and shouldn't be coloured.
+
+- TEST RESULT 2006-11-30:
+  Performs correctly, even after repeated retractions and retractions.
+  TEST 2006-12-18:
+  But *not* if already open in editor and not added to ControlledDocuments.
+  Try 1,2 above and then restarting scripting.  Restarting should clear
+  state (currently leaves C.thy blue: need to close and re-open to get
+  right state).  
+  Re-processing should colour A.thy and B.thy in existing editors,
+  currently does not.
+
+  SUGGESTION: it seems that ControlledDocuments is not controlling enough
+  documents.  We probably need to map over *all* documents there instead.
+
+TEST CASE retracting:
+
+1. After processing C completely, undo either A.thy or B.thy with retract button
+2. Now C should be unlocked, as it depends on A and B.
+
+- TEST RESULT 2006-11-30:
+  Performs correctly; unlocking A does not unlock B and vice versa, but does retract C.
+
+TEST CASE retracting:
+
+1. After processing C completely, undo C completely with retract button
+2. A and B should *not* be unlocked (i.e. they remain blue).
+
+- TEST RESULT 2006-11-30:
+  Performs correctly.
+
+TEST CASE re-opening processed file:
+
+1. After (completely) processing any file, close and re-open in the editor.
+2. Blue coloured state should be restored.  
+
+- TEST RESULT 2006-11-30:
+  Performs correctly.  However buggy behaviour when closing a script which has not been fully processed.
+
+FURTHER INFORMATION:
+
+
+FIX NEEDED:
+
+  Code for managing multiple file scripting, should respond to 
+  informfileprocessed, informfileretracted messages
+  sent by Isabelle.  Idea is to keep set of 
+  completely processed files in Eclipse and lock/unlock them 
+  atomically once undo history has been lost. (Undo history is lost
+  when a file is completed).
+  
+  This has now been implemented.  Correct handling of paths required
+  an update in Isabelle.
+  

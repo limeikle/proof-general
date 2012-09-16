@@ -1,0 +1,1118 @@
+/*
+ * ProverKnowledge
+ * 
+ * Created by alex, 27-Apr-2005.
+ */
+package ed.inf.proofgeneral.sessionmanager;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import org.dom4j.Attribute;
+import org.dom4j.Element;
+import org.dom4j.Node;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.part.IPage;
+
+import ed.inf.heneveld.utils.General;
+import ed.inf.heneveld.utils.MutableInteger;
+import ed.inf.heneveld.utils.process.PooledRunnable;
+import ed.inf.proofgeneral.ProofGeneralPlugin;
+import ed.inf.proofgeneral.editor.PGTextHover;
+import ed.inf.proofgeneral.editor.actions.GetCommandResponseAction;
+import ed.inf.proofgeneral.editor.actions.PGMarkerMethods;
+import ed.inf.proofgeneral.editor.actions.GetCommandResponseAction.ProverDeadException;
+import ed.inf.proofgeneral.pgip2html.Converter;
+import ed.inf.proofgeneral.sessionmanager.ProverState.ModellingException;
+import ed.inf.proofgeneral.sessionmanager.events.InternalEvent;
+import ed.inf.proofgeneral.sessionmanager.events.PGIPEvent;
+import ed.inf.proofgeneral.sessionmanager.events.PGIPIncoming;
+
+/**
+ * ProverKnowledge
+ * <p/>
+ * Class for keeping track (on the java side) of 
+ * the knowledge the prover has in the current state,
+ * ie available rules and definitions.
+ * <p/>
+ * on <opentheory/> response:
+ * - refreshes theory list
+ * - refreshes path
+ * <p/>
+ * then query list axioms and lemmas in each file,
+ * then query individual axioms and lemmas;
+ * <p/>
+ * offer command to "clear cache" of knowledge:
+ * - for data not from any heap [applies to all heaps]
+ * - for data not from current heap [applies only to current heap]
+ * - for all data
+ * <p/>
+ * 
+ */
+public class ProverKnowledge implements PGIPListener {
+	
+	SessionManager sm;
+	ProverState proverState;
+	PGIPSyntax syntax;
+	
+	public ProverKnowledge(SessionManager sm, ProverState proverState,
+			PGIPSyntax syntax) {
+		this.sm = sm;
+		this.proverState = proverState;
+		this.syntax = syntax;
+	}
+	
+	
+	List allItems = new ArrayList();
+	
+	//public void add()
+	
+	public static class KnowledgeItem {
+		public String type;
+		public String name;
+		/** the id by which the theorem prover refers to this; often same as name, perhaps qualified, perhaps with _def appended */
+		public String id; 
+		public TheoryFile theory;
+		public IMarker marker = null;
+		Element statementElement; 
+		String statementHtml; //TODO should be fancier
+		String statement;
+		
+		public KnowledgeItem(String id, String type, String name, TheoryFile theory,
+				String statement) {
+			this.id = id;
+			this.type = type;
+			this.name = name;
+			this.theory = theory;
+			this.statement = statement;
+		}
+		
+		public void setStatements(Element statement) {
+			statementElement = statement;
+			this.statement = statement.getStringValue();
+			statementHtml = Converter.getDisplayHtml(statement, false);
+		}
+		public void setStatementsVal(Element statement) {
+			statementElement = statement;
+			try {
+				//strip off wraper of  val it = "REAL_DATA" : Type  to give plain REAL_DATA (if it's of that form)
+				Element mainChild = (Element)statement.elements().get(0);
+				while (mainChild.elements().size()==1 && ((Element)mainChild.elements().get(0)).elements().size()>0) {
+					//recurse to find a node with many children and grandchildren
+					//HACK because PGML model switches in isabelle versions
+					//sometimes has <pgmltext> node  
+					mainChild = (Element)mainChild.elements().get(0);
+				}
+				Node removeCandidate = mainChild.node(0);			  
+				String isValIt = removeCandidate.getStringValue();
+				if (!isValIt.trim().equals("val it =")) throw new Exception("not a val it node");
+				mainChild.remove(removeCandidate);
+				
+				removeCandidate = mainChild.node(0);
+				isValIt = removeCandidate.getStringValue();
+				if (!isValIt.trim().equals("\"")) throw new Exception("not expected val it node (2)");
+				mainChild.remove(removeCandidate);
+				
+				removeCandidate = mainChild.node(mainChild.nodeCount()-1);
+				isValIt = removeCandidate.getStringValue();
+				if (!isValIt.trim().startsWith(":")) throw new Exception("not expected val it node (3)");
+				mainChild.remove(removeCandidate);
+				
+				removeCandidate = mainChild.node(mainChild.nodeCount()-1);
+				isValIt = removeCandidate.getStringValue();
+				if (!isValIt.trim().equals("\"")) throw new Exception("not expected val it node (4)");
+				mainChild.remove(removeCandidate);
+			} catch (Exception e) {
+				e=null;
+			}
+			if (statement==null) {
+				new Throwable("ProverKnowledge: tried updating theorem with null statement").printStackTrace();
+				return;
+			}
+			this.statement = statement.getStringValue();			
+			statementHtml = Converter.getDisplayHtml(statement, false);
+		}
+		
+		public String getStatementHtml() {
+			if (statementHtml!=null) return statementHtml;
+			return Converter.stringToXml(statement);
+		}
+	}
+	
+	public static class TheoryFile extends KnowledgeItem {
+		/** full path to the theory, including filename; null means unknown */
+		public String file;
+		
+		/** whether we are this theory file is the current edit/parse used by the SessionManager 
+		 *  (ie, whether it is "open" in the prover) */
+		public boolean isCurrent = false;
+		
+		public TheoryFile(String id, String name, String file) {
+			super(id, "theory", name, null, "theory "+name);
+			theory = this;
+			this.file = file;
+		}
+	}
+	
+	/** a theorem, lemma, axiom, or constant, stored in a theory file */ 
+	public static class LazyTheoryItem extends KnowledgeItem {
+		boolean loaded = false;
+		public LazyTheoryItem(String id, String name, TheoryFile theory) {
+			super(id, null, name, theory, null);
+		}
+		
+		boolean loading = false;
+		/** tries to load the object fully, calling callback (if not null) when done
+		 * (ignores the callback if the object is already loaded fully)
+		 * 
+		 * @param numTries number of times to try it (normally 1); if 0, tries immediately without waiting;
+		 *   if 1 (or greater), waits for prover then tries, repeats that many times; 
+		 *  if -1, tries (waiting) an unlimited number of times
+		 * @param callback Runnable to run when done (done on failure, 
+		 *   or if another thread is loading it, done when it finishes;
+		 *   but not run if it information already loaded)
+		 * @return -1 if it was already loaded, 1 if someone else is loading it;
+		 *   0 if we are loading it in the background
+		 */
+		public int loadFullyBg(final int numTries, final Runnable callback) {
+			if (loaded) { return -1; }
+			if (!ProofGeneralPlugin.PROVER_KNOWLEDGE_GRAB_ENABLED) return -1;
+			synchronized (this) {
+				if (loaded) { return -1; }			
+				if (loading) {
+					if (callback!=null) new PooledRunnable() {
+						public void run() {
+							try {
+								synchronized (LazyTheoryItem.this) {
+									if (loading)
+									  LazyTheoryItem.this.wait();
+								}
+							} catch (InterruptedException e) {
+							} finally {
+							  callback.run();
+							}
+						}
+					}.start();
+					return -2;
+				}
+				loading = true;
+			}
+			new PooledRunnable() {
+				public void run() {
+					try {
+						Element defn = null;
+						int tries = 0;
+						while (defn==null && tries<numTries) {
+							if (numTries==0)
+								defn = GetCommandResponseAction.getDefault().doCommand("ML {* thm \""+id+"\" *}");
+							else 
+								defn = GetCommandResponseAction.getDefault().doCommandWaiting("ML {* thm \""+id+"\" *}");
+							tries++;
+						}
+						if (defn!=null) {
+							//loaded successfully
+							setStatementsVal(defn);
+							checkForMarker();
+							loaded = true;
+						} else {
+							//couldn't load-- if there's a callback, we could wait then try again, or print error?							
+						}
+						//System.out.println("GOT defn for "+id+" as:\n"+defn.asXML());												
+					} catch (InterruptedException e) {
+					} catch (Exception e) {
+						e.printStackTrace();
+					} finally {
+						synchronized (LazyTheoryItem.this) {
+							loading = false;
+							LazyTheoryItem.this.notifyAll();
+						}
+						if (callback!=null) callback.run();						
+					}
+				}
+			}.start();			
+			return 0;
+		}
+		public void checkForMarker() {
+			if (!ProofGeneralPlugin.isEclipseMode()) return;
+			try {
+				IMarker m = null;    
+				IResource r =null;
+				//if (doc!=null) r = doc.resource;  //TODO do we need the doc's resource?
+				r = ResourcesPlugin.getWorkspace().getRoot();
+				m = PGTextHover.findMatchingMarker(r, name);
+				if (m!=null) m.setAttribute(PGMarkerMethods.TOOLTIP, getStatementHtml());
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+		}
+		public boolean isLoaded() {
+			return loaded;
+		}
+	}
+	
+	public static class KnowledgeMultiItem extends LazyTheoryItem {
+		KnowledgeItem wrapped1, wrapped2;
+		public KnowledgeMultiItem(KnowledgeItem wrapped1, KnowledgeItem wrapped2) {
+			super(wrapped1.id, wrapped1.name, wrapped1.theory);
+			this.type = wrapped1.type;
+			this.wrapped1 = wrapped1;
+			this.wrapped2 = wrapped2;
+		}
+		public int loadFullyBg(final int numTries, final Runnable callback) {
+			if (loaded) { return -1; }
+			if (!ProofGeneralPlugin.PROVER_KNOWLEDGE_GRAB_ENABLED) return -1;
+			boolean do1 = (wrapped1!=null && (wrapped1 instanceof LazyTheoryItem) && (!((LazyTheoryItem)wrapped1).loaded)); 
+			boolean do2 = (wrapped2!=null && (wrapped2 instanceof LazyTheoryItem) && (!((LazyTheoryItem)wrapped2).loaded));
+			if (!do1 && !do2) {
+				loaded = true;
+				return -1;
+			}
+			if (do1 && !do2) return ((LazyTheoryItem)wrapped1).loadFullyBg(numTries, callback);
+			if (!do1 && do2) return ((LazyTheoryItem)wrapped2).loadFullyBg(numTries, callback);
+			//got to do both of 'em
+			final MutableInteger numDone = new MutableInteger(0);
+			Runnable comboCallback = new Runnable() {
+				public void run() {
+					synchronized (numDone) {
+						numDone.inc();
+						if (numDone.get()==2) {
+							//done them both, set values and run callback
+							loaded = true;
+							statement = wrapped1.statement+"\n\nALSO "+wrapped2.id+": "+wrapped2.statement;
+							statementHtml = wrapped1.getStatementHtml()+"\n<p><p>\n"+
+							  wrapped2.type+" <b>"+wrapped2.id+"</b>: "+wrapped2.getStatementHtml();
+							callback.run();
+						}
+					}
+				}
+			};
+			return Math.max(((LazyTheoryItem)wrapped1).loadFullyBg(numTries, comboCallback), 
+					((LazyTheoryItem)wrapped2).loadFullyBg(numTries, comboCallback));
+		}
+		
+	}
+	
+	//--------- this listens for events
+	
+	public void pgipEvent(PGIPEvent e) {
+		//don't think this is needed any more??
+	}
+		
+	public void addTalker(PGEventMaker listenee) {
+		talkers.add(listenee);
+	}
+	public void removeTalker(PGEventMaker listenee) {
+		talkers.remove(listenee);
+	}
+	public void dispose() {
+		for(Iterator i=talkers.iterator(); i.hasNext();) {
+			((PGEventMaker)i.next()).removeListener(this);
+		}
+	}
+	
+	// ------------- model state changes effect on knowledge
+	
+	/** an internal marker for the current knowledge action;
+	 *  anything calling this should call currentKnowledgeActionDone(this) when it finishes,
+	 *  inside a ProverKnowledge.this synchronized block
+	 */
+	PooledRunnable currentKnowledgeAction = null;
+	void currentKnowledgeActionDone(PooledRunnable runningAction) {		
+		if (runningAction==currentKnowledgeAction) {
+			currentKnowledgeAction = null;		
+		} else
+			System.out.println("marking "+runningAction+" as done when "+currentKnowledgeAction+" is active");
+		//TODO make sure this gets called
+	}
+	
+	
+	/** called by the ProverState when a new theory is opened
+	 * @param cmd the element sent out
+	 * @param responses the list of PGIPEvents returned
+	 */
+	public void onNewTheory(final Element cmd, final List response) {
+		//	SEND: <opentheory thyname="DerivE" parentnames="ContinuityIntegrabilityDefinitions;">
+		//	  theory DerivE = ContinuityIntegrabilityDefinitions:</opentheory>
+		//	GET: 
+		//	  READ: <pgip class = "pg" origin = "Isabelle/Isar" id = "/alex/1099428354.476" refseq = "7" refid = "PG-Eclipse" seq = "13">
+		//	         <proofstate><pgml><statedisplay>theory DerivE =
+		//		READ:   {ProtoPure, CPure, HOL, Set, Typedef, Fun, Product_Type, Lfp, Gfp,...
+		//		READ:     Parity, PreList, List, Map, Hilbert_Choice, Infinite_Set, Extraction,
+		//		READ:     Refute, Reconstruction, Main, #}</statedisplay></pgml></proofstate></pgip>
+		
+		//run the theory setup in the foreground (the event thread), then commands to the prover in the bg, as interruptible and synced tasks
+		try {
+			stopCKA();
+			synchronized (this) {
+				
+				//then clear theories in use
+				clear();
+				
+				//get the theory name and file
+				String cThyName = null;
+				String cThyFile = null;
+				try {
+					cThyName = cmd.attributeValue("thyname");
+					if (ProofGeneralPlugin.isEclipseMode()) {
+						//outside of eclipse mode the file is probably user input, we can ignore
+						//(later we will look for it in the path)
+						IEditorInput input = ProofGeneralPlugin.getActiveSessionManager().scriptingEditor.getEditorInput();
+						cThyFile = //input.getName();  
+							((IFileEditorInput)input).getFile().getLocation().toOSString();
+					}
+					//input = null;
+					//org.eclipse.ui.ide.IDE.openEditor(page,marker,false);
+					//org.eclipse.ui.ide.IDE.openEditor((IWorkbenchPage)null, (IFile)null, false);
+				} catch (Exception e) {
+					if (cThyName==null) {
+						cThyName = "UnknownThyXXX"+General.makeRandomId(4);
+						System.err.println("ProverKnowledge had problems discovering the current theory from command "+cmd.asXML()+"; "+e+" (using "+cThyName+")");				  
+					} else {
+						//got a name, but no file					
+						System.err.println("ProverKnowledge -- no active editor");
+					}
+				}
+				currentTheoryFile = new TheoryFile(cThyName, cThyName, cThyFile);
+				currentTheoryFile.isCurrent = true;
+				
+				if (ProofGeneralPlugin.PROVER_KNOWLEDGE_GRAB_ENABLED) {
+				currentKnowledgeAction = new PooledRunnable("ProverKnowledge.onNewTheory") {
+					public void run() {
+						synchronized (ProverKnowledge.this) {
+							GetCommandResponseAction.Session pkCommandSession = null;
+							try {
+								pkCommandSession =
+									GetCommandResponseAction.getSessionWaiting("ProverKnowledge.onNewTheory", 3000);  //only do when idle for 3s
+								
+								long startTime = System.currentTimeMillis();
+								System.out.println(General.makeDateString()+": loading prover knowledge (can take up to one minute if GC kicks in, but usually faster)");
+								
+								discoverPath(pkCommandSession);
+								
+								//then set up the path of theory we are listening to
+								{
+									if (currentTheoryFile==null) return; //theory was disrupted
+									if ((currentTheoryFile.file == null || currentTheoryFile.file.indexOf(currentTheoryFile.name)==-1) &&
+											(ProofGeneralPlugin.isEclipseMode())) {
+										//no editor found, or editor did not correspond to the theory
+										System.err.println("ProverKnowledge -- active file "+currentTheoryFile.file+" is not theory "+currentTheoryFile.name);
+										currentTheoryFile.file = findPathOfTheory(currentTheoryFile.name);
+										if (currentTheoryFile.file!=null)
+											System.err.println("ProverKnowledge -- found "+currentTheoryFile.file+" instead for theory "+currentTheoryFile.name);
+									}
+								}
+								
+								//load methods
+								int numMethods = loadMethods(pkCommandSession, currentTheoryFile);
+								
+								//finally set up items for all other theories
+								//this used to work, but now we don't get the complete signature back from isabelle (May 05)
+//								PGIPEvent last_response = getLastIncoming(response);
+//								
+//								if (last_response==null || last_response.parseTree==null) {
+//									System.err.println("ProverKnowledge needs a response when new theory is opened, to see what other theories are being used");
+//									return;
+//								}
+//								String theoryList = last_response.parseTree.getStringValue();
+								//so do this instead
+								String theoryList = pkCommandSession.doCommandWaiting(
+										"ML {* Theory.sign_of (theory \""+currentTheoryFile.name+"\");  *}"
+								).getStringValue();
+
+								int theoryI = theoryList.indexOf('{')+1, theoryJ = -1, theoryEnd = theoryList.indexOf('}');
+								if (theoryI==-1 || theoryEnd<theoryI) {
+									System.err.println("ProverKnowledge open theory response is not of expected form, not loading knowledge items\nresponse is: "+
+											theoryList);
+									return;							
+								}
+								while ( theoryI < theoryEnd && (theoryJ = General.minNonNeg(theoryList.indexOf(',', theoryI), theoryEnd))>0 ) {
+									String theory = theoryList.substring(theoryI, theoryJ).trim();
+									theoryI = theoryJ+1;
+									//System.out.println("using theory: "+theory);						
+									if (theory.length()>0 && !"#".equals(theory)) {
+										TheoryFile tf = new TheoryFile(theory, theory, findPathOfTheory(theory));
+										activeTheories.add(tf);
+										activeItems.put(theory, tf);								
+									}
+								}
+								
+								//put this at the end of theories being used
+								activeTheories.add(currentTheoryFile);
+								activeItems.put(currentTheoryFile.name, currentTheoryFile);
+								
+								//System.err.println("\n\n\n    STARTING OUTPUT MODE  "+OUT_MODE+"\n\n");
+								
+								//now find out all lemmas and axioms in each of these theories!
+								Iterator ti = activeTheories.iterator();
+								int i=0;
+								String axioms = null;
+								String lemmas = null;
+								
+								int numAxioms = 0, numLemmas = 0;
+								
+								//						//GET THMS and AXIOMS from ONE BIG COMMAND  ... 900s initially, for me
+								//						if (OUT_MODE==0) {
+								//							StringBuffer bigCommandAxms = new StringBuffer("ML {* writeln (\"\\n\" ^ ");
+								//							StringBuffer bigCommandThms = new StringBuffer("ML {* writeln (\"\\n\" ^ ");
+								//							while (ti.hasNext()) {
+								//								TheoryFile tf = (TheoryFile)ti.next();
+								//								if (tf.isCurrent == false) {
+								//									bigCommandAxms.append("\"AXIOMS "+tf.name+" : \" ^ (commas (map (fst) (axioms_of (theory \""+tf.name+"\")))) ^ \"\\n\" ^ ");
+								//									bigCommandAxms.append("\"LEMMAS "+tf.name+" : \" ^ (commas (map (fst) (thms_of (theory \""+tf.name+"\")))) ^ \"\\n\" ^ ");									
+								//								}
+								//							}
+								//							bigCommandAxms.append(" \"\\nDONE\\n\" ) *}");
+								//							bigCommandThms.append(" \"\\nDONE\\n\" ) *}");
+								//							axioms = GetCommandResponseAction.doCommandWaiting(bigCommandAxms.toString()).getStringValue();
+								//							lemmas = GetCommandResponseAction.doCommandWaiting(bigCommandThms.toString()).getStringValue();
+								//						}
+								
+								//with smaller commands ... about twice as long;
+								//but is more easily interruptible, less hacks
+								while (ti.hasNext()) {
+									i++;
+									TheoryFile tf = (TheoryFile)ti.next();
+									if (tf.isCurrent == false) {
+										try {									
+											axioms = pkCommandSession.doCommandWaiting("ML {* "+
+													"commas (map (fst) (axioms_of (theory \""+tf.name+"\"))); *}").getStringValue();
+											lemmas = pkCommandSession.doCommandWaiting("ML {* "+
+													"commas (map (fst) (thms_of (theory \""+tf.name+"\"))); *}").getStringValue();
+											
+											//parse this output, generate items
+											//System.out.println("AXIOMS theory "+tf.name+":\n");//+axioms);
+											
+											String list = axioms.substring(axioms.indexOf('\"')+1, axioms.lastIndexOf('\"'));
+											int k=0;
+											while (k<list.length()) {
+												int k2 = list.indexOf(',', k);
+												if (k2==-1) k2=list.length();
+												String item = list.substring(k, k2).trim();
+												k = k2+1;
+												//add item
+												if (item==null || item.length()==0) {
+													//		  								item = General.makeRandomId(6);
+													//		  								name = "";
+													//probably shouldn't add items with no name
+												} else {
+													String name = item;
+													
+													if (name.startsWith(tf.name+".")) name=name.substring(tf.name.length()+1);
+													//TODO not sure what to do when there are multiple dots
+													String extraName = null;
+													if (name.indexOf('.')>=0) {
+													  extraName = name.substring(name.lastIndexOf('.')+1);  //could take name as from last '.'
+													}
+													if (name.length()==0) {
+														//also don't add it
+													} else {
+														LazyTheoryItem thi = new LazyTheoryItem(item, name, tf);
+														thi.type = "axiom";
+														thi.id = item;
+														numAxioms++;
+														addItem(name, thi, 0);
+														if (thi.name.endsWith("_def")) {
+															thi.type = "constant";
+															thi = new LazyTheoryItem(item,
+																	name.substring(0, name.length()-4), tf);
+															thi.type = "constant";
+															//if (activeItems.get(thi.name)==null)
+																//only add this if doesn't exist, so eg Relation.sym_def doesn't override HOL.sym
+															  //now we add multiple
+															  addItem(thi.name, thi, -1);
+														}
+														//System.out.println("  got "+item);
+														if (extraName!=null) {
+															if (activeItems.get(extraName)==null) {
+																//the fully unqualified version of this doesn't exist, so try it
+																LazyTheoryItem thi2 = new LazyTheoryItem(
+																		//item.substring(0, item.length()-4),
+																		item,
+																		extraName, tf);
+																thi2.type = thi.type;
+														    addItem(extraName, thi2, 0);
+															}
+														}
+													}
+												}
+											}
+											
+											//System.out.println("LEMMAS theory "+tf.name+":\n");//+lemmas);		  						
+											
+											list = lemmas.substring(lemmas.indexOf('\"')+1, lemmas.lastIndexOf('\"'));
+											k=0;
+											while (k<list.length()) {
+												int k2 = list.indexOf(',', k);
+												if (k2==-1) k2=list.length();
+												String item = list.substring(k, k2).trim();
+												k = k2+1;
+												//add item
+												if (item==null || item.length()==0) {
+													//		  								item = General.makeRandomId(6);
+													//		  								name = "";
+													
+													//probably shouldn't add this one
+												} else {
+													String name = item;
+													if (name.startsWith(tf.name+".")) name=name.substring(tf.name.length()+1);
+													//TODO not sure what to do when there are multiple dots
+													String extraName = null;
+													if (name.indexOf('.')>=0) {
+													  extraName = name.substring(name.lastIndexOf('.')+1);  //could take name as from last '.'
+													}
+													if (name.length()==0) {
+														//also don't add it
+													} else {
+														KnowledgeItem existsCopy = (KnowledgeItem)activeItems.get(name);
+														if (existsCopy==null || !existsCopy.id.equals(item)) {
+															//only add if there is not already a copy (because axioms are also reported as theorems)
+															LazyTheoryItem thi = new LazyTheoryItem(item, name, tf);
+															thi.type = "theorem";   //TODO can we distinguish between theorems and lemmas?
+															thi.id = item;
+															addItem(name, thi, 0);
+															numLemmas++;
+															//System.out.println("  got "+item);
+															if (thi.name.endsWith("_def")) {
+																thi.type = "constant";
+																thi = new LazyTheoryItem(item,
+																		name.substring(0, name.length()-4), tf);
+																thi.type = "constant";
+																if (activeItems.get(thi.name)==null)
+																	//only add this if doesn't exist, so eg Relation.sym_def doesn't override HOL.sym
+																	//also, be wary about adding definitions from the theorem lookup because it should have been added already as an axiom
+																	//(it gets returned twice)
+																	addItem(thi.name, thi, -1);
+															}
+															//System.out.println("  got "+item);
+															if (extraName!=null) {
+																if (activeItems.get(extraName)==null) {
+																	//the fully unqualified version of this doesn't exist, so try it
+																	LazyTheoryItem thi2 = new LazyTheoryItem(
+																			//item.substring(0, item.length()-4),
+																			item,
+																			extraName, tf);
+																	thi2.type = thi.type;
+																	addItem(extraName, thi2, 0);
+																}
+															}
+														}
+													}
+												}
+											}
+											
+											
+											//								System.out.println(General.makeDateString()+"  loading theory: "+tf.name);						
+											
+											//									if (OUT_MODE==3) {
+											//										axioms = GetCommandResponseAction.doCommandWaiting("ML {* "+
+											//												"axioms_of (theory \""+tf.name+"\"); *}").getStringValue();
+											//										lemmas = GetCommandResponseAction.doCommandWaiting("ML {* "+
+											//												"thms_of (theory \""+tf.name+"\"); *}").getStringValue();
+											//									} else if (OUT_MODE==1) {
+											//										axioms = GetCommandResponseAction.doCommandWaiting("ML {* "+
+											//												"commas (map (fst) (axioms_of (theory \""+tf.name+"\"))); *}").getStringValue();
+											//										lemmas = GetCommandResponseAction.doCommandWaiting("ML {* "+
+											//												"commas (map (fst) (thms_of (theory \""+tf.name+"\"))); *}").getStringValue();
+											//									} else if (OUT_MODE==2) {
+											//										axioms = GetCommandResponseAction.doCommandWaiting("ML {* "+
+											//												"(std_output \"\\nAXMS\\nPKnow: \" ;" +
+											//												" map (std_output o fst) (axioms_of (theory \""+tf.name+"\")) ; " +
+											//												" std_output \"\\nTHMS\\nPKnow: \" ;" +
+											//												" map (std_output o fst) (axioms_of (theory \""+tf.name+"\")) ; " +
+											//												" std_output \"\\nDONE.\" ) "+
+											//												"*}").getStringValue();
+											//										lemmas = GetCommandResponseAction.doCommandWaiting("ML {* "+
+											//												"(map (std_output) (thms_of (theory \""+tf.name+"\"))); *}").getStringValue();
+											
+											//										axioms = GetCommandResponseAction.doCommandWaiting("ML {* "+
+											//												"fun pk_strip x = if ((size x)>("+(tf.name.length()+1)+")) then substring(x,"+(tf.name.length()+1)+",(size x)-"+(tf.name.length()+1)+") "+
+											//												" else x; "+
+											//											  "fun pk_print_merge x = (std_output (pk_strip (fst x)) ; "+
+											//												   "std_output \": \" ; std_output (Pretty.string_of (Display.pretty_thm_no_quote (snd x))) ) ;"+
+											//												"(std_output \"-PK-START- \" ; ignore (map (pk_print_merge) (axioms_of (theory \""+tf.name+"\"))) ; std_output \" -PK-DONE-\") ; *}").getStringValue();										
+											//										lemmas = GetCommandResponseAction.doCommandWaiting("ML {* "+
+											//												"fun pk_strip x = if ((size x)>("+(tf.name.length()+1)+")) then substring(x,"+(tf.name.length()+1)+",(size x)-"+(tf.name.length()+1)+") "+
+											//												" else x; "+
+											//											  "fun pk_print_merge x = (std_output (pk_strip (fst x)) ; "+
+											//												   "std_output \": \" ; std_output \"OMITTED\" ) ;"+
+											//												"(std_output \"-PK-START- \" ; ignore (map (pk_print_merge) (thms_of (theory \""+tf.name+"\"))) ; std_output \" -PK-DONE-\") ; *}").getStringValue();
+											
+											//										axioms = GetCommandResponseAction.doCommandWaiting("ML {* "+
+											//												"fun pk_strip x = if ((size x)>("+(tf.name.length()+1)+")) then substring(x,"+(tf.name.length()+1)+",(size x)-"+(tf.name.length()+1)+") "+
+											//												" else x; "+
+											//											  "fun pk_print_merge x = (std_output (pk_strip (fst x)) ; "+
+											//												   "std_output \": \" ; std_output (Pretty.string_of (Display.pretty_thm_no_quote (snd x))) ) ;"+
+											//												"(std_output \"-PK-START- \" ; ignore (map (pk_print_merge) (axioms_of (theory \""+tf.name+"\"))) ; std_output \" -PK-DONE-\") ; *}").getStringValue();										
+											//										lemmas = GetCommandResponseAction.doCommandWaiting("ML {* "+
+											//												"fun pk_strip x = if ((size x)>("+(tf.name.length()+1)+")) then substring(x,"+(tf.name.length()+1)+",(size x)-"+(tf.name.length()+1)+") "+
+											//												" else x; "+
+											//											  "fun pk_print_merge x = (std_output (pk_strip (fst x)) ; "+
+											//												   "std_output \": \" ; std_output \"OMITTED\" ) ;"+
+											//												"(std_output \"-PK-START- \" ; ignore (map (pk_print_merge) (thms_of (theory \""+tf.name+"\"))) ; std_output \" -PK-DONE-\") ; *}").getStringValue();										
+											
+											//										axioms = GetCommandResponseAction.doCommandWaiting("ML {* "+
+											//												"fun pk_strip x = if ((size x)>("+(tf.name.length()+1)+")) then substring(x,"+(tf.name.length()+1)+",(size x)-"+(tf.name.length()+1)+") "+
+											//												" else x; "+
+											//											  "fun pk_print_merge x = (std_output (pk_strip (fst x)) ; "+
+											//												   "std_output \": \" ; std_output (Pretty.string_of (Display.pretty_thm_no_quote (snd x))) ) ;"+
+											//												"(std_output \"-PK-START- \" ; ignore (map (pk_print_merge) (axioms_of (theory \""+tf.name+"\"))) ; std_output \" -PK-DONE-\") ; *}").getStringValue();										
+											//										lemmas = GetCommandResponseAction.doCommandWaiting("ML {* "+
+											//												"fun pk_strip x = if ((size x)>("+(tf.name.length()+1)+")) then substring(x,"+(tf.name.length()+1)+",(size x)-"+(tf.name.length()+1)+") "+
+											//												" else x; "+
+											//											  "fun pk_print_merge x = (std_output (pk_strip (fst x)) ; "+
+											//												   "std_output \": \" ; std_output (Pretty.string_of (Display.pretty_thm_no_quote (snd x))) ) ;"+
+											//												"(std_output \"-PK-START- \" ; ignore (map (pk_print_merge) (thms_of (theory \""+tf.name+"\"))) ; std_output \" -PK-DONE-\") ; *}").getStringValue();										
+											//									} else {
+											//										axioms = GetCommandResponseAction.doCommandWaiting("ML {* "+
+											//											  "fun pk_merge x = \"-PK-ITEM- \" ^ (fst x) ^ "+
+											//												   "\": \" ^ (Pretty.string_of (Display.pretty_thm_no_quote (snd x))) ^ \" -PK-END-\" ;"+
+											//												   "writeln (commas (map (pk_merge) (axioms_of (theory \""+tf.name+"\")))) ; *}").getStringValue();										
+											//										lemmas = GetCommandResponseAction.doCommandWaiting("ML {* "+
+											//											  "fun pk_merge x = \"-PK-ITEM- \" ^ (fst x) ^ "+
+											//											   "\": \" ^ (Pretty.string_of (Display.pretty_thm_no_quote (snd x))) ^ \" -PK-END-\" ;"+
+											//											   "writeln (commas (map (pk_merge) (thms_of (theory \""+tf.name+"\")))) ; *}").getStringValue();										
+											//									}
+										} catch (NullPointerException e) {
+											System.err.println("couldn't get axioms or theorems for theory "+tf.name);
+											e.printStackTrace();
+										} catch (StringIndexOutOfBoundsException e) {
+											System.err.println("couldn't get axioms or theorems for theory "+tf.name);
+											System.err.println("  axioms: "+axioms);
+											System.err.println("  lemmas: "+lemmas);
+											e.printStackTrace();
+										}
+									}
+								}
+								
+								if (i==0) {
+									System.err.println("ProverKnowledge didn't find any theories; much auto-complete and tooltip information will be unavailable.");
+									//happens sometimes, usu if model breaks
+								}
+								else {
+									startTime = System.currentTimeMillis() - startTime;
+									System.out.println(General.makeDateString()+" ["+General.makeTimeString(startTime)+"]: "+
+											"loaded prover knowledge ("+activeTheories.size()+" theories, "+numMethods+" methods, "+
+													numAxioms+" axioms/definitions and "+numLemmas+" lemmas)");						
+								}
+								
+								//						OUT_MODE = (OUT_MODE+1)%4;
+								//takes about 25s for 100 theories
+								
+								//TODO ideally we would allow cached theory items, particularly if it's slow
+								
+							} catch (InterruptedException e) {  //had to interrupt this
+							} catch (GetCommandResponseAction.ProverDeadException e) {
+								clear();
+							} catch (Exception e) {
+								System.err.println("error trying to get ProverKnowledge in "+this);
+								e.printStackTrace();
+							} finally {
+								synchronized (ProverKnowledge.this) {
+									//System.out.println("DISPOSING "+this+" "+pkCommandSession);
+									if (pkCommandSession!=null) pkCommandSession.dispose();
+									currentKnowledgeActionDone(this);
+								}
+							}
+						} //release sync lock
+					}
+				};				
+				if (run_in_background) currentKnowledgeAction.start();
+				else currentKnowledgeAction.run();
+				}
+			}//release sync lock
+		} catch (Exception e) {
+			System.err.println("error trying to get ProverKnowledge");
+			e.printStackTrace();
+		}	
+	}		
+
+	/** adds the item to the activeItems list if it isn't there;
+	 *  if something of the same name is there, it adds another entry as a 'multiple item'  
+	 * @param name name to add it under
+	 * @param thi item to add
+	 * @param i whether to add at beginning (0) or end (-1)
+	 */
+	private void addItem(String name, KnowledgeItem thi, int i) {
+		KnowledgeItem ki = (KnowledgeItem)activeItems.get(name);
+		if (ki==null) {
+		  activeItems.put(name, thi);
+		  return;
+		}
+		//combine existing ki with new thi
+		if (i==-1) activeItems.put(name, new KnowledgeMultiItem(ki, thi));
+		else activeItems.put(name, new KnowledgeMultiItem(thi, ki));
+	}
+
+	/**
+	 * 
+	 */
+	private void stopCKA() {
+		//mark anything running (waiting) as interrupted, it will finish before we take the sync lock		
+		if (currentKnowledgeAction!=null) {
+			//System.out.println("interrupting old action "+currentKnowledgeAction);
+			currentKnowledgeAction.interrupt();
+		}
+	}
+
+	/** loads the methods from the theorem prover 
+	 * @throws InterruptedException
+	 * @throws ProverDeadException
+	 * @returns number of methods loaded
+	 */
+	public int loadMethods(GetCommandResponseAction.Session pkSession, TheoryFile theory) 
+	throws InterruptedException, ProverDeadException {
+		String meths = pkSession.doCommandWaiting(
+				"ML {* print_methods (theory \""+theory.name+"\");  *}"
+		).getStringValue();
+		//should be of form 
+		//methods:
+		//  some_tac: a description
+		//  another_tac: description
+		//val it = () : unit
+		int count = 0;
+		try {
+			StringTokenizer st = new StringTokenizer(meths, "\n");
+			if (!st.hasMoreTokens()) throw new IllegalArgumentException("no data");
+			String meth = st.nextToken();
+			if (meth.trim().length()==0 && st.hasMoreTokens()) meth = st.nextToken();
+			if (!meth.trim().equals("methods:")) throw new IllegalArgumentException("first line not 'methods:'");
+			String name = null;
+			while (st.hasMoreTokens()) {
+			  meth = st.nextToken().trim();
+			  if (meth.startsWith("val it =") || meth.length()==0) continue;
+			  int i = meth.indexOf(':');
+			  if (i==-1) {
+			  	if (name==null)
+			  		throw new IllegalArgumentException("line not of form 'method: description'");
+			  	//the new "subst" is the culprit here
+			  	System.err.println("Problem reading method data, after method "+name+" (skipping); "+
+			  			"expecting \"  method: description\" on each line, but got the following line without colon: "+meth);
+			  	continue;
+			  }
+			  String id = meth.substring(0, i).trim();
+			  name = id;
+			  if (name.indexOf('.')>=0) name = name.substring(name.lastIndexOf('.')+1);  //convert things like HOL.rule
+			  String descr = meth.substring(i+1).trim();
+			  activeItems.put(name, new KnowledgeItem(id, "tactic", name, theory, descr));
+			  count++;
+			}				
+		} catch (IllegalArgumentException e) {
+			System.err.println("ProverKnowledge, methods is not of expected form ("+e.getMessage()+"); method/tactic data not available; got "+meths);			
+		}
+		return count;
+	}
+	
+	//----------------------------------- other actions
+	
+	public void onUndoneOpenTheory() {
+		stopCKA();
+		clear();
+	}
+	
+	public void onUndoneCloseTheory() {
+		stopCKA();
+		clear();
+	}
+	
+		public void clear() {
+			currentTheoryFile = null;
+			activeItems.clear();
+			activeTheories.clear();
+		}
+		
+		/** whether theorem requesting should run in the background or not;
+		 *  if this is false, this shouldn't get run in an event thread,
+		 *  because that thread may need events that will never run 
+		 */
+		public static boolean run_in_background = true;
+		
+		public static boolean print_undone_items = true;  //TODO remove
+		
+		private static String cutFromStart(String s, String cut) {
+			if (s.startsWith(cut)) return s.substring(cut.length());
+			return s;
+		}
+		
+		
+		KnowledgeItem currentTheorem = null;
+		final static String UNTITLED_THEOREM = "(untitled)";
+		
+		public void onNewTheoremStart(Element xe) {
+			//<opengoal thmname="crap">lemma crap: "bloo (%x. x+1) = (%x. x+1)"</opengoal>
+			//if (print_undone_items) System.err.println("NEW THEOREM: "+xe.asXML());
+			try {
+				String thmname = null;
+				
+				Attribute ta = xe.attribute("thmname");
+				if (ta!=null)   //if no label provided, leave thmname as null
+				  thmname = ta.getValue();
+				if (currentTheorem != null) {
+					System.err.println("ProverKnowledge: starting a new theorem "+(thmname==null ? "(untitled)" : thmname)+
+							" when it looks like we were still working on "+currentTheorem.id);
+				}
+				if (ta!=null) {
+				  currentTheorem = new LazyTheoryItem((currentTheoryFile==null ? "": currentTheoryFile.name+".")+thmname, thmname, currentTheoryFile);
+				} else {
+				  currentTheorem = new KnowledgeItem(UNTITLED_THEOREM, "", UNTITLED_THEOREM, currentTheoryFile, "");
+				}
+				
+				currentTheorem.type = "unknown";
+				
+				//try to get a parse for the statement
+				String thmstatement = xe.getStringValue().trim();
+				String type = null;
+				if (thmstatement.startsWith("lemma")) type = "lemma";
+				else if (thmstatement.startsWith("theorem")) type = "theorem";
+
+				if (type==null) return; //can't get statement
+				currentTheorem.type = type;				
+				thmstatement = cutFromStart(thmstatement, type).trim();
+				if (thmname!=null) {
+				  thmstatement = cutFromStart(thmstatement, thmname+":").trim();
+				}
+				thmstatement = cutFromStart(thmstatement, "\"").trim();
+				if (thmstatement.endsWith("\"")) thmstatement = thmstatement.substring(0, thmstatement.length()-1).trim();
+				currentTheorem.statement = thmstatement;
+			} catch (Exception e) {
+				System.err.println("ProverKnowledge: unable to parse new theorem from "+xe.asXML()+": "+e);
+			}
+		}		
+		public void onNewTheoremCancel(Element xe, ArrayList response) {
+			currentTheorem = null;
+		}
+		public void onNewTheoremFinish(Element xe, ArrayList response) {
+			//not called on oops, only on sorry and done
+			if (currentTheorem==null) {
+				System.err.println("ProverKnowledge: no current theorem on finish, "+xe.asXML());
+				return;
+			}
+			if (!currentTheorem.id.equals(UNTITLED_THEOREM)) {
+				activeItems.put(currentTheorem.name, currentTheorem);
+				((LazyTheoryItem)currentTheorem).loadFullyBg(3, null);
+			}
+			currentTheorem = null;
+//			PGIPEvent last_response = null;
+//			Iterator ri = response.iterator();
+//			while (ri.hasNext()) {
+//				Object r = ri.next();
+//				if (r instanceof PGIPIncoming) last_response = (PGIPIncoming)r;
+//			}
+//			
+//			if (last_response==null || last_response.parseTree==null) return;				
+//			//could try to get a better form of the statement from last_response
+//			try {
+//				System.out.println("GOT: "+last_response.parseTree.asXML());
+//				Element nr = (Element)last_response.parseTree.elements().get(0);  //the 'normalresponse' element
+//				parse this...
+//			} catch (Exception e) {}
+		}
+		
+		public void onUndoneTheorem(Element xe, Element opener, ArrayList response) {
+			try {
+				String thmname = null;
+				try {
+					thmname = opener.attribute("thmname").getValue();
+				} catch (Exception e) {
+					try {				
+						thmname = xe.attribute("thmname").getValue();
+					} catch (Exception e2) {
+						//probably didn't have a title
+						//System.err.println("ProverKnowledge.onUndoneTheorem:  can't figure out what theorem we are undoing; keeping its knowledge.");
+						return;
+					}					
+				}
+				activeItems.remove(thmname);
+			} catch (RuntimeException e) {
+				e.printStackTrace();
+			}
+		}
+
+		public void onNewTheoryItem(Element xe, ArrayList response) {
+			//<theoryitem name="hoo" objtype="theorem">axioms hoo:  "bloo F = F"</theoryitem>
+			//<theoryitem name="bloo" objtype="term">constdefs bloo  :: 
+			//  "(nat\&lt;Rightarrow&gt;nat)\&lt;Rightarrow&gt;(nat\&lt;Rightarrow&gt;nat)"
+			//  "bloo F == (THE f. ALL x::nat.( F x = f x))"</theoryitem>
+			try {
+				String name = xe.attribute("name").getValue();
+				LazyTheoryItem ki = new LazyTheoryItem((currentTheoryFile==null ? "": currentTheoryFile.name+".")+name, name, currentTheoryFile);
+				ki.type = "unknown";				
+				
+				//try to get a parse for the statement
+				String thmstatement = xe.getStringValue().trim();
+				String type = null;
+				if (thmstatement.startsWith("constdef")) type = "constant";
+				else if (thmstatement.startsWith("axiom")) type = "axiom";
+
+				if (type==null) {
+					//don't recognise the type
+					if (thmstatement.startsWith("def") || thmstatement.startsWith("const") || thmstatement.startsWith("lemmas")) 
+						; //TODO could make a note of these 
+					else 
+					  if (print_undone_items) System.err.println("Prover knowledge: unknown theory item, "+thmstatement);
+				} else {
+					if (type.equals("constant")) {
+						ki.id = ki.id+"_def";
+					}
+					activeItems.put(ki.name, ki);
+					ki.type = type;
+					int colon = thmstatement.indexOf(':');
+					if (colon>0) {
+						thmstatement = thmstatement.substring(colon+1);
+						while (thmstatement.startsWith(":")) thmstatement = thmstatement.substring(1);
+						thmstatement = thmstatement.trim();
+						thmstatement = cutFromStart(thmstatement, "\"").trim();
+						if (thmstatement.endsWith("\"")) thmstatement = thmstatement.substring(0, thmstatement.length()-1).trim();
+						ki.statement = thmstatement;
+					}
+					//now try to request what it actually is...
+					ki.loadFullyBg(3, null);
+					if (type.equals("constant")) {
+						//for _def items, create a _def copy
+						LazyTheoryItem dki = new LazyTheoryItem(ki.id, name+"_def", currentTheoryFile);
+						dki.type = ki.type;
+						dki.statement = ki.statement;
+						activeItems.put(dki.name, dki);
+						dki.loadFullyBg(3, null);
+					}
+				}
+			} catch (Exception e) {
+				System.err.println("ProverKnowledge: unable to parse new theorem from "+xe.asXML()+": "+e);
+			}
+
+		}
+		
+		public void onUndoneTheoryItem(Element xe, ArrayList response) {
+			try {
+				String name = xe.attribute("name").getValue();
+				activeItems.remove(name);
+				activeItems.remove(name+"_def");  //if it exists
+			} catch (RuntimeException e) {
+				e.printStackTrace();
+			}			
+		}
+
+		//---- current prover path
+		
+		ArrayList currentProverPath = new ArrayList();
+		
+		/** looks for a theory in the current prover path (by appending .thy and looking for a filename);
+		 *  returns full path, or null if it can't find it (eg it's from the heap) */
+		public String findPathOfTheory(String theory) {
+			Iterator pi = currentProverPath.iterator();
+			while (pi.hasNext()) {
+				try {
+					String ps = (String)pi.next();
+					IPath pa = new Path(ps);
+					if (!pa.isAbsolute() && sm.proverInfo.getProverCwd()!=null)
+						pa = new Path(sm.proverInfo.getProverCwd().getCanonicalPath()).append(pa);
+					pa = pa.addTrailingSeparator().append(theory+".thy");
+					String fn = pa.toOSString();
+					File f = new File(fn);
+					if (f.exists()) return fn;
+				} catch (Exception e) {
+					//possible io exceptions?
+					e.printStackTrace();
+				}
+			}
+			return null;
+		}
+		
+		//---- current prover knowledge
+		
+		TheoryFile currentTheoryFile = null;
+		ArrayList activeTheories = new ArrayList();
+		TreeMap activeItems = new TreeMap();
+		//TODO want a more complex data type which allows multiple items of same name
+		//because this will only store one copy of an item, a new item of the same name will delete the old,
+		//then if that theory is undone it will be lost
+		
+		/** returns a copy of the map of all items starting with s */
+		public TreeMap itemsStartingWith(String s) {
+			if (s==null || s.length()==0) { 
+				return new TreeMap(activeItems);
+			}
+			String start = s, 
+			end = s.substring(0, s.length()-1)+((char)(s.charAt(s.length()-1)+1));
+			//System.out.println("returning all from "+start+" to "+end);
+			return new TreeMap(activeItems.subMap(start, end));
+			//TODO may want this case insensitive ?
+		}
+		
+		public KnowledgeItem getItem(String ki) {
+			return (KnowledgeItem)activeItems.get(ki);
+		}
+		
+		
+		/** discovers and sets the prover path by sending it appropriate commands
+		 * @throws InterruptedException
+		 * @throws ProverDeadException
+		 */
+		private void discoverPath(GetCommandResponseAction.Session pkSession) throws InterruptedException, ProverDeadException {
+			//then get the path	
+			currentProverPath.clear();
+			String path = pkSession.doCommandWaiting(
+					//"ML {* show_path {} *}"   //following command removes all env vars
+					"ML {* map (Path.pack o Path.expand o Path.unpack) (show_path ()) *}"
+			).getStringValue();
+			//should be of form val it = [".", "$ISABELLE_HOME/src/HOL/Library"] : sring list
+			{
+				currentProverPath.clear();
+				int pathI = path.indexOf('[')+1, pathJ = -1, pathEnd = path.indexOf(']');
+				if (pathI==-1 || pathEnd<pathI) {
+					System.err.println("ProverKnowledge path is not of expected form, no path will be available;\npath is "+path);
+				} else
+					while ( pathI < pathEnd && (pathJ = General.minNonNeg(path.indexOf(',', pathI), pathEnd))>0 ) {
+						String f = path.substring(pathI, pathJ).trim();
+						pathI = pathJ+1;
+						if (f.startsWith("\"") && f.endsWith("\"")) {
+							f = f.substring(1, f.length()-1);
+						}
+						currentProverPath.add(f);
+					}							
+			}
+		}
+
+
+		/**
+		 * @param response
+		 * @return
+		 */
+		private PGIPEvent getLastIncoming(final List response) {
+			PGIPEvent last_response = null;
+			Iterator ri = response.iterator();
+			while (ri.hasNext()) {
+				Object r = ri.next();
+				if (r instanceof PGIPIncoming) last_response = (PGIPIncoming)r;
+			}
+			return last_response;
+		}
+
+
+		/**
+		 * @param xe
+		 */
+		public void onCloseTheory(Element xe) {
+			currentTheoryFile = null;  //that's all we do, so rollovers still work (though this isn't important)
+		}
+
+		
+	}

@@ -1,0 +1,60 @@
+NAME:			LostProverOwnership
+LAST UDPATED:	$Date: 2006/12/06 10:56:41 $
+UPDATED BY:		$Author: da $
+REPORTER:		gdutton
+STATUS:			unresolved
+
+DESCRIPTION:
+
+ After any sort of prover error, the following will be displayed if an action is selected:
+ "cannot run ed.inf.proofgeneral.editor.actions.<class name>; someone else owns the prover"
+ 
+TEST CASE:
+
+[ With Isabelle CVS 24/11/06 ]
+
+* Load proof general
+* Part/completely process, and attempt to retract a file
+  (this is currently broken functionality, but note that anything which causes a prover error will suffice)
+* attempt any other action.
+ 
+FURTHER INFORMATION:
+
+
+FIX NEEDED:
+
+ Probably the best solution is to remove the idea of 'prover ownership'; 
+ this will result in a simpler sessionmanager.
+ 
+ da: I agree.  
+ 
+ I think Alex's idea here (I'm guessing he added it) was to
+ allow out-of-stream use of the prover, e.g. by ProverKnowledge, to send
+ query messages interspersed with the ordinary scripting messages and in
+ a conversation (e.g. explore a recently opened theory).  But he 
+ wants only one sort of function at a time to be doing this, otherwise the replies
+ can get confused.  Or, he wants to engage in a dialogue and not have
+ script management come in between.
+ I think it would be better to enforce this elsewhere/elsehow.
+ So the session manager itself is just responsible for running a script management
+ and prover process, and for now the queue should not allow other messages
+ to be interspersed during scripting (i.e. there's a queue of do/undo commands).
+ If ProverKnowledge fires, it should grab the queue like any other command,
+ but shouldn't assume it can engage in a dialogue with the prover.
+ It is only allowed to do 
+   if queue emtpy
+     send command, possibly block for response
+       continue
+ 
+ But rather than continue it would be better to take action on response,
+ but take note if the prover state is the same as before (use a tick in
+ prover state).
+ 
+ Action for now: getting basic script management right is more important
+ than ProverKnowledge (nice as it is).  So let's remove the ownership
+ as suggested, but be wary that ProverKnowledge may get confused.
+ Hopefully it never causes any prover state change (SHOULD CHECK THIS)
+ so it can't cause scripting errors.
+ 
+ 
+  

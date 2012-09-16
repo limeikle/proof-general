@@ -1,0 +1,293 @@
+<proofgeneral>
+<!--
+  TeX codes for various Unicode 3.2 characters
+  Markus Kuhn, 2002-07-25.
+  Adapted for Proof General symbols by David Aspinall, 2007-02-01.
+
+  $Id: TeX.sym,v 1.2 2007/02/05 08:37:22 da Exp $
+-->
+<addsymbol unicode="α" ascii="\alpha" family="Lowercase Greek"/>
+<addsymbol unicode="β" ascii="\beta" family="Lowercase Greek"/>
+<addsymbol unicode="γ" ascii="\gamma" family="Lowercase Greek"/>
+<addsymbol unicode="δ" ascii="\delta" family="Lowercase Greek"/>
+<addsymbol unicode="ϑ" ascii="\epsilon" family="Lowercase Greek"/>
+<addsymbol unicode="ε" ascii="\varepsilon" family="Lowercase Greek"/>
+<addsymbol unicode="ζ" ascii="\zeta" family="Lowercase Greek"/>
+<addsymbol unicode="η" ascii="\eta" family="Lowercase Greek"/>
+<addsymbol unicode="θ" ascii="\theta" family="Lowercase Greek"/>
+<addsymbol unicode="ϑ" ascii="\vartheta" family="Lowercase Greek"/>
+<addsymbol unicode="ι" ascii="\iota" family="Lowercase Greek"/>
+<addsymbol unicode="κ" ascii="\kappa" family="Lowercase Greek"/>
+<addsymbol unicode="λ" ascii="\lambda" family="Lowercase Greek"/>
+<addsymbol unicode="μ" ascii="\mu" family="Lowercase Greek"/>
+<addsymbol unicode="ν" ascii="\nu" family="Lowercase Greek"/>
+<addsymbol unicode="ξ" ascii="\xi" family="Lowercase Greek"/>
+<addsymbol unicode="ο" ascii="o" family="Lowercase Greek"/>
+<addsymbol unicode="π" ascii="\pi" family="Lowercase Greek"/>
+<addsymbol unicode="ϖ" ascii="\varpi" family="Lowercase Greek"/>
+<addsymbol unicode="ρ" ascii="\rho" family="Lowercase Greek"/>
+<addsymbol unicode="ϱ" ascii="\varrho" family="Lowercase Greek"/>
+<addsymbol unicode="σ" ascii="\sigma" family="Lowercase Greek"/>
+<addsymbol unicode="ς" ascii="\varsigma" family="Lowercase Greek"/>
+<addsymbol unicode="τ" ascii="\tau" family="Lowercase Greek"/>
+<addsymbol unicode="υ" ascii="\upsilon" family="Lowercase Greek"/>
+<addsymbol unicode="ϕ" ascii="\phi" family="Lowercase Greek"/>
+<addsymbol unicode="φ" ascii="\varphi" family="Lowercase Greek"/>
+<addsymbol unicode="χ" ascii="\chi" family="Lowercase Greek"/>
+<addsymbol unicode="ψ" ascii="\psi" family="Lowercase Greek"/>
+<addsymbol unicode="ω" ascii="\omega" family="Lowercase Greek"/>
+<addsymbol unicode="Γ" ascii="\Gamma" family="Uppercase Greek"/>
+<addsymbol unicode="Δ" ascii="\Delta" family="Uppercase Greek"/>
+<addsymbol unicode="Θ" ascii="\Theta" family="Uppercase Greek"/>
+<addsymbol unicode="Λ" ascii="\Lambda" family="Uppercase Greek"/>
+<addsymbol unicode="Ξ" ascii="\Xi" family="Uppercase Greek"/>
+<addsymbol unicode="Π" ascii="\Pi" family="Uppercase Greek"/>
+<addsymbol unicode="Σ" ascii="\Sigma" family="Uppercase Greek"/>
+<addsymbol unicode="Υ" ascii="\Upsilon" family="Uppercase Greek"/>
+<addsymbol unicode="Φ" ascii="\Phi" family="Uppercase Greek"/>
+<addsymbol unicode="Ψ" ascii="\Psi" family="Uppercase Greek"/>
+<addsymbol unicode="Ω" ascii="\Omega" family="Uppercase Greek"/>
+<addsymbol unicode="ℵ" ascii="\aleph" family="Miscellaneous"/>
+<addsymbol unicode="ℏ" ascii="\hbar" family="Miscellaneous"/>
+<addsymbol unicode="ı" ascii="\imath" family="Miscellaneous"/>
+<addsymbol unicode="j" ascii="\jmath" family="Miscellaneous"/> !
+<addsymbol unicode="ℓ" ascii="\ell" family="Miscellaneous"/>
+<addsymbol unicode="℘" ascii="\wp" family="Miscellaneous"/>
+<addsymbol unicode="ℜ" ascii="\Re" family="Miscellaneous"/>
+<addsymbol unicode="ℑ" ascii="\Im" family="Miscellaneous"/>
+<addsymbol unicode="∂" ascii="\partial" family="Miscellaneous"/>
+<addsymbol unicode="∞" ascii="\infty" family="Miscellaneous"/>
+<addsymbol unicode="□" ascii="\Box" family="Miscellaneous"/>
+<addsymbol unicode="∅" ascii="\emptyset" family="Miscellaneous"/>
+<addsymbol unicode="∇" ascii="\nabla" family="Miscellaneous"/>
+<addsymbol unicode="√" ascii="\surd" family="Miscellaneous"/>
+<addsymbol unicode="⊤" ascii="\top" family="Miscellaneous"/>
+<addsymbol unicode="⊥" ascii="\bot" family="Miscellaneous"/>
+<addsymbol unicode="∥" ascii="\|" family="Miscellaneous"/>
+<addsymbol unicode="∠" ascii="\angle" family="Miscellaneous"/>
+<addsymbol unicode="△" ascii="\triangle" family="Miscellaneous"/>
+<addsymbol unicode="\" ascii="\backslash" family="Miscellaneous"/>
+<addsymbol unicode="◇" ascii="\Diamond" family="Miscellaneous"/>
+<addsymbol unicode="′" ascii="\prime" family="Miscellaneous"/>!
+<addsymbol unicode="∃" ascii="\exists" family="Miscellaneous"/>
+<addsymbol unicode="∀" ascii="\forall" family="Miscellaneous"/>
+<addsymbol unicode="¬" ascii="\neg" family="Miscellaneous"/>
+<addsymbol unicode="♭" ascii="\flat" family="Miscellaneous"/>
+<addsymbol unicode="♮" ascii="\natural" family="Miscellaneous"/>
+<addsymbol unicode="♯" ascii="\sharp" family="Miscellaneous"/>
+<addsymbol unicode="♣" ascii="\clubsuit" family="Miscellaneous"/>
+<addsymbol unicode="♢" ascii="\diamondsuit" family="Miscellaneous"/>
+<addsymbol unicode="♡" ascii="\heartsuit" family="Miscellaneous"/>
+<addsymbol unicode="♠" ascii="\spadesuit" family="Miscellaneous"/>
+<addsymbol unicode="∑" ascii="\sum" family="Large operators"/>
+<addsymbol unicode="∏" ascii="\prod" family="Large operators"/>
+<addsymbol unicode="∐" ascii="\coprod" family="Large operators"/>
+<addsymbol unicode="∫" ascii="\int" family="Large operators"/>
+<addsymbol unicode="∮" ascii="\oint" family="Large operators"/>
+<addsymbol unicode="⋂" ascii="\bigcap" family="Large operators"/>
+<addsymbol unicode="⋃" ascii="\bigcup" family="Large operators"/>
+<addsymbol unicode="⨆" ascii="\bigsqcup" family="Large operators"/>
+<addsymbol unicode="⋁" ascii="\bigvee" family="Large operators"/>
+<addsymbol unicode="⋀" ascii="\bigwedge" family="Large operators"/>
+<addsymbol unicode="⨀" ascii="\bigodot" family="Large operators"/>
+<addsymbol unicode="⨂" ascii="\bigotimes" family="Large operators"/>
+<addsymbol unicode="⨁" ascii="\bigoplus" family="Large operators"/>
+<addsymbol unicode="⨄" ascii="\biguplus" family="Large operators"/>
+<addsymbol unicode="±" ascii="\pm" family="Binary operations"/>
+<addsymbol unicode="∓" ascii="\mp" family="Binary operations"/>
+<addsymbol unicode="∖" ascii="\setminus" family="Binary operations"/>
+<addsymbol unicode="⋅" ascii="\cdot" family="Binary operations"/>
+<addsymbol unicode="×" ascii="\times" family="Binary operations"/>
+<addsymbol unicode="∗" ascii="\ast" family="Binary operations"/>
+<addsymbol unicode="⋆" ascii="\star" family="Binary operations"/>
+<addsymbol unicode="⋄" ascii="\diamond" family="Binary operations"/>
+<addsymbol unicode="∘" ascii="\circ" family="Binary operations"/>
+<addsymbol unicode="∙" ascii="\bullet" family="Binary operations"/>
+<addsymbol unicode="÷" ascii="\div" family="Binary operations"/>
+<addsymbol unicode="⊲" ascii="\lhd" family="Binary operations"/>
+<addsymbol unicode="∩" ascii="\cap" family="Binary operations"/>
+<addsymbol unicode="∪" ascii="\cup" family="Binary operations"/>
+<addsymbol unicode="⊎" ascii="\uplus" family="Binary operations"/>
+<addsymbol unicode="⊓" ascii="\sqcap" family="Binary operations"/>
+<addsymbol unicode="⊔" ascii="\sqcup" family="Binary operations"/>
+<addsymbol unicode="◁" ascii="\triangleleft" family="Binary operations"/>
+<addsymbol unicode="▷" ascii="\triangleright" family="Binary operations"/>
+<addsymbol unicode="≀" ascii="\wr" family="Binary operations"/>
+<addsymbol unicode="◯" ascii="\bigcirc" family="Binary operations"/>
+<addsymbol unicode="△" ascii="\bigtriangleup" family="Binary operations"/>
+<addsymbol unicode="▽" ascii="\bigtriangledown" family="Binary operations"/>
+<addsymbol unicode="⊳" ascii="\rhd" family="Binary operations"/>
+<addsymbol unicode="∨" ascii="\vee" family="Binary operations"/>
+<addsymbol unicode="∧" ascii="\wedge" family="Binary operations"/>
+<addsymbol unicode="⊕" ascii="\oplus" family="Binary operations"/>
+<addsymbol unicode="⊖" ascii="\ominus" family="Binary operations"/>
+<addsymbol unicode="⊗" ascii="\otimes" family="Binary operations"/>
+<addsymbol unicode="⊘" ascii="\oslash" family="Binary operations"/>
+<addsymbol unicode="⊙" ascii="\odot" family="Binary operations"/>
+<addsymbol unicode="†" ascii="\dagger" family="Binary operations"/>
+<addsymbol unicode="‡" ascii="\ddagger" family="Binary operations"/>
+<addsymbol unicode="⨿" ascii="\amalg" family="Binary operations"/>
+<addsymbol unicode="⊴" ascii="\unlhd" family="Binary operations"/>
+<addsymbol unicode="⊵" ascii="\unrhd" family="Binary operations"/>
+<addsymbol unicode="≤" ascii="\leq" family="Relations"/>
+<addsymbol unicode="≺" ascii="\prec" family="Relations"/>
+<addsymbol unicode="≼" ascii="\preceq" family="Relations"/>
+<addsymbol unicode="≪" ascii="\ll" family="Relations"/>
+<addsymbol unicode="⊂" ascii="\subset" family="Relations"/>
+<addsymbol unicode="⊆" ascii="\subseteq" family="Relations"/>
+<addsymbol unicode="⊑" ascii="\sqsubseteq" family="Relations"/>
+<addsymbol unicode="∈" ascii="\in" family="Relations"/>
+<addsymbol unicode="⊢" ascii="\vdash" family="Relations"/>
+<addsymbol unicode="⌣" ascii="\smile" family="Relations"/>
+<addsymbol unicode="⌢" ascii="\frown" family="Relations"/>
+<addsymbol unicode="⊏" ascii="\sqsubset" family="Relations"/>
+<addsymbol unicode="≥" ascii="\geq" family="Relations"/>
+<addsymbol unicode="≻" ascii="\succ" family="Relations"/>
+<addsymbol unicode="≽" ascii="\succeq" family="Relations"/>
+<addsymbol unicode="≫" ascii="\gg" family="Relations"/>
+<addsymbol unicode="⊃" ascii="\supset" family="Relations"/>
+<addsymbol unicode="⊇" ascii="\supseteq" family="Relations"/>
+<addsymbol unicode="⊏" ascii="\sqsupseteq" family="Relations"/>
+<addsymbol unicode="∋" ascii="\ni" family="Relations"/>
+<addsymbol unicode="⊣" ascii="\dashv" family="Relations"/>
+<addsymbol unicode="∣" ascii="\mid" family="Relations"/>
+<addsymbol unicode="∥" ascii="\parallel" family="Relations"/>
+<addsymbol unicode="⊐" ascii="\sqsupset" family="Relations"/>
+<addsymbol unicode="≡" ascii="\equiv" family="Relations"/>
+<addsymbol unicode="∼" ascii="\sim" family="Relations"/>
+<addsymbol unicode="≃" ascii="\simeq" family="Relations"/>
+<addsymbol unicode="≍" ascii="\asymp" family="Relations"/>
+<addsymbol unicode="≈" ascii="\approx" family="Relations"/>
+<addsymbol unicode="≅" ascii="\cong" family="Relations"/>
+<addsymbol unicode="⋈" ascii="\bowtie" family="Relations"/>
+<addsymbol unicode="∝" ascii="\propto" family="Relations"/>
+<addsymbol unicode="⊨" ascii="\models" family="Relations"/>
+<addsymbol unicode="≐" ascii="\doteq" family="Relations"/>
+<addsymbol unicode="⊥" ascii="\perp" family="Relations"/>
+<addsymbol unicode="⨝" ascii="\Join" family="Relations"/>
+<addsymbol unicode="≮" ascii="\not&lt;" family="Negated relations"/>
+<addsymbol unicode="≰" ascii="\not\leq" family="Negated relations"/>
+<addsymbol unicode="⊀" ascii="\not\prec" family="Negated relations"/>
+<addsymbol unicode="⋠" ascii="\not\preceq" family="Negated relations"/>
+<addsymbol unicode="⊄" ascii="\not\subset" family="Negated relations"/>
+<addsymbol unicode="⊈" ascii="\not\subseteq" family="Negated relations"/>
+<addsymbol unicode="⋢" ascii="\not\sqsubseteq" family="Negated relations"/>
+<addsymbol unicode="≯" ascii="\not&gt;" family="Negated relations"/>
+<addsymbol unicode="≱" ascii="\not\geq" family="Negated relations"/>
+<addsymbol unicode="⊁" ascii="\not\succ" family="Negated relations"/>
+<addsymbol unicode="⋡" ascii="\not\succeq" family="Negated relations"/>
+<addsymbol unicode="⊅" ascii="\not\supset" family="Negated relations"/>
+<addsymbol unicode="⊉" ascii="\not\supseteq" family="Negated relations"/>
+<addsymbol unicode="⋣" ascii="\not\sqsupseteq" family="Negated relations"/>
+<addsymbol unicode="≠" ascii="\not=" family="Negated relations"/>
+<addsymbol unicode="≢" ascii="\not\equiv" family="Negated relations"/>
+<addsymbol unicode="≁" ascii="\not\sim" family="Negated relations"/>
+<addsymbol unicode="≄" ascii="\not\simeq" family="Negated relations"/>
+<addsymbol unicode="≉" ascii="\not\approx" family="Negated relations"/>
+<addsymbol unicode="≇" ascii="\not\cong" family="Negated relations"/>
+<addsymbol unicode="≭" ascii="\not\asymp" family="Negated relations"/>
+<addsymbol unicode="←" ascii="\leftarrow" family="Arrows"/>
+<addsymbol unicode="⇐" ascii="\Leftarrow" family="Arrows"/>
+<addsymbol unicode="→" ascii="\rightarrow" family="Arrows"/>
+<addsymbol unicode="⇒" ascii="\Rightarrow" family="Arrows"/>
+<addsymbol unicode="↔" ascii="\leftrightarrow" family="Arrows"/>
+<addsymbol unicode="⇔" ascii="\Leftrightarrow" family="Arrows"/>
+<addsymbol unicode="↦" ascii="\mapsto" family="Arrows"/>
+<addsymbol unicode="↩" ascii="\hookleftarrow" family="Arrows"/>
+<addsymbol unicode="↼" ascii="\leftharpoonup" family="Arrows"/>
+<addsymbol unicode="↽" ascii="\leftharpoondown" family="Arrows"/>
+<addsymbol unicode="⇌" ascii="\rightleftharpoons" family="Arrows"/>
+<addsymbol unicode="⟵" ascii="\longleftarrow" family="Arrows"/>
+<addsymbol unicode="⟸" ascii="\Longleftarrow" family="Arrows"/>
+<addsymbol unicode="⟶" ascii="\longrightarrow" family="Arrows"/>
+<addsymbol unicode="⟹" ascii="\Longrightarrow" family="Arrows"/>
+<addsymbol unicode="⟷" ascii="\longleftrightarrow" family="Arrows"/>
+<addsymbol unicode="⟺" ascii="\Longleftrightarrow" family="Arrows"/>
+<addsymbol unicode="⟼" ascii="\longmapsto" family="Arrows"/>
+<addsymbol unicode="↪" ascii="\hookrightarrow" family="Arrows"/>
+<addsymbol unicode="⇀" ascii="\rightharpoonup" family="Arrows"/>
+<addsymbol unicode="⇁" ascii="\rightharpoondown" family="Arrows"/>
+<addsymbol unicode="↝" ascii="\leadsto" family="Arrows"/>
+<addsymbol unicode="↑" ascii="\uparrow" family="Arrows"/>
+<addsymbol unicode="⇑" ascii="\Uparrow" family="Arrows"/>
+<addsymbol unicode="↓" ascii="\downarrow" family="Arrows"/>
+<addsymbol unicode="⇓" ascii="\Downarrow" family="Arrows"/>
+<addsymbol unicode="↕" ascii="\updownarrow" family="Arrows"/>
+<addsymbol unicode="⇕" ascii="\Updownarrow" family="Arrows"/>
+<addsymbol unicode="↗" ascii="\nearrow" family="Arrows"/>
+<addsymbol unicode="↘" ascii="\searrow" family="Arrows"/>
+<addsymbol unicode="↙" ascii="\swarrow" family="Arrows"/>
+<addsymbol unicode="↖" ascii="\nwarrow" family="Arrows"/>
+<addsymbol unicode="[" ascii="\lbrack" family="Openings"/>
+<addsymbol unicode="{" ascii="\lbrace" family="Openings"/>
+<addsymbol unicode="⌊" ascii="\lfloor" family="Openings"/>
+<addsymbol unicode="⟨" ascii="\langle" family="Openings"/>
+<addsymbol unicode="⌈" ascii="\lceil" family="Openings"/>
+<addsymbol unicode="⟪" ascii="\langle\!\langle" family="Openings"/>
+<addsymbol unicode="⟦" ascii="[\![" family="Openings"/>
+<addsymbol unicode="]" ascii="\rbrack" family="Closings"/>
+<addsymbol unicode="}" ascii="\rbrace" family="Closings"/>
+<addsymbol unicode="⌋" ascii="\rfloor" family="Closings"/>
+<addsymbol unicode="⟩" ascii="\rangle" family="Closings"/>
+<addsymbol unicode="⌉" ascii="\rceil" family="Closings"/>
+<addsymbol unicode="⟫" ascii="\rangle\!\rangle" family="Closings"/>
+<addsymbol unicode="⟧" ascii="]\!]" family="Closings"/>
+<addsymbol unicode="⋮" ascii="\vdots" family="Miscellaneous"/>
+<addsymbol unicode="⋯" ascii="\cdots" family="Miscellaneous"/>
+<addsymbol unicode="⋱" ascii="\ddots" family="Miscellaneous"/>
+<addsymbol unicode="’" ascii="&apos;" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="‘" ascii="`" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="”" ascii="''" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="“" ascii="``" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="‐" ascii="-" name="hyphen" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="–" ascii="--" name="en dash" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="—" ascii="---" name="em dash" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="−" ascii="$-$" name="minus" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="′" ascii="$'$" name="prime" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="″" ascii="$''$" name="double prime" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="‴" ascii="$'''$" name="triple prime" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="⁗" ascii="$''''$" name="quadruple prime" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="ﬀ" ascii="ff" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="ﬁ" ascii="fi" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="ﬂ" ascii="fl" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="ﬃ" ascii="ffi" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="ﬄ" ascii="ffl" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="¡" ascii="!`" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="¿" ascii="?`" family="Typographic symbols and ligatures"/>
+<addsymbol unicode=" " ascii="~" name="no-break space" family="Typographic symbols and ligatures"/>
+<addsymbol unicode=" " ascii="\thinspace" family="Typographic symbols and ligatures"/>
+<addsymbol unicode=" " ascii="$\,$" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="œ" ascii="\oe" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="Œ" ascii="\OE" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="æ" ascii="\ae" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="Æ" ascii="\AE" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="å" ascii="\aa" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="Å" ascii="\AA" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="ø" ascii="\o" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="Ø" ascii="\O" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="ł" ascii="\l" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="Ł" ascii="\L" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="ß" ascii="\ss" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="§" ascii="\S" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="¶" ascii="\P" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="†" ascii="\dag" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="‡" ascii="\ddag" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="©" ascii="\copyright" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="£" ascii="\pounds" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="…" ascii="\ldots" family="Typographic symbols and ligatures"/>
+<addsymbol unicode="◌́" ascii="\'" family="Combining characters"/>
+<addsymbol unicode="◌̀" ascii="\`" family="Combining characters"/>
+<addsymbol unicode="◌̂" ascii="\^" family="Combining characters"/>
+<addsymbol unicode="◌̈" ascii="\&quot;" family="Combining characters"/>
+<addsymbol unicode="◌̃" ascii="\~" family="Combining characters"/>
+<addsymbol unicode="◌̄" ascii="\=" family="Combining characters"/>
+<addsymbol unicode="◌̇" ascii="\." family="Combining characters"/>
+<addsymbol unicode="◌̆" ascii="\u" family="Combining characters"/>
+<addsymbol unicode="◌̌" ascii="\v" family="Combining characters"/>
+<addsymbol unicode="◌̋" ascii="\H" family="Combining characters"/>
+<addsymbol unicode="◌͡" ascii="\t" family="Combining characters"/>
+<addsymbol unicode="◌̧" ascii="\c" family="Combining characters"/>
+<addsymbol unicode="◌̣" ascii="\d" family="Combining characters"/>
+<addsymbol unicode="◌̱" ascii="\b" family="Combining characters"/>
+<addsymbol unicode="◌̸" ascii="\not" family="Combining characters"/>
+</proofgeneral>

@@ -1,0 +1,7 @@
+Currently a new, UNRESOLVED issue here.  May be Isabelle, not sure:
+
+1) Process C.thy
+2) Retract A.thy
+3) Step in A.thy: spurious warning received "Unknown theory C".
+
+At 20.1.07, 2.15pm.

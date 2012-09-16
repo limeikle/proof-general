@@ -1,0 +1,4 @@
+# sample script for starting eclipse in PG mode 
+# make sure the path to the plugin is correct
+# and the data dir is a good place for you
+eclipse -configuration file:/usr/local/share/eclipse/plugins/ed.inf.proofgeneral_0.8.0 -data ~/ProofGeneral

@@ -1,0 +1,17 @@
+This has several things in plugin.xml:
+
+ editor contribution: edits multi-page editors with extn .graph
+   (perhaps because she couldn't get ordinary view working?)
+ popup menu contribution extension
+ toolbar action
+ 
+ two packages:
+ 
+  ed.inf.proofgeneral.popup.actions
+  ed.inf.proofgeneral.dependencygraph
+  
+ What needs doing:
+ 
+  - getting it working!!!
+  - testing, improving the code  (Elina's report claimed to have a test package)
+  

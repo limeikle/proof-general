@@ -1,0 +1,42 @@
+NAME:			BadEfficiencyMassOutput
+LAST UDPATED:	$Date: 2006/11/22 14:44:05 $
+UPDATED BY:		$Author: gdutton $
+REPORTER:		da
+DESCRIPTION:
+
+ Various efficiency issues during processing, leading to lots of CPU in java process,
+ unnecessarily.
+ 
+
+TEST CASES:
+
+1. TraceSimp.thy:  produces a large amount of simplifier output.
+   This may inevitably take CPU in Eclipse, but should be reasonable.
+   Also, tracing output should be available.
+  
+2. BigTheory.thy:  a long theory file.
+   Using "goto" at end, or process button, should result in *mainly* CPU
+   in poly while processing.  Intermediate output should be quashed
+   by sending start/stop quiet messages.  Interrupt should be robust.
+   Interface shouldn't lose responsiveness.
+   
+3. Sleep.thy: when Eclipse is waiting for output from Isabelle
+   it shouldn't be in a busy-wait loop.  
+
+FURTHER INFORMATION:
+ This is perhaps because start/stop quiet messages are not being used (see
+ PGIPDevelNotes for message details.
+
+FIX NEEDED:
+
+ Various places.  New code probably required for start/stop quiet.
+ 
+ 
+STATUS:
+
+Case 1. problematic
+
+Case 2. [TBC]
+
+Case 3. seems OK; however there may be other cases in code which cause busy wait,
+        this should be checked by examining code.

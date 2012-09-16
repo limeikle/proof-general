@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<preferences>
+<titledesc>
+Messages, warnings and questions which have been blocked.
+Your last response to these messages has been stored as a default response
+Instead of displaying these messages, the stored response is used.
+To unblock a message, delete its entry from this list.
+</titledesc>
+	<pref name="Blocked Messages" class="AssocList" id="AssocList" 
+		tooltip="These messages and warnings are blocked.
+Your last answer has been remembered, and will be used as a default.
+To unblock a message, delete it from this list." >		
+	</pref>
+</preferences>

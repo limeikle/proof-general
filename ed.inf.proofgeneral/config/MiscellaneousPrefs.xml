@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+<preferences>
+   <titledesc>Miscellaneous and obscure settings. You can probably ignore these.</titledesc>
+
+   <pref visible="true"
+    name="Use gathering parser (parsing speed workaround for large files)" class="Boolean" default="False"
+	tooltip="Uses a parsing strategy which gathers lines incrementally
+	until the next command is found.">
+	<description>
+	Parsing by iteratively gathering up lines has a better behaviour
+	with large buffers or inefficient prover-side parsers.
+	</description>
+	</pref>
+
+	<pref name="Make bookmarks for theory elements"
+	      class="Boolean"
+	      default="False"
+	      tooltip="Automatically add bookmarks for theory elements when a file is parsed.">
+	      <description>If this option is set, bookmarks will automatically be created for
+	      theory elements.  (This is a rather non-standard use of bookmarks, which are
+	      normally user-defined.)
+	      </description>
+	      </pref>
+
+
+	<pref name="Correct for Linux paste bug" class="Boolean" default="True"
+	tooltip="Activates a work-around for pasting Unicode characters in the Linux version of Eclipse" >
+	<description>There is a bug in the Linux version of Eclipse
+	whereby unicode characters do not copy and paste correctly.
+	This activates a workaround.</description>
+	</pref>
+
+   <!-- da: disable this for now, it's pretty obscure -->
+  	<pref name="Enable interface scripting" class="Boolean" id="EnableScripting"
+		tooltip="Interface scripting executes embedded controls for PG Eclipse during script processing"
+		default="False"	visible="false"/>
+
+    <pref name="Parse automatically (experimental)" class="Boolean" default="False"
+          tooltip="Parse files automatically whenever they are opened or saved."/>
+
+    <pref name="Prove automatically (experimental)" class="Boolean" default="False"
+          tooltip="Prove files automatically in the prover's batch mode whenever they are saved."/>
+
+
+</preferences>

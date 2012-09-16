@@ -1,0 +1,61 @@
+Ideas for code cleanups and refactoring (user-invisible improvements)
+
+$Id: CLEANUPS.txt,v 1.3 2007/01/29 18:03:16 da Exp $
+
+0) PGIP document elements:
+   Types should be Enum, not string.
+   Document element types themselves should be Enum too.
+   Look at new Isabelle code to see what they are.
+   Document elements should contain their own state according to
+     the PGIP display protocol.  We should colour the document
+     based on this.
+   
+1) PGIP abstraction replace some of mess in PGIPSyntax.java.
+   In progress in own package.
+
+2) Get rid of DummyDocElement, the worst hack in the code I've
+   seen so far.  Queued commands should just be plain XML, or
+   some other specialised class (e.g. PGIPMessage).  
+  
+3) ProverCommandQueue.java to implement a sane queue of commands to 
+   deliver to the prover, without spawning threads everywhere.
+   Supporting methods in SessionManager.java to generate queues of
+   commands for undo and do tasks, as well as other tasks.
+
+4) Implement document-based do and and undo in the session manager
+   (or prover state manager), rather than undo history based.  
+
+   Note: existing Emacs PG sets up queue before sending dos/undos.
+   Eclipse uses asynchronous loops to do this.
+   Which is better?
+    Emacs: queue management cleaner.  Take main actions (i.e. update
+    output display) at *end* of processing queue of commands, not
+    after every command (only region highlighting changes).  
+    Silent action.
+   
+   Emacs queue setup is expensive: but that's mainly because we parse
+   when setting up queue.  Eclipse has (ideally) parsed ahead of 
+   time.  
+   
+5) Remove use of ProofGeneral.undo. [da: DONE, I think]
+
+6) Proverknowledge: would be great to get this working in a PGIP-robust
+   way.  Full paths are now reported by Isabelle and we switch cwd,
+   although there isn't yet a command to locate the file for a given
+   theory.  Idea: askdeps element returns dependencies for different
+   objects, including the enclosing file for a theory, theory for a
+   term, etc.
+   
+7) Position class isn't used for positions that are altered with documents.
+   It seems to be used just as region.  We might better use our own class here,
+   with some handy accessors like getEnd(), and maybe public fields.
+   For history's sake we could call it Span.
+
+ ------------
+ 
+ I think Ahsan made some improvements which could be used for
+ inspiration/copying back.  Maybe his command queue processing
+ was better.  Also, he generated preferences from PGIP messages
+ which we could use.
+ 
+ 

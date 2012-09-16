@@ -1,0 +1,41 @@
+<pgips>
+<pgip class="pa" id="X" seq="1"><opentheory thyname="Example">theory Example = List + Nat:</opentheory></pgip>
+
+
+<!-- remark: we can set Example2 as the parent of Example below, but Isabelle's
+   theory loader will give an error unless a file has been stored for Example2 -->
+
+<pgip class="pa" id="X" seq="2">
+ <opengoal thmname="mytheorem">lemma mytheorem: "A &amp; B --&gt; B &amp; A"
+ </opengoal>
+</pgip>
+<pgip class="pa" id="X" seq="3"><proofstep>apply (rule impI)</proofstep></pgip>
+<pgip class="pa" id="X" seq="4"><proofstep>apply (erule conjE)</proofstep></pgip>
+<pgip class="pa" id="X" seq="5"><proofstep>apply (rule conjI)</proofstep></pgip>
+<pgip class="pa" id="X" seq="6"><proofstep>apply assumption</proofstep></pgip>
+<pgip class="pa" id="X" seq="7"><proofstep>apply assumption</proofstep></pgip>
+<pgip class="pa" id="X" seq="8"><proofstep>undo</proofstep></pgip>
+<pgip class="pa" id="X" seq="9"><proofstep>undo</proofstep></pgip>
+<pgip class="pa" id="X" seq="10"><proofstep>apply (assumption)+</proofstep></pgip>
+<pgip class="pa" id="X" seq="11"><closegoal thyname="mytheorem"/></pgip>
+
+<pgip class="pa" id="X" seq="12">
+ <opengoal thmname="myothertheorem">
+				A &amp; B --&gt; B
+ </opengoal>
+</pgip>
+<pgip class="pa" id="X" seq="13"><abortgoal/></pgip>
+
+<pgip class="pa" id="X" seq="14">
+ <opengoal thmname="myothertheorem">
+				A &amp; B --&gt; B
+ </opengoal>
+</pgip>
+<pgip class="pa" id="X" seq="15"><proofstep>apply auto</proofstep></pgip>
+<pgip class="pa" id="X" seq="16"><closegoal/></pgip>
+
+<pgip class="pa" id="X" seq="17"><closetheory thyname="Example"/></pgip>
+
+
+
+</pgips>

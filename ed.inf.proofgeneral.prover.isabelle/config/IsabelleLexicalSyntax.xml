@@ -1,0 +1,20 @@
+<!--
+	This file defines the Isabelle *lexical* syntax. This is what is needed for
+	syntax highlighting (nice colouring). It is used by the lighparser package.
+ -->
+
+<lexicalstructure> 
+
+	<!-- TODO: This bit is not used yet! -->
+	<identifiersyntax allowedchars="java" /> <!-- java indicates that we should just use java word definitions -->
+
+	<escapecharacter>\</escapecharacter>
+
+	<stringdelimiter>&quot;</stringdelimiter>
+
+	<commentdelimiter start="(*" end="*)" />
+
+	<commentdelimiter start="{*" end="*}" />
+
+</lexicalstructure> 
+

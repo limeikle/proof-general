@@ -1,0 +1,21 @@
+<xsl:stylesheet version = '1.0'
+     xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>
+
+<!-- 
+  This file is NOT intended as a valid stylesheet file,
+  it's just a collection of bits and pieces for helping
+  make stylesheets.
+-->
+
+
+<!-- Markup idvalue output in a similar way to the Eclipse widget -->
+<xsl:template match="idvalue">
+  <p>
+  <xsl:value-of select="@objtype"/>
+  <xsl:text> </xsl:text>
+  <b><xsl:value-of select="@name"/></b>
+  <br/>
+  <xsl:apply-templates/>
+  </p>
+</xsl:template>
+

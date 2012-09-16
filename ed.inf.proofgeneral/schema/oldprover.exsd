@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="ed.inf.proofgeneral">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="ed.inf.proofgeneral" id="prover" name="ed.inf.proofgeneral.prover"/>
+      </appInfo>
+      <documentation>
+         This extension point supplies a prover instance to Proof General.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <complexType>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="proverInfo">
+      <complexType>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The name of the theorem prover
+
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="program" type="string">
+            <annotation>
+               <documentation>
+                  The name of the program binary typically used to invoke the prover.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="args" type="string">
+            <annotation>
+               <documentation>
+                  A string of arguments passed to the prover program
+
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="fileExtension">
+      <complexType>
+         <attribute name="icon" type="string">
+            <annotation>
+               <documentation>
+                  An icon for proof script files (of given extension) owned by this prover
+
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="resource"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="extn" type="string">
+            <annotation>
+               <documentation>
+                  The filename extension for proof script files owned by this prover.
+
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="editorClass" type="string" use="default" value="ProofScriptEditor">
+            <annotation>
+               <documentation>
+                  The class used for editing resources with this file extension
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn="TextEditor"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         Proof General Eclipse version 1.1.0
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         [Enter extension point usage example here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         [Enter API information here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         [Enter information about supplied implementation of this extension point.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         
+      </documentation>
+   </annotation>
+
+</schema>

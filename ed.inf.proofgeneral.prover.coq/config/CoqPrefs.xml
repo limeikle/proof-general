@@ -1,0 +1,62 @@
+
+<preferences prefix="Coq " >
+
+<pref name="Start Command" label="Start Command" class="String" default="coqtop -pgip" />
+
+<pref name="Use Sockets" label="Use remote version and sockets?" class="Boolean" default="false" />
+<pref name="Host Address" label="Host Address" class="String" default="localhost" />
+<pref name="Port" label="Port" class="Integer" default="5678" />
+
+<pref name ="use PGIP interrupts" label="Send PGIP interrupts?"
+		tooltip="Send (as opposed to tty ones)"
+		class="Boolean" default="false" />
+
+<!--  This is really horrible.  There's no support in Java for interrupting subprocesses. -->
+<pref name ="Interrupt Command"
+		tooltip="Operating system command to interrupt Coq subprocess"
+		class="String" default="killall -INT coqtop" />
+
+<!-- da: made both these next two hidden.  They should be replaced by
+   PGIP configuration messages soon, and spoil the dialog ("value should be
+   existing file" when it is a workspace path).  Don't want to encourage
+   users to mess with this.
+-->
+
+<pref name="Coq Keywords File" label="Keywords File" 
+	class="File" default="config/CoqKeywords.txt" 
+tooltip="A file containing a list of key-words" id="CoqKeywordsFile" 
+visible="false">
+<description>A file containing a list of key-words; used for syntax highlighting.</description>
+</pref>
+
+<pref name="Lexical Syntax File" 
+	 label="Lexical Syntax File" 
+	 class="File" default="config/CoqLexicalSyntax.xml"
+	 tooltip="A file containing PGIP defintions for the basic alphabet of the prover" 
+	 id="CoqLexicalSyntaxFile"
+     visible="false">
+	 <description>A file containing pgip definitions for the basic lexical constants -
+	 e.g. string delimiters, word characters, etc. Used for syntax highlighting.</description>
+</pref>
+
+<!-- da: do we really need this? -->
+<pref name="Coq LINEEND" label="New line character(s)" class="String" default="\n" />
+
+<!-- da: hide this one.  PGIP should avoid the need for this -->
+<pref name="Startup Script" 
+	label="Proof script to be run at session start" 
+	class="Text" default="" 
+	visible="false"
+/>
+
+<pref name="Default Symbol Table"
+      class="File" default="config/symbols/CoqEmpty.sym"
+  	    tooltip="The default symbol table used if no project-specific table is set"
+  	    visible="true"/>
+
+<pref name="Stylesheet File"
+      class="File" default="config/pgml-coq.xsl"
+  	  tooltip="An XSL file used to pretty-format Coq output" id="StyleSheetFile"
+  	  visible="true"/>
+
+</preferences>

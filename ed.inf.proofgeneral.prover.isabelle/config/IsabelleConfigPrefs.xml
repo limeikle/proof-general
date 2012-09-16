@@ -1,0 +1,35 @@
+<!--  NB: this configuration file is obsolete!  We want to migrate to use askprefs mechanism to retrieve these automatically. -->
+<pgip>
+
+<preferences prefcategory = "Display" prefix="Isabelle Config " >
+<pref name = "show-types" tooltip= "Include types in display of Isabelle terms" 
+	default = "false"></pref>
+<pref name = "show-sorts" tooltip= "Include sorts in display of Isabelle terms" default = "false"></pref>
+<pref name = "show-consts" tooltip= "Show types of consts in Isabelle goal display" default = "false"></pref>
+<pref name = "long-names" tooltip= "Show fully qualified names in Isabelle terms" default = "false"></pref>
+<pref name = "show-brackets" tooltip= "Show full bracketing in Isabelle terms" default = "false"></pref>
+<pref name = "show-main-goal" tooltip= "Show main goal in proof state display" default = "false"></pref>
+<pref name = "eta-contract" tooltip= "Print terms eta-contracted" default = "true"></pref>
+</preferences>
+
+
+<preferences prefcategory = "Advanced Display" prefix="Isabelle Config ">
+<pref name = "goals-limit" tooltip= "Setting for maximum number of goals printed" default = "10"></pref>
+<pref name = "prems-limit" tooltip= "Setting for maximum number of premises printed" default = "10"></pref>
+<pref name = "print-depth" tooltip= "Setting for the ML print depth" default = "10"></pref>
+</preferences>
+
+
+<preferences prefcategory = "Tracing" prefix="Isabelle Config ">
+<pref name = "trace-simplifier" tooltip= "Trace simplification rules." default = "false"></pref>
+<pref name = "trace-rules" tooltip= "Trace application of the standard rules" default = "false"></pref>
+<pref name = "trace-unification" tooltip= "Output error diagnostics during unification" default = "false"></pref>
+</preferences>
+
+<preferences prefcategory = "Proof" prefix="Isabelle Config ">
+<pref name = "quick-and-dirty" tooltip= "Take a few (interactive-only) short cuts" default = "false"></pref>
+<pref name = "full-proofs" tooltip= "Record full proof objects internally" default = "true"></pref>
+<pref name = "theorem-dependencies" tooltip= "Track theorem dependencies within Proof General" default="false"></pref>
+</preferences>
+
+</pgip>

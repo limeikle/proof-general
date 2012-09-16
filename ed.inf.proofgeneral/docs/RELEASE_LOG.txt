@@ -1,0 +1,58 @@
+ Eclipse Proof General -- Public Release List
+-------------------------------------------------
+$Id: RELEASE_LOG.txt,v 1.14 2007/06/27 14:48:02 da Exp $
+-------------------------------------------------
+This file documents user-visible changes in
+released versions of the Proof General plugin and
+PG Eclipse product.
+-------------------------------------------------
+
+1.0.6 (pre-release)
+   * Improve genericity: refactor into prover-specific plugins
+   * Hover for proof state added: mouse on whitespace in processed text.
+   * Support for folding in text editor.
+   * Complete symbol configuration file provided for Isabelle, replaces most of X-Symbols and more.
+   * Outline view tuned to omit many elements and abbreviate others more cleanly.
+   * Outline icons makeover.
+   * Numerous other fixes and improvements.
+   
+1.0.5 (and updates)
+
+   * Added Proof Explorer custom navigator.  Views tweaked (will upset old workbech states; reset perspective).
+   * Fixes for saving files, Unicode symbols not saved (bug was introduced in 1.0.3/4).
+   * Improved robustness and efficiency in several places.
+   * Output message handling improved: fancier default style sheet for display of PGML.
+   * Extended key bindings, add Proof General Emacs bindings (Preferences->General->Keys..->Emacs)
+   * Markers now integrate into standard Problems view; removed old Error Log view.
+   * Consoles for prover tracing, prover debug and PGIP messages are added; old Session Log view removed.
+   * Fixes for multiple-file scripting (NB: needs latest Isabelle CVS).
+   * Fixes for switching active script, "Activate" button now switches to script, then activates/deactivates.
+   * Perspective defaults: short cuts for new menu, perspective switch, views.
+   * Improve icons, replace Parse! in outline with icon
+   * Decorators added for script status in Navigator view
+
+1.0.4 (and updates)
+   * Improve markers: add severity, fix outline view's confusion of oops/sorry
+   * Get rid of parse warning dialog for unrecognised theory elements.
+   * Add wizard for making proof script files
+   * Minor documentation changes
+
+1.0.3
+   * Fix Help menu actions to open web browser on wiki in editor window
+   * Fix another symbol table short cut (OR) which corrupted script.
+   * Tweak Proof General menu item order
+   * Remove session log and teacher view from initial perspective
+   * Command window takes an ordinary string, no need to write <spuriouscmd>
+   * Minor icon improvements
+
+1.0.2
+
+   * Fixes to help contents and links to wiki
+   * Minor fixes to documentation and message strings
+   * Fix invalid syntax which broke default symbol table
+   * Make 100% parser default
+   * Improve icons
+
+1.0.1
+
+   * First version released and packaged by DA.

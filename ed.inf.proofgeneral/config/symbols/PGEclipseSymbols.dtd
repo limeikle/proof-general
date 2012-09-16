@@ -1,0 +1,21 @@
+<dtd>
+  <!ELEMENT addsymbol EMPTY>
+  <!ATTLIST addsymbol
+	    ascii CDATA #REQUIRED
+	    unicode CDATA #IMPLIED
+	    html CDATA #IMPLIED
+	    shortcut CDATA #IMPLIED
+	    name CDATA #IMPLIED
+	    >
+
+  <!ELEMENT removesymbol EMPTY>
+  <!ATTLIST removesymbol
+	    ascii CDATA #IMPLIED
+	    name CDATA #IMPLIED
+	    >
+
+  <!ELEMENT includesymbolfile EMPTY>
+  <!ATTLIST includesymbolfile
+            name CDATA #REQUIRED
+	    >
+</dtd>

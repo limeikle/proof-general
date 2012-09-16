@@ -1,0 +1,60 @@
+Here are some patches against the project:
+
+prover-plugin:   beginnings of an extension point for supporting different provers
+                 Not completed because strategy is debatable: in danger of replicating
+                 old architecture where we need prover specific code in each case.
+                 On the other hand, allowing for prover-specific code doesn't seem bad
+                 and collecting it into separate plugins also seems like a good idea.
+                 What we'd like is some broker-driven configuration mechanism that
+                 activates and uses plugins if they exist, otherwise defaults to generic behaviour.
+                 Conversely: we could use the plugins to configure the broker, but that's
+                 not playing nice in the architecture and forces things into Eclipse.
+                 
+                 So this may be worth revisiting.  Discussion here:
+                 
+                 http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseRefactoringIdeas
+                 
+dependencygraph: code by an MSc student on displaying theorem dependencies.  Merged against
+                 project as of 20th Oct 2006, but I haven't yet managed to get it going
+                 (does nothing).  The corresponding MSc thesis suggests that the code *should*
+                 work...
+                 
+                 If it can be resurrected, it may be best to package as
+                 a separate plugin in any case.  One reason is that it requires GEF, an
+                 extra download.  Another reason is to exploit the nice loose coupling of
+                 Eclipse and try to keep additions from cluttering the main code.
+                 
+                 We would need to design an extension point for this.  One way is to 
+                 examine the hooks it requires.  In this case, we should need access
+                 to the proof script model --- but hopefully in a read-only way.
+                 We also need to turn on/off the generation of dependencies but
+                 we may have a generic design for that soon.
+   
+[ DA, Oct 06 ]
+ 
+               
+NB: here is a test file for dependencies
+that *should* do something according to Elina's thesis.
+The ML_command is needed because we don't yet have a PGIP
+way of turning on the metainforesponse messages.
+
+See NOTES.da.tmp in the main package for more.
+
+theory DepedenciesTest imports Main
+begin
+
+ML_command{*print_mode:=("thm_deps"::(!print_mode));proofs:=2;*}
+
+theorem foo: "A & B --> B & A" 
+proof 
+  assume "A & B" 
+  then obtain B and A .. 
+  then show "B & A" .. 
+qed 
+
+
+end
+
+
+
+                

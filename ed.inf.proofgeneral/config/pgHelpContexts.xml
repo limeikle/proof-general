@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<contexts>
+    <context id="editor">
+        <description>This is the Proof General editor for interactive proof scripting.
+        Online help is available from the following url:</description>
+        <topic href="http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseUserDocumentation" 
+               label="http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseUserDocumentation"
+        />
+    </context>
+
+    <context id="generic">
+        <description>Help for Eclipse is available via the Help menu.
+        Help for Proof General is available from the following url:</description>
+        <topic href="http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseUserDocumentation" 
+               label="http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseUserDocumentation"
+        />
+    </context>
+
+    <context id="symboltableeditor">
+        <description>This is the PG Symbol Table Editor. 
+        Help is available via the following url:</description>
+        <topic href="http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseSymbolTableEditor" 
+               label="http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEclipseSymbolTableEditor"
+        />
+    </context>
+
+    <context id="teacherview">
+        <description>This is the PG Teacher View. 
+        Help is available via the following url:</description>
+        <topic href="http://proofgeneral.inf.ed.ac.uk/wiki/Main/TeacherView" 
+               label="http://proofgeneral.inf.ed.ac.uk/wiki/Main/TeacherView"
+        />
+    </context>
+
+
+</contexts>

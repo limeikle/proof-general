@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<preferences prefix="DEBUG ">
+    
+   <titledesc>Various settings only useful for debugging Proof General (developers only)</titledesc>
+    
+	<pref name="DEBUG" class="Boolean" default="false"
+		tooltip="Sets verbose debugging output for assorted methods">
+	</pref>
+		
+	<pref name="Use marker annotations for scripting state regions (BUGGY)" class="Boolean" default="false"
+		tooltip="Markers are used instead of coloured tokens for scripting states; this is much simpler and should solve problems with 'dummy' parse events; however, it may have its own efficiency problems and difficulties because markers seem not well designed for changing positions">
+	</pref>
+	
+	<pref name="Outline shows command positions" class="Boolean" default="false"
+		tooltip="Sets outline view to display positions of commands in document instead of types">
+	</pref>
+	
+	<pref name="Log Event Firing" class="Boolean" default="false"/>
+	<pref name="Log Event Running" class="Boolean" default="false"/>
+	
+	<pref name="Log Prover I/O" class="Boolean" default="false"
+		tooltip="Shows prover input and output (raw PGML) on the console"/>
+</preferences>

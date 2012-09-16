@@ -1,0 +1,30 @@
+### Eclipse Workspace Patch 1.0
+#P net.sourceforge.texlipse-feature
+Index: feature.xml
+===================================================================
+RCS file: /cvsroot/texlipse/net.sourceforge.texlipse-feature/feature.xml,v
+retrieving revision 1.4
+diff -u -r1.4 feature.xml
+--- feature.xml	29 Apr 2006 18:13:03 -0000	1.4
++++ feature.xml	11 Jul 2007 16:10:44 -0000
+@@ -2,7 +2,7 @@
+ <feature
+       id="net.sourceforge.texlipse"
+       label="TeXlipse"
+-      version="1.0.2"
++      version="1.1.1.qualifier"
+       provider-name="texlipse.sf.net"
+       plugin="net.sourceforge.texlipse"
+       primary="true">
+@@ -284,8 +284,8 @@
+ 
+    <plugin
+          id="net.sourceforge.texlipse"
+-         download-size="750"
+-         install-size="1200"
+-         version="1.0.2"/>
++         download-size="0"
++         install-size="0"
++         version="0.0.0"/>
+ 
+ </feature>

@@ -1,0 +1,9 @@
+Some test cases to fix some odd behaviours interacting with views:
+
+ 1. switching to prover output view after startup shows initial messages, not latest
+ Since we have some enormous log of messages somewhere (session log), we should be
+ able to retrieve the latest output, shouldn't we?
+ (LOW PRIORITY: DEFER).
+ 
+ 2. error during processing loses active editor making some other window active
+ [RESOLVED]

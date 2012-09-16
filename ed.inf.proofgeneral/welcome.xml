@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<welcomePage 
+    title="Proof General Eclipse"
+    format = "wrap">
+
+<intro>Welcome to the Proof General Eclipse IDE!  Here are some pointers for getting started.
+</intro>
+
+<item><b>Eclipse</b>
+<p>First, you should get to know Eclipse. 
+Please read the Eclipse workbench help. 
+
+You can find this under 
+Help-&gt;Help Contents-&gt;
+<topic id="/org.eclipse.platform.doc.user/toc.xml">Workbench User Guide</topic>.
+
+To use Emacs key bindings, go to Window -> Preferences -> [type filter text: "keys"]
+and change the scheme from Default to Emacs.
+</p>
+</item>
+
+<item><b>Proof General</b>
+<p>To get started, you should create a project for your work with 
+File->New->...->Proof Project. 
+
+Create proof scripts within
+the project using File->New->Proof Script.
+
+Further help and documentation for Proof General is provided on the PG Wiki.
+
+<topic id="/ed.inf.proofgeneral/help/toc.xml">Click here for links to the PG Wiki</topic>.
+</p>
+</item>
+
+<!-- da: let's remove this for now, it's just annoying to be directed
+  to something that's broken and of debatable quality anyway.
+<item><b>Isabelle</b>
+<p>We have a brief, prototype tutorial  
+written with the Proof General Eclipse editor in mind. This is part of the PG Wiki, 
+but you can access it via the <i>PG Teacher View</i>. 
+You can open this view from the menu bar using
+Window->Show View->(Other->Proof General)->PG Teacher View.
+</p>
+</item>
+-->
+
+<item><b>Handy features</b>
+<p>Some handy features of Proof General Eclipse you may like to try are:
+</p>
+<ul>
+<li><i>Outline View</i>.  Once the file is parsed, shows the structure of
+the file and highlights incomplete proofs.
+</li>
+<li><i>Content Assist</i>. Suggests keywords, theorem names, etc with popup information<br/>
+Use Edit->Content Assist.
+</li>
+<!-- same comment as above applies to these:
+Locating definitions button [FIXME: think we can get this working, just shouldn't be bookmarks]
+<li><i>Proof Object List</i>. Provides a pick list for keywords, theorem names, etc.<br/>
+Use Window->Show View->Proof Object List.
+</li>
+-->
+</ul>
+</item>
+</welcomePage>

@@ -1,0 +1,38 @@
+<!-- some tests of askguise -->
+
+<pgips>
+
+<pgip class="pa" id="X" seq="1"><askguise/></pgip>
+<!-- response: -->
+<pgip class = "pg" origin = "Isabelle/Isar" id = "montague.davesnet/da/1111768030.788" refseq = "1" refid = "X" seq = "3"><informguise/></pgip>
+
+
+<pgip class="pa" id="X" seq="1"><openfile url="file:///home/da/foo.thy"/></pgip>
+<pgip class="pa" id="X" seq="1"><askguise/></pgip>
+<!-- response: -->
+<pgip class = "pg" origin = "Isabelle/Isar" id = "montague.davesnet/da/1111768798.680" refseq = "1" refid = "X" seq = "6"><informguise><guisefile url = "/home/da/foo.thy"/></informguise></pgip>
+
+
+<pgip class="pa" id="X" seq="1"><proofstep>theory Example=Pure:</proofstep></pgip>
+<pgip class="pa" id="X" seq="1"><askguise/></pgip>
+<!-- response: -->
+<pgip class = "pg" origin = "Isabelle/Isar" id = "montague.davesnet/da/1111766523.973" refseq = "1" refid = "X" seq = "13"><informguise><guisefile url = "/home/da/foo.thy"/><guisetheory thyname = "Example"/></informguise></pgip>
+
+
+<pgip class="pa" id="X" seq="1"><proofstep>lemma X:"PROP P ==> PROP P"</proofstep></pgip>
+<pgip class="pa" id="X" seq="1"><askguise/></pgip>
+<!-- response: -->
+<pgip class = "pg" origin = "Isabelle/Isar" id = "montague.davesnet/da/1111766523.973" refseq = "1" refid = "X" seq = "34"><informguise><guisetheory thyname = "Example"/><guiseproof proofpos = "0"/></informguise></pgip>
+
+<pgip class="pa" id="X" seq="1"><proofstep>apply assumption</proofstep></pgip>
+<pgip class="pa" id="X" seq="1"><askguise/></pgip>
+<!-- response: -->
+<pgip class = "pg" origin = "Isabelle/Isar" id = "montague.davesnet/da/1111766523.973" refseq = "1" refid = "X" seq = "38"><informguise><guisetheory thyname = "Example"/><guiseproof proofpos = "1"/></informguise></pgip>
+
+<pgip class="pa" id="X" seq="1"><proofstep>done</proofstep></pgip>
+<pgip class="pa" id="X" seq="1"><askguise/></pgip>
+<!-- response: -->
+<pgip class = "pg" origin = "Isabelle/Isar" id = "montague.davesnet/da/1111766523.973" refseq = "1" refid = "X" seq = "42"><informguise><guisetheory thyname = "Example"/></informguise></pgip>
+
+
+</pgips>

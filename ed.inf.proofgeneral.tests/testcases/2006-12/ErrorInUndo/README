@@ -1,0 +1,18 @@
+da 18.12.06:
+
+If an Undo command fails, the code can wrongly leave
+the undone command as unprocessed, when it is still
+processed.
+
+Example:
+
+undo at end of theory calls wrong undo command.
+But that did fail (called undos_proof, wrongly),
+but the script has the command successfully undone: sync
+is lost.
+
+This problem is still inherent in the code (it sometimes
+assumes undo always succeeds), but to make a test case we 
+need to make undo fail artificially in the prover.
+
+Status: OPEN/DEFERRED

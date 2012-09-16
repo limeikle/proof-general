@@ -1,0 +1,16 @@
+I created with the extension point wizard 5.12.06.
+Nothing more done, yet but some future(!) ideas are:
+
+ - Proof builder automatically processes files using the
+ batch mode on the prover (PGIP <loadfile> command)
+ 
+ - It finds out dependencies for files somehow 
+ (potentially by parsing every file to get a first metainfo
+ element which indicates file dependencies: although parsing
+ every file could be expensive and we definitely want
+ to cache parses).
+
+A useful first step would be to implement parsing automatically,
+at least.  Proof is directed interactively at present, we should
+keep it that way until the Broker is integrated here.
+

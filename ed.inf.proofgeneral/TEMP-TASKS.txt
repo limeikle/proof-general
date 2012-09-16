@@ -1,0 +1,28 @@
+TEMP TASKS OFFLINE FOR TYPES
+============================
+
+-------------------------------
+
+Quick fixers:
+
+** Goto-point backwards moves point forwards!
+
+** Symbols are being saved wrongly again
+
+** Can we fix link current editor to navigator --- is this same
+   problem as finding current editor in actions?
+   
+** Factor out display/presentation model for script management
+
+------------------------------------------------------------------
+
+------------------------------------------------------------------
+Idea: symbol features: 
+
+ == rotate symbols.  Like X-Symbol C-, let symbols
+have "similarity" grouping and allow rotating in the group
+ 
+ == symbolise immediately (without trigger on space).  Add
+ key for undo/redo (make action on normal edit queue perhaps:
+ *almost* works already).
+ 

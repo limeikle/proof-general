@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PG Dependency Graph Plug-in
+Bundle-SymbolicName: ed.inf.proofgeneral.depgraph;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: ed.inf.proofgeneral.depgraph.Activator
+Bundle-Vendor: School of Informatics, University of Edinburgh
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.gef,
+ ed.inf.proofgeneral,
+ org.eclipse.ui.views,
+ org.eclipse.core.filesystem,
+ org.eclipse.core.resources,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.ide
+Eclipse-LazyStart: true
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

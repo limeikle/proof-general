@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Proof General Coq Plug-in
+Bundle-SymbolicName: ed.inf.proofgeneral.prover.coq; singleton:=true
+Bundle-Version: 1.0.6.pre-qualifier
+Bundle-Activator: ed.inf.proofgeneral.prover.coq.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui.editors,
+ ed.inf.proofgeneral,
+ org.eclipse.ui.ide
+Eclipse-LazyStart: true

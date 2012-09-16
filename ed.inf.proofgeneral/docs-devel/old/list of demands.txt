@@ -1,0 +1,32 @@
+
+This is a summary of feedback from the CIAO 2004 workshop on TP interfaces
+
+Group 1 (Louise):
+TP for expert users
+Want:
+	proof visualisation: proof tree
+	management of large (distributed) bodies of proofs
+	debugging tools
+
+Group 2 (Lucas):
+TP for TP people
+want:
+	zoomable trees
+	to hide information (Theorema style)
+	simple interface
+	maths symbols
+	customisable buttons
+	show changes of an action
+	classification of terms
+	definition look up
+	term info on demand (eg. type)
+	bracket matching & variable-quantifier matching
+	structured search eg 'a&b' finds 'b&a'
+	statistics: branching factor, search time, size of search space
+
+Group 3 (Jesse):
+TP for Education
+Want:
+	control over what the environment does
+	separate internal & external repn
+	support user model, under-specification

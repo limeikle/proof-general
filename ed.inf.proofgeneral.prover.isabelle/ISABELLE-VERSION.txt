@@ -1,0 +1,8 @@
+2007-07-13
+
+A nightly release (or CVS HEAD version) with a date after this is the intended
+version for consistent behaviour with the Eclipse code here.
+
+
+
+

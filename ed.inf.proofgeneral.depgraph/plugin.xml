@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+  <extension point="org.eclipse.ui.editors">
+       <editor
+            class="ed.inf.proofgeneral.depgraph.graph.GraphMultiPageEditor"
+            icon="icons/showgraph.gif"
+            default="true"
+            contributorClass="ed.inf.proofgeneral.depgraph.graph.MultiPageEditorContributor"
+            name="Multy-page editor"
+            id="ed.inf.proofgeneral.depgraph.MultiPageEditor"
+            extensions="graph">
+      </editor>
+  </extension>
+
+ <extension point="org.eclipse.ui.actionSets">
+ <actionSet
+    label="Proof General Dependency Graph action set"
+    visible="false"
+    id="ed.inf.proofgeneral.depgraph.actions">
+ <action
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      label="&amp;ShowGraph"
+      icon="icons/showgraph.gif"
+      definitionId="ed.inf.proofgeneral.commands.showgraph"
+      tooltip="Show the dependency graph"
+      class="ed.inf.proofgeneral.depgraph.actions.ShowDependencyGraph"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      id="ed.inf.proofgeneral.depgraph.actions.showGraph"/>
+ </actionSet>
+ </extension>
+ <extension point="org.eclipse.ui.actionSetPartAssociations">
+      <actionSetPartAssociation
+            targetID="ed.inf.proofgeneral.action.contribution.set">
+         <part id="ed.inf.proofgeneral.editor" />
+         <part id="ed.inf.proofgeneral.views.CurrentStateView" />
+		<!-- da: removed <part id="ed.inf.proofgeneral.views.SessionLogView" /> -->
+        <!-- da: removed <part id="ed.inf.proofgeneral.views.ErrorView" /> -->
+         <part id="ed.inf.proofgeneral.views.LatestOutput" />
+         <part id="ed.inf.proofgeneral.views.PGPerspective"/>
+         <part id="ed.inf.proofgeneral.symboltableeditor"/>
+        <!-- da: removed <part id="ed.inf.proofgeneral.teacher.view"/> -->
+        <part id="ed.inf.proofgeneral.depgraph.GraphMultiPageEditor"/>
+      </actionSetPartAssociation>
+   </extension>
+   
+<extension point="org.eclipse.ui.popupMenus">
+   <objectContribution
+            id="ed.inf.proofgeneral.contribution1"
+            nameFilter="plugin.xml"
+            objectClass="org.eclipse.core.resources.IFile">
+         <menu
+               id="ed.inf.proofgeneral.depgraph.mymenu"
+               label="New Submenu"
+               path="additions">
+            <separator name="group1"/>
+         </menu>
+         <action
+               class="ed.inf.proofgeneral.depgraph.popup.actions.NodeAction"
+               enablesFor="multiple"
+               id="ed.inf.proofgeneral.newAction1"
+               label="Node Actions"
+               menubarPath="ed.inf.proofgeneral.menu1/group1"/>
+         <action
+               class="ed.inf.proofgeneral.depgraph.popup.actions.NodeAction"
+               enablesFor="multiple"
+               id="ed.inf.proofgeneral.newAction2"
+               label="Node Actions"
+               menubarPath="ed.inf.proofgeneral.menu1/group1"/>
+         <action
+               class="ed.inf.proofgeneral.depgraph.popup.actions.NodeAction"
+               enablesFor="multiple"
+               id="ed.inf.proofgeneral.newAction3"
+               label="Node Actions"
+               menubarPath="ed.inf.proofgeneral.menu1/group1"/>              
+   </objectContribution>
+</extension>
+   
+   
+</plugin>

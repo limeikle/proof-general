@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--AgileJ Ltd. (http://www.agilej.com)-->
+<ajsv>
+    <diagram scope="scopeElementSets.elementSet.Switchable Types In Package" style="standardDiagramStyles.diagramStyle.Standard Basic Style" version="1.4.5">
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Manhattan Lines" switchValue="dependence, fields"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Line Types" switchValue="dependence, field, inheritance"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Signature Length" switchValue="short"/>
+        <switch switchID="scopeElementSets.stylePatternSwitch.Scope Package" switchValue="ed\.inf\.proofgeneral\.sessionmanager\.events"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Visibility" switchValue="public, protected, package, private"/>
+        <switch switchID="standardDiagramStyles.styleEnumSwitch.Members" switchValue="fields, methods, inners, initializers"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.events.PGIPReady" project="ed.inf.proofgeneral" xLocation="389" yLocation="454"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.events.IPGIPListener" project="ed.inf.proofgeneral" xLocation="505" yLocation="-154"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.events.CommandProcessed" project="ed.inf.proofgeneral" xLocation="1458" yLocation="254"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.events.UndoSent" project="ed.inf.proofgeneral" xLocation="941" yLocation="291"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.events.PGIPEvent" project="ed.inf.proofgeneral" xLocation="818" yLocation="-126"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.events.IPGIPIncomingListener" project="ed.inf.proofgeneral" xLocation="252" yLocation="24"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.events.PGIPIncoming" project="ed.inf.proofgeneral" xLocation="285" yLocation="177"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.events.CommandSucceeded" project="ed.inf.proofgeneral" xLocation="1007" yLocation="444"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.events.PGIPError" project="ed.inf.proofgeneral" xLocation="738" yLocation="292"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.events.InternalEvent" project="ed.inf.proofgeneral" xLocation="1113" yLocation="82"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.events.CommandCausedErrorEvent" project="ed.inf.proofgeneral" xLocation="1288" yLocation="407"/>
+        <class className="ed.inf.proofgeneral.sessionmanager.events.PGIPOutgoing" project="ed.inf.proofgeneral" xLocation="531" yLocation="215"/>
+    </diagram>
+</ajsv>

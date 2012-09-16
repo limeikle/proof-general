@@ -1,0 +1,12 @@
+
+<pgip>
+
+<preferences prefcategory = "Display" prefix="Coq Config " >
+
+<!-- NOTE: this way of setting preferences is obsolete, we should get Coq to
+   output preferences in PGIP - Isabelle does this but Eclipse doesn't use it yet).
+-->
+
+</preferences>
+
+</pgip>

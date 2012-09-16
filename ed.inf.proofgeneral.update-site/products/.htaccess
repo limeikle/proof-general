@@ -1,0 +1,2 @@
+# Make sure full file name is seen
+IndexOptions NameWidth=* +SuppressDescription

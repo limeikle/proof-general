@@ -1,0 +1,49 @@
+<HTML>
+<HEAD>
+<TITLE>JavaDoc System Map</TITLE>
+</HEAD>
+<BODY>
+<b>JavaDoc for Proof General / Eclipse - Warning: may not be up-to-date</b>.
+
+The JavaDoc and the source code comments contain the following special tags:
+<ul>
+<li> <b>ASSUMPTION</b> - An assumption inherent in the code.</li>
+<li> <b>HACK</b> - An ugly piece of code (possibly reflecting an ugly problem).</li>
+<li> <b>TODO</b> - Something more could be done.</li>
+<li> <b>FIXME</b> - Something more <i>should</i> be done.</li>
+</ul>
+
+Sadly, the developer documentation is neither up-to-date nor entirely accurate. 
+The map below gives a broad outline from which to start your explorations.
+<img src="architecture.gif" >
+
+<IMG NAME="systemArchitectureMap0" SRC="systemArchitectureMap.jpg" WIDTH="998" HEIGHT="705" BORDER="0" USEMAP="#systemArchitectureMap">
+
+<MAP NAME="systemArchitectureMap">
+<AREA SHAPE="rect" COORDS="566,509,748,538" HREF="ed/inf/proofgeneral/outputviewer/OutputView.html">
+<AREA SHAPE="rect" COORDS="590,547,661,595" HREF="ed/inf/proofgeneral/outputviewer/CurrentStateView.html">
+<AREA SHAPE="rect" COORDS="695,546,768,593" HREF="ed/inf/proofgeneral/outputviewer/ErrorView.html">
+<AREA SHAPE="rect" COORDS="796,544,864,596" HREF="ed/inf/proofgeneral/outputviewer/SessionLogView.html">
+<AREA SHAPE="poly" COORDS="180,256,264,257,282,298,268,329,199,340,160,324,159,291" 
+HREF="ed/inf/proofgeneral/sessionmanager/PGSyntax.html">
+<AREA SHAPE="rect" COORDS="176,375,315,463" HREF="ed/inf/proofgeneral/sessionmanager/SessionManager.html">
+<AREA SHAPE="rect" COORDS="194,516,305,599" HREF="javascript:alert('Or potentially any other theorem prover...');">
+<AREA SHAPE="rect" COORDS="231,467,310,513" HREF="javascript:alert('Currently a subset of PGIP is used for TP communication.\nHowever, it should be relatively simple to create a sub-class of SessionManager that doesn't use PGIP');">
+<AREA SHAPE="rect" COORDS="897,286,947,415" HREF="ed/inf/proofgeneral/proofscripteditor/PGContentOutline.html">
+<AREA SHAPE="rect" COORDS="730,286,854,409" HREF="ed/inf/proofgeneral/proofscripteditor/ProofScriptEditor.html">
+<AREA SHAPE="rect" COORDS="573,305,672,424" HREF="ed/inf/proofgeneral/proofscripteditor/PGAction.html">
+<AREA SHAPE="poly" COORDS="635,194,666,147,750,134,800,185,755,243,670,247" HREF="ed/inf/proofgeneral/proofscripteditor/ProofScriptDocument.html">
+<AREA SHAPE="rect" COORDS="894,442,960,590" HREF="javascript:alert('Where I will soon venture to achieve symbol support...');">
+<AREA SHAPE="rect" COORDS="149,99,227,192" HREF="javascript:alert('input file');">
+<AREA SHAPE="poly" COORDS="245,178,327,224,420,201,503,239,548,237,623,201,633,218,580,261,531,271,416,222,374,253,325,261,234,203" HREF="ed/inf/proofgeneral/proofscripteditor/Parser.html">
+<AREA SHAPE="poly" COORDS="330,398,382,410,408,438,458,506,548,550,562,574,452,534,418,486,368,476,330,436" HREF="ed/inf/proofgeneral/sessionmanager/PGIPEvent.html">
+<AREA SHAPE="rect" COORDS="484,93,722,131" HREF="javascript:alert('These elements are based on Eclipse structures');">
+<AREA SHAPE="poly" COORDS="656,251,574,301,546,293,570,281,646,227" HREF="javascript:alert('The ProofScriptDocument responds to event messages by locking/unlocking affected regions.');">
+<AREA SHAPE="poly" COORDS="490,339,492,323,282,325,270,368,294,371,302,337" HREF="javascript:alert('User actions work by calling the API methods of SessionManager');">
+
+<AREA SHAPE="poly" COORDS="5,550, 100,550, 300,750, 5,750" 
+HREF="javascript:alert('Dragon and other decoration by Paul Crook');">
+</MAP>
+
+</BODY>
+</HTML>

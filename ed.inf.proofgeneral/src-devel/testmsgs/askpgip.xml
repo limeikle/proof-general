@@ -1,0 +1,16 @@
+<pgips>
+<pgip class="pa" id="X" seq="1"><askpgip/></pgip>
+
+<!-- 13.7.05: current response from Isabelle is three pgip packets, followed by ready: -->
+
+<pgip class = "pg" origin = "Isabelle/Isar" id = "foundation.inf.ed.ac.uk/da/1121260727.883" refseq = "1" refid = "X" seq = "149"><usespgip version = "2.0"><acceptedpgipelems><pgipelem>askpgip</pgipelem><pgipelem>askpgml</pgipelem><pgipelem>askprefs</pgipelem><pgipelem>getpref</pgipelem><pgipelem>setpref</pgipelem><pgipelem>proverinit</pgipelem><pgipelem>proverexit</pgipelem><pgipelem>startquiet</pgipelem><pgipelem>stopquiet</pgipelem><pgipelem>pgmlsymbolson</pgipelem><pgipelem>pgmlsymbolsoff</pgipelem><pgipelem>dostep</pgipelem><pgipelem>undostep</pgipelem><pgipelem>redostep</pgipelem><pgipelem>abortgoal</pgipelem><pgipelem>forget</pgipelem><pgipelem>restoregoal</pgipelem><pgipelem>askids</pgipelem><pgipelem>shoid</pgipelem><pgipelem>askguise</pgipelem><pgipelem>parsescript</pgipelem><pgipelem>showproofstate</pgipelem><pgipelem>showctxt</pgipelem><pgipelem>searchtheorems</pgipelem><pgipelem>setlinewidth</pgipelem><pgipelem>viewdoc</pgipelem><pgipelem>doitem</pgipelem><pgipelem>undoitem</pgipelem><pgipelem>redoitem</pgipelem><pgipelem>abortheory</pgipelem><pgipelem>retracttheory</pgipelem><pgipelem>loadfile</pgipelem><pgipelem>openfile</pgipelem><pgipelem>closefile</pgipelem><pgipelem>abortfile</pgipelem><pgipelem>changecwd</pgipelem><pgipelem>systemcmd</pgipelem></acceptedpgipelems></usespgip></pgip>
+
+<pgip class = "pg" origin = "Isabelle/Isar" id = "foundation.inf.ed.ac.uk/da/1121260727.883" refseq = "1" refid = "X" seq = "150"><proverinfo name = "Isabelle/Pure" version = "Isabelle repository version" url = "http://isabelle.in.tum.de/" filenameextns = ".thy;"><welcomemsg>Welcome to Isabelle/Pure (Isabelle repository version)</welcomemsg><helpdoc name = "Isabelle/HOL Tutorial" descr = "A Gentle Introduction to Isabelle/HOL" url = "http://isabelle.in.tum.de/dist/Isabelle2004/doc/tutorial.pdf"/></proverinfo></pgip>
+
+<pgip class = "pg" origin = "Isabelle/Isar" id = "foundation.inf.ed.ac.uk/da/1121260727.883" refseq = "1" refid = "X" seq = "151"><!-- Title:      Pure/pgip_isar.xml
+
+.... contents of pgip_isar.xml
+-->
+</pgip>
+<pgip class = "pg" origin = "Isabelle/Isar" id = "foundation.inf.ed.ac.uk/da/11\21260727.883" refseq = "1" refid = "X" seq = "152"><ready/></pgip>
+</pgips>

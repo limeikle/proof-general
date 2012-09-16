@@ -1,0 +1,7 @@
+A.thy explains two issues in adjusting parsing offsets. [da]
+
+Status 18.12.06:  
+  Case 2 (bad one) resolved.
+  Case 1 is UI glitch, will be fixed later 
+    (automatically fixed with marker-state colouring mechanism).
+    

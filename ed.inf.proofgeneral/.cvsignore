@@ -1,0 +1,13 @@
+bk
+CURRENT_CHANGE_LOG.txt
+alex
+*NOEXPORT*
+*.ignore
+.fbprefs
+
+build.ah.properties
+javaCompiler...args
+build.xml
+TEMPORARY-NOTES-TODO.txt
+TEMPORARY-event-notes.txt
+PENDING-REFACTORINGS.txt

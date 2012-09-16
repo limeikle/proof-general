@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PML Proof General Plug-in
+Bundle-SymbolicName: ed.inf.proofgeneral.prover.pml; singleton:=true
+Bundle-Version: 1.0.6.pre-qualifier
+Bundle-Activator: ed.inf.proofgeneral.prover.pml.Activator
+Bundle-Vendor: School of Informatics, University of Edinburgh
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui.editors,
+ ed.inf.proofgeneral,
+ org.eclipse.ui.ide
+Eclipse-LazyStart: true

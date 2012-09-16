@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<!-- TODO: we could probably configure some/all of these extensions programmatically,
+     based on making an instance of the prover extension.  Is there a neat way
+     to do that?
+-->
+<plugin>
+ <extension
+       point="ed.inf.proofgeneral.prover">
+    <prover
+          class="ed.inf.proofgeneral.prover.template.TemplateProverPlugin"
+          name="Template"
+          extensions="template">
+    </prover>
+ </extension>
+
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="toc.xml">
+      </toc>
+      <toc
+            file="testToc.xml"
+            primary="true">
+      </toc>
+   </extension>
+
+	<extension point="org.eclipse.core.contenttype.contentTypes">
+    <content-type
+          base-type="ed.inf.proofgeneral.proofscript"
+          file-extensions="template"
+          id="ed.inf.proofgeneral.prover.Template.proofscript"
+          name="Template Theory File"
+          priority="high"/>
+    </extension>
+  <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="ed.inf.proofgeneral.editor.ProofScriptEditor"
+            icon="icons/proofscript.gif"
+            default="true"
+            contributorClass="ed.inf.proofgeneral.editor.actions.ProofScriptEditorActionContributor"
+            name="Proof Script Editor"
+            id="ed.inf.proofgeneral.editor"
+            extensions="template">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.documentProviders">
+      <provider
+            extensions="template"
+            class="ed.inf.proofgeneral.document.ProofScriptDocumentProvider"
+            id="ed.inf.proofgeneral.editor.proofscriptdocumentprovider">
+      </provider>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            class="ed.inf.proofgeneral.properties.ProofScriptPropertyPage"
+            id="ed.inf.proofgeneral.properties.ProofScriptPropertyPage"
+            name="Proof Script"
+            nameFilter="*.template">
+            <enabledWhen>
+            <instanceof value="org.eclipse.core.resources.IFile"/>
+            </enabledWhen>
+       </page>
+   </extension>
+   
+   <extension point="org.eclipse.ui.preferencePages">
+     <page
+            name="System: Template"
+            category="ed.inf.proofgeneral.prefpages"
+            class="ed.inf.proofgeneral.preferences.TemplatePrefs"
+            id="ed.inf.proofgeneral.prefpages.TemplatePrefs"/>
+      <page
+            name="System Config: Template"
+            category="ed.inf.proofgeneral.prefpages"
+            class="ed.inf.proofgeneral.preferences.TemplateConfigPrefs"
+            id="ed.inf.proofgeneral.prefpages.TemplateConfigPrefs"/>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="ed.inf.proofgeneral"
+            name="Proof General"/>
+      <wizard
+            name="Proof Script for Template"
+            category="ed.inf.proofgeneral"
+            class="ed.inf.proofgeneral.prover.template.wizards.NewTemplateProofScriptWizard"
+            icon="icons/star16.gif"
+            id="ed.inf.proofgeneral.wizards.NewTemplateProofScriptWizard"
+            project="false">
+         <description>
+            Create a new Template proof script file.
+         </description>
+      </wizard>
+   </extension>
+   
+    <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="ed.inf.proofgeneral.views.PGPerspective">
+         <perspectiveShortcut
+               id="org.eclipse.ui.resourcePerspective">
+         </perspectiveShortcut>
+         <newWizardShortcut id="ed.inf.proofgeneral.wizards.NewTemplateProofScriptWizard"/>
+      </perspectiveExtension>
+    </extension>
+       
+ <extension
+       point="org.eclipse.ui.navigator.navigatorContent">
+    <commonWizard
+          type="new"
+          wizardId="ed.inf.proofgeneral.wizards.NewTemplateProofScriptWizard">
+       <enablement/>
+    </commonWizard>
+</extension>
+ 
+<extension point="org.eclipse.ui.commands">
+      <command categoryId="ed.inf.proofgeneral.commands"
+          name="Choose Logic"
+            id="ed.inf.proofgeneral.commands.chooselogic"/>
+</extension> 
+ 
+</plugin>

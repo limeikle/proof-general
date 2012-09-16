@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="help">
+
+	<target name="help">
+		<echo>Proof General for Eclipse - Ant pgbuild.xml</echo>
+		<echo>Available targets:</echo>
+		<echo> - tpwrapper	run a tpwrapped Isabelle instance</echo>
+		<echo> - javadoc	generate PGEclipse javadocs</echo>
+		<echo> - ChangeLog	update ChangeLog</echo>
+	</target>
+
+	<target name="ChangeLog">
+	<exec executable="rcs2log" output="ChangeLog" error="/dev/null">
+	   	 <arg value="-h"/> <arg value="inf.ed.ac.uk"/>
+	   	 <arg value="-i"/> <arg value="4"/>
+	   	 <arg value="-v"/>
+	   	 <arg value="-u"/> <arg value="danielw&#9;Daniel Winterstein&#9;daniel.winterstein@gmail.com"/>
+	   	 <arg value="-u"/> <arg value="heneveld&#9;Alex Heneveld&#9;alex@heneveld.org"/>
+	   	 <arg value="-u"/> <arg value="fayyaz&#9;Ahsan Fayyaz&#9;ahsan.fayyaz@gmail.com"/>
+	   	 <arg value="-u"/> <arg value="da&#9;David Aspinall&#9;da@inf.ed.ac.uk"/>
+	   	 <arg value="-u"/> <arg value="gdutton&#9;Graham Dutton&#9;gdutton@inf.ed.ac.uk"/>
+    </exec>
+    </target>
+
+	<target name="tpwrapper">
+		<java classname="ed.inf.proofgeneral.tpwrapper.TPWrapper" classpath="bin">
+			<arg line="7777 isabelle -I -X"/>
+		</java>
+	</target>
+
+	<target name="javadoc">
+		<javadoc access="private"
+			author="true"
+			classpath="/opt/eclipse/plugins/*.jar,/opt/eclipse/plugins/**/*.jar"
+			destdir="docs/javadoc"
+			doctitle="Proof General Eclipse"
+			nodeprecated="false"
+			nodeprecatedlist="false"
+			noindex="false"
+			nonavbar="false"
+			notree="false"
+			packagenames="ed.inf.*"
+			source="1.5"
+			sourcepath="src"
+			splitindex="true"
+			use="true"
+			version="true">
+		<link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
+		</javadoc>
+	</target>
+
+
+</project>

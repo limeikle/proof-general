@@ -1,0 +1,633 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin
+   id="ed.inf.proofgeneral"
+   name="Proof General"
+   version="0.8"
+   provider-name="Daniel Winterstein"
+   class="ed.inf.proofgeneral.ProofGeneralPlugin">
+
+   <runtime>
+      <library name="proofgeneral.jar">
+         <export name="*"/>
+      </library>
+      <library name="dom4j.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.core.boot"/>
+      <import plugin="org.eclipse.jface"/>
+      <import plugin="org.eclipse.swt"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.core.runtime.compatibility"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.platform"/>      
+      <import plugin="org.eclipse.ui.intro"/>
+   </requires>
+
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            name="Proof General"
+            class="ed.inf.proofgeneral.prefpages.PrefsPage"
+            id="ed.inf.proofgeneral.prefpages.prefspage"
+            file="ProofGeneralPrefs.xml" >
+      </page>
+      <page
+            name="System: Isabelle"
+            category="ed.inf.proofgeneral.prefpages.prefspage"
+            class="ed.inf.proofgeneral.prefpages.IsabellePrefsPage"
+            id="ed.inf.proofgeneral.prefpages.isabelleprefspage"
+			file="IsabellePrefs.xml" >
+      </page>
+      <page
+            name="Colours"
+            category="ed.inf.proofgeneral.prefpages.prefspage"
+            class="ed.inf.proofgeneral.prefpages.ColorPrefsPage"
+            id="ed.inf.proofgeneral.prefpages.colorprefspage"
+            file="colourPrefs.xml" >
+      </page>
+
+      <page
+            class="ed.inf.proofgeneral.prefpages.IsabelleConfigPrefsPage"
+            category="ed.inf.proofgeneral.prefpages.prefspage"
+            name="System Config: Isabelle"
+            id="ed.inf.proofgeneral.prefpages.isabelleconfigprefspage"
+            file="IsabelleConfigPrefs.xml" />
+	<page
+            class="ed.inf.proofgeneral.prefpages.DebugPrefsPage"
+            category="ed.inf.proofgeneral.prefpages.prefspage"
+            name="PG Debugging options"
+            id="ed.inf.proofgeneral.prefpages.debugprefspage"
+            file="DebugPrefs.xml" />
+ <page
+       class="ed.inf.proofgeneral.prefpages.BrokerPrefsPage"
+       category="ed.inf.proofgeneral.prefpages.prefspage"
+       name="System: Broker"
+       id="ed.inf.proofgeneral.prefpages.brokerprefspage"
+       file="BrokerPrefsPage.xml" />
+ <page
+       class="ed.inf.proofgeneral.prefpages.BlockedMessagesPrefsPage"
+       category="ed.inf.proofgeneral.prefpages.prefspage"
+       name="Blocked Messages"
+       id="ed.inf.proofgeneral.prefpages.blockedmessagesprefspage"
+       file="BlockedMessagesPrefsPage.xml" />
+ <page
+       class="ed.inf.proofgeneral.prefpages.AdvancedPrefsPage"
+       category="ed.inf.proofgeneral.prefpages.prefspage"
+       name="Advanced"
+       id="ed.inf.proofgeneral.prefpages.advanced"
+       file="AdvancedPrefsPage.xml" />
+            
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Proof General"
+            id="ed.inf.proofgeneral.category">
+      </category>
+      <view
+            name="Session Log"
+            icon="icons/star16.gif"
+            category="ed.inf.proofgeneral.category"
+            class="ed.inf.proofgeneral.outputviewer.SessionLogView"
+            id="ed.inf.proofgeneral.views.SessionLogView">
+      </view>
+      <view
+            name="Error Log"
+            icon="icons/star16.gif"
+            category="ed.inf.proofgeneral.category"
+            class="ed.inf.proofgeneral.outputviewer.ErrorView"
+            id="ed.inf.proofgeneral.views.ErrorView">
+      </view>
+      <view
+            name="Current Prover State"
+            icon="icons/star16.gif"
+            category="ed.inf.proofgeneral.category"
+            class="ed.inf.proofgeneral.outputviewer.CurrentStateView"
+            id="ed.inf.proofgeneral.views.CurrentStateView">
+      </view>
+
+
+      <view
+            icon="icons/star16.gif"
+            class="ed.inf.proofgeneral.outputviewer.LatestOutputView"
+            category="ed.inf.proofgeneral.category"
+            name="Latest Output"
+            id="ed.inf.proofgeneral.views.latestoutput"/>
+      <view
+            icon="icons/star16.gif"
+            class="ed.inf.proofgeneral.editor.IdView"
+            category="ed.inf.proofgeneral.category"
+            name="Proof Object List"
+            id="ed.inf.proofgeneral.views.idview"/>      
+
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="ed.inf.proofgeneral.editor.ProofScriptEditor"
+            icon="icons/star16.gif"
+            default="true"
+            contributorClass="ed.inf.proofgeneral.editor.actions.ActionBarContributor"
+            name="Proof Script Editor"
+            id="ed.inf.proofgeneral.editor"
+            extensions="thy">
+      </editor>
+      <editor
+            icon="icons/star16.gif"
+            class="ed.inf.proofgeneral.symbols.SymbolTableEditor"
+            name="PG Symbol Table Editor"
+            id="ed.inf.proofgeneral.symboltableeditor"
+            extensions="sym"/>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.editors.documentProviders">
+      <provider
+            extensions="isa, thy"
+            class="ed.inf.proofgeneral.editor.ProofScriptDocumentProvider"
+            id="ed.inf.proofgeneral.editor.proofscriptdocumentprovider">
+      </provider>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="Proof General"
+            icon="icons/star16.gif"
+            class="ed.inf.proofgeneral.PGPerspective"
+            id="ed.inf.proofgeneral.PGPerspective">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="config/prefHelpContexts.xml">
+      </contexts>
+      <contexts file="config/pgHelpContexts.xml"/>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.actionSetPartAssociations">
+      <actionSetPartAssociation
+            targetID="ed.inf.proofgeneral.action.contribution.set">
+         <part id="ed.inf.proofgeneral.editor" />
+         <part id="ed.inf.proofgeneral.views.CurrentStateView" />
+         <part id="ed.inf.proofgeneral.views.SessionLogView" />
+         <part id="ed.inf.proofgeneral.views.ErrorView" />
+         <part id="ed.inf.proofgeneral.views.latestoutput" />
+         <part id="ed.inf.proofgeneral.PGPerspective"/>
+      </actionSetPartAssociation>
+   </extension>
+   
+   <extension point="org.eclipse.ui.actionSets">
+   <actionSet
+         label="Proof General action set"
+         visible="false"
+         id="ed.inf.proofgeneral.action.contribution.set">
+	 <action label="PG Feature Request" class="ed.inf.proofgeneral.FeatureRequestAction"
+	menubarPath="help/" id="ed.inf.proofgeneral.action.feauturerequest"
+	icon="icons/star16.gif" 
+	 />
+	 <action label="PG Bug Report" class="ed.inf.proofgeneral.BugReportAction"
+	menubarPath="help/" id="ed.inf.proofgeneral.action.bugreport"
+	icon="icons/star16.gif" 
+	 />
+	<action label="Proof General Help" class="ed.inf.proofgeneral.HelpAction"
+	menubarPath="help/" id="ed.inf.proofgeneral.action.help"
+	icon="icons/star16.gif" tooltip="Go to the Proof General help website"
+	 />
+	 
+ <menu
+       label="Proof &amp;General"
+       id="ed.inf.proofgeneral.pgmenu">
+    <separator name="ed.inf.proofgeneral.coreseparator"/>
+    <separator name="ed.inf.proofgeneral.separator1"/>
+    <separator name="ed.inf.proofgeneral.separator2"/>
+    <groupMarker name="ed.inf.proofgeneral.toolbargroup"/>
+ </menu>
+
+<action
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      label="&amp;Activate"
+      icon="icons/activate.gif"
+      definitionId="ed.inf.proofgeneral.commands.activate"
+      tooltip="Make this the active script"
+      class="ed.inf.proofgeneral.editor.actions.ActivateScriptingAction"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      id="ed.inf.proofgeneral.actions.activate"/>
+<action
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      label="&amp;Restart"
+      icon="icons/restart2.gif"
+      definitionId="ed.inf.proofgeneral.commands.restart"
+      tooltip="Restart the theorem prover"
+      class="ed.inf.proofgeneral.editor.actions.FreshSessionAction"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      id="ed.inf.proofgeneral.actions.restart"/>
+      
+<action
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      label="&amp;Parse"
+      class="ed.inf.proofgeneral.editor.actions.ParseDocAction"
+      tooltip="Parse the entire file from beginning to end"
+      definitionId="ed.inf.proofgeneral.commands.parse"
+      icon="icons/tree.gif"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.separator1"
+      id="ed.inf.proofgeneral.actions.parse"/>
+<action
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      label="&amp;Goto"
+      icon="icons/goto.gif"
+      definitionId="ed.inf.proofgeneral.commands.goto"
+      tooltip="Send/undo commands to reach the current location"
+      class="ed.inf.proofgeneral.editor.actions.GotoAction"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      id="ed.inf.proofgeneral.actions.goto"/>
+<action
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      label="Send All"
+      icon="icons/down.gif"
+      definitionId="ed.inf.proofgeneral.commands.sendall"
+      tooltip="Process the rest of this file"
+      class="ed.inf.proofgeneral.editor.actions.SendAllAction"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      id="ed.inf.proofgeneral.actions.sendall"/>
+
+<action
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      label="&amp;Send command"
+      class="ed.inf.proofgeneral.editor.actions.SendCommandAction"
+      tooltip="Send the next command to the theorem prover"
+      definitionId="ed.inf.proofgeneral.commands.send"
+      icon="icons/fwd.gif"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      id="ed.inf.proofgeneral.actions.send"/>
+<action
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      label="&amp;Interrupt"
+      icon="icons/stop.gif"
+      definitionId="ed.inf.proofgeneral.commands.interrupt"
+      tooltip="Interrupt the theorem prover"
+      class="ed.inf.proofgeneral.editor.actions.InterruptAction"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      id="ed.inf.proofgeneral.actions.interrupt"/>
+      
+<action
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      label="&amp;Undo Command"
+      class="ed.inf.proofgeneral.editor.actions.UndoAction"
+      tooltip="Undo last proof command"
+      definitionId="ed.inf.proofgeneral.commands.undo"
+      icon="icons/bkwd.gif"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      id="ed.inf.proofgeneral.actions.undo"/>
+
+<action
+      toolbarPath="ed.inf.proofgeneral.toolbargroup"
+      label="Undo All"
+      icon="icons/up.gif"
+      definitionId="ed.inf.proofgeneral.commands.undoall"
+      tooltip="Undo to the beginning of this file"
+      class="ed.inf.proofgeneral.editor.actions.UndoAllAction"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.coreseparator"
+      id="ed.inf.proofgeneral.actions.undoall"/>
+
+<action
+      label="&amp;Symbols"
+      class="ed.inf.proofgeneral.editor.actions.ToggleSymbolsAction"
+      definitionId="ed.inf.proofgeneral.commands.symbols"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.separator1"
+      id="ed.inf.proofgeneral.actions.symbols"/>
+
+ <action
+       toolbarPath="ed.inf.proofgeneral.toolbargroup"
+       label="&amp;Open Definition"
+       icon="icons/bookmark.gif"
+       class="ed.inf.proofgeneral.editor.actions.OpenDefinition"
+       tooltip="Try to find where a term was defined, and show that definition."
+       definitionId="ed.inf.proofgeneral.commands.opendefn"
+       menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.separator1"
+       id="ed.inf.proofgeneral.actions.opendefn"/>
+       
+ <action
+       label="Current Proof State"
+       class="ed.inf.proofgeneral.editor.actions.ShowCurrentStateView"
+       icon="icons/star16.gif"
+       menubarPath="window/showView/viewsShortlist"
+       id="ed.inf.proofgeneral.actions.showcurrentstateview"/>
+ <action
+       label="Latest Output"
+       class="ed.inf.proofgeneral.editor.actions.ShowLatestOutputView"
+       icon="icons/star16.gif"
+       menubarPath="window/showView/viewsShortlist"
+       id="ed.inf.proofgeneral.actions.showlatestoutputview"/>
+<action
+       label="Error Log"
+       class="ed.inf.proofgeneral.editor.actions.ShowErrorLogView"
+       icon="icons/star16.gif"
+       menubarPath="window/showView/viewsShortlist"
+       id="ed.inf.proofgeneral.actions.showerrorlogview"/>              
+ <action
+       label="Session Log"
+       class="ed.inf.proofgeneral.editor.actions.ShowSessionLogView"
+       icon="icons/star16.gif"
+       menubarPath="window/showView/viewsShortlist"
+       id="ed.inf.proofgeneral.actions.showsessionlogview"/>
+<action
+       label="Proof Object List"
+       class="ed.inf.proofgeneral.editor.actions.ShowIDListView"
+       icon="icons/star16.gif"
+       menubarPath="window/showView/viewsShortlist"
+       id="ed.inf.proofgeneral.actions.showidlistview"/>       
+
+<action
+      label="Choose &amp;Logic"
+      icon="icons/restart2.gif"
+      definitionId="ed.inf.proofgeneral.commands.chooselogic"
+      tooltip="Choose the logic for Isabelle to use"
+      class="ed.inf.proofgeneral.editor.actions.ChooseLogicAction"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.separator1"
+      id="ed.inf.proofgeneral.actions.chooselogic"/>
+
+<!-- extra miscellaneous commands, -AH -->
+<menu
+	label="&amp;Miscellaneous"
+	id="ed.inf.proofgeneral.pgmenu.misc"
+        tooltip="Other Isabelle-related commands (needs to be organised)"
+	path="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.separator2">
+  <separator name="ed.inf.proofgeneral.misc.internal"/>
+  <separator name="ed.inf.proofgeneral.misc.external"/>
+</menu>
+
+<action
+      label="&amp;Enter Command"
+      icon="icons/prompt.gif"
+      definitionId="ed.inf.proofgeneral.commands.enter"
+      tooltip="Make this the active script"
+      class="ed.inf.proofgeneral.editor.actions.EnterCommandAction"
+      menubarPath="ed.inf.proofgeneral.pgmenu/ed.inf.proofgeneral.pgmenu.misc/ed.inf.proofgeneral.misc.internal"
+      id="ed.inf.proofgeneral.actions.enter"/>
+
+	</actionSet>	
+   </extension>
+
+<!-- this allows us to define a PG context to which the key-bindings are restricted
+     (we were getting conflicts otherwise, when the PG plugin is combined with others) -AH -->
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context            
+            name="In ProofGeneral editor"
+            description="Proof General is active"
+            parent="org.eclipse.ui.textEditorScope"
+            id="ed.inf.proofgeneral.context"/>
+   </extension>
+
+<extension point="org.eclipse.ui.commands">
+	<category name="Proof General"
+            description="Proof General Commands"
+            id="ed.inf.proofgeneral.commands">
+      </category>
+      <!-- doesn't seem to work, -AH; see context above
+      <scope
+            name="ProofGeneral Editor"
+            parent="org.eclipse.ui.textEditorScope"
+            description="PG commands"
+            id="ed.inf.proofgeneral.scope">
+      </scope>
+      -->
+     <command
+       category="ed.inf.proofgeneral.commands"
+       name="Undo All (ProofGeneral)"
+       id="ed.inf.proofgeneral.commands.undoall"/>
+
+<!-- (ProofGeneral declarations are needed because there are other
+     undo commands; without it, the id is shown.  -->
+     
+      <command 
+      		description="Undo the last theorem prover command"
+      		category="ed.inf.proofgeneral.commands"
+            name="Undo (ProofGeneral)"
+            id="ed.inf.proofgeneral.commands.undo">
+      </command>
+      <keyBinding
+            command="ed.inf.proofgeneral.commands.undo"
+            string="Ctrl+U"
+            scope="ed.inf.proofgeneral.context"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+	  </keyBinding>
+
+      <command
+            description="Send the next command out to the theorem prover"
+            category="ed.inf.proofgeneral.commands"
+            name="Send"
+            id="ed.inf.proofgeneral.commands.send">
+      </command>
+      <keyBinding
+            command="ed.inf.proofgeneral.commands.send"
+            string="Ctrl+N"
+            scope="ed.inf.proofgeneral.context"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+
+      <command
+      		description="Try to interrupt the theorem prover (could kill it)"
+            category="ed.inf.proofgeneral.commands"
+            name="Interrupt"
+            id="ed.inf.proofgeneral.commands.interrupt"/>
+      <keyBinding
+            command="ed.inf.proofgeneral.commands.interrupt"
+            string="Ctrl+I"
+            scope="ed.inf.proofgeneral.context"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration"/>
+            
+      <command
+            category="ed.inf.proofgeneral.commands"
+            name="Send All"
+            id="ed.inf.proofgeneral.commands.sendall"/>
+            
+      <command
+            description="Send/undo to this point"
+            category="ed.inf.proofgeneral.commands"
+            name="Goto"
+            id="ed.inf.proofgeneral.commands.goto"/>
+<keyBinding
+            command="ed.inf.proofgeneral.commands.goto"
+            string="Ctrl+Enter"
+            scope="ed.inf.proofgeneral.context"            
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </keyBinding>
+                  
+      <command
+            description="Restart the theorem prover"
+            category="ed.inf.proofgeneral.commands"
+            name="Restart"
+            id="ed.inf.proofgeneral.commands.restart"/>
+      <keyBinding
+            command="ed.inf.proofgeneral.commands.restart"
+            string="Ctrl+R"
+            scope="ed.inf.proofgeneral.context"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration"/>
+            
+      <command
+            category="ed.inf.proofgeneral.commands"
+            description="Activate this file for scripting"
+            name="Activate Script"
+            id="ed.inf.proofgeneral.commands.activate"/>
+            
+      <command
+            category="ed.inf.proofgeneral.commands"
+            name="Parse"
+            id="ed.inf.proofgeneral.commands.parse"/>
+      <keyBinding
+            command="ed.inf.proofgeneral.commands.parse"
+            string="Ctrl+P"
+            scope="ed.inf.proofgeneral.context"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration" />
+
+      <command
+            description="Open the definition for a term, if it can be found"
+            category="ed.inf.proofgeneral.commands"
+            name="Open Definition"
+            id="ed.inf.proofgeneral.commands.opendefn"/>
+      <!-- maybe we want to attach this to Open Declaration ??, see also in ProofScriptEditor -->
+      <keyBinding
+            command="ed.inf.proofgeneral.commands.opendefn"
+            string="F3"
+            scope="ed.inf.proofgeneral.context"
+            configuration="org.eclipse.ui.defaultAcceleratorConfiguration"/>
+      <command
+            description="Toggle between symbols and ascii"
+            category="ed.inf.proofgeneral.commands"
+            name="Toggle Symbols"
+            id="ed.inf.proofgeneral.commands.symbols"/>
+      <command
+            category="ed.inf.proofgeneral.commands"
+            name="Enter Command"
+            id="ed.inf.proofgeneral.commands.enter"/>      
+      <command category="ed.inf.proofgeneral.commands"
+            name="Choose Logic"
+            id="ed.inf.proofgeneral.commands.chooselogic"/>        
+	</extension>
+
+	
+	
+	<extension
+	  id="pgmarker"
+      point="org.eclipse.core.resources.markers"
+      name="PG Marker" >
+      <persistent value="true" />
+<!--      <super type="org.eclipse.core.resources.bookmark" /> -->
+      <attribute name="tooltip"/>
+      <super type="org.eclipse.core.resources.marker"/>
+   </extension>
+   <extension
+         id="theorem"
+         name="Theorem"
+         point="org.eclipse.core.resources.markers">
+      <super type="ed.inf.proofgeneral.pgmarker"/>
+	  <persistent value="true" />
+   </extension>
+   <extension
+         id="theory"
+         name="Theory"
+         point="org.eclipse.core.resources.markers">
+      <super type="ed.inf.proofgeneral.pgmarker"/>
+	  <persistent value="true" />
+   </extension>
+   <extension
+         id="defn"
+         name="Definition"
+         point="org.eclipse.core.resources.markers">
+      <super type="ed.inf.proofgeneral.pgmarker"/>
+	  <persistent value="true" />
+   </extension>
+   <extension
+         id="gototempmarker"
+         name="Temporary Goto Marker"
+         point="org.eclipse.core.resources.markers">
+      <super type="ed.inf.proofgeneral.pgmarker"/>
+      <persistent value="false"/>
+   </extension>
+
+<!-- this appears to do nothing without an id set, -AH .. new product below -->
+   <extension
+         point="org.eclipse.core.runtime.products">
+      <product
+            description="A generic IDE for interactive theorem provers."
+            name="Proof General"
+            application="org.eclipse.ui.ide.workbench">
+         <property
+               value="A generic IDE for interactive theorem provers. (c)D.Winterstein &amp; D.Aspinall"
+               name="aboutText"/>
+         <property
+               value="Proof General"
+               name="appName"/>
+      </product>
+   </extension>
+
+   <extension
+         id="PGProduct"
+         name="Proof General"
+         point="org.eclipse.core.runtime.products">
+      <product
+            description="The Eclipse version of the Proof General interface to theorem provers such as Isabelle."
+            name="Proof General"
+            application="org.eclipse.ui.ide.workbench">
+         <property
+               value="icons/EGeneral.png"
+               name="aboutImage"/>
+         <property
+               value="Proof General:  A user-interface to theorem provers in Eclipse"
+               name="aboutText"/>
+         <property name="appName" value="Proof General"/> 
+	 <property name="preferenceCustomization" value="plugin_customization.ini"/>
+      </product>
+   </extension>
+
+
+<!-- not working too well
+<extension  
+	point="org.eclipse.ui.intro">
+	<intro
+		class="org.eclipse.ui.intro.config.CustomizableIntroPart"
+		id="ed.inf.proofgeneral.intro">
+	</intro>
+	<introProductBinding
+		introId="ed.inf.proofgeneral.intro"
+		productId="ed.inf.proofgeneral.PGProduct">
+	</introProductBinding>
+</extension>
+
+
+<extension   
+	id="intro"
+	point="org.eclipse.ui.intro.config">
+	<config
+		introId="ed.inf.proofgeneral.intro"
+		id="ed.inf.proofgeneral.introConfig"
+		content="intro/content.xml">
+	<presentation
+		home-page-id="root">
+			<implementation
+ 				ws="win32"
+				style="intro/shared.css"
+				kind="html"
+				os="win32">
+			</implementation>
+			<implementation
+				kind="swt">
+			</implementation>
+	</presentation>
+	</config>
+</extension>  
+-->
+
+</plugin>

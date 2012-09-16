@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: ed.inf.proofgeneral.tests
+Bundle-Version: 1.0.0
+Bundle-Vendor: School of Informatics, University of Edinburgh
+Require-Bundle: ed.inf.proofgeneral,
+ ed.inf.proofgeneral.prover.isabelle,
+ org.eclipse.core.resources,
+ org.eclipse.core.runtime,
+ org.eclipse.core.filesystem,
+ org.junit,
+ org.eclipse.jface.text,
+ org.eclipse.jface,
+ org.eclipse.ui,
+ org.eclipse.ui.editors
