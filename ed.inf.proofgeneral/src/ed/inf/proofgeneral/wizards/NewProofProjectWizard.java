@@ -99,7 +99,8 @@ public class NewProofProjectWizard extends BasicNewProjectResourceWizard {
 	                    }
 	                    project.refreshLocal(IResource.DEPTH_INFINITE, null);
 	    			} catch (IOException e) {
-	    				e.printStackTrace();
+	    				System.err.println("Unable to run command '"+projectSetupCommand+"': "+e);
+//	    				e.printStackTrace();
 	    			} catch (CoreException e) {
 	    				e.printStackTrace();
 	    			} catch (InterruptedException e) {

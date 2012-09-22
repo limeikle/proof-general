@@ -41,6 +41,11 @@ import ed.inf.utils.exception.KnownException;
  */
  public class OpenDefinition extends PGRetargetableAction { 
 
+	 // constructor seems needed for some automated creation..
+	 public OpenDefinition() {
+		 this(null);
+	 }
+	 
 	public OpenDefinition(ProofScriptEditor editor) {
 		super(editor);
 		setText("Open Definition");

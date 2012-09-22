@@ -56,7 +56,9 @@ public class PGIPError extends PGIPEvent {
 	}
 
 	public Converter getConverter() {
-	    // TODO Auto-generated method stub
+		if (sm==null)
+			// can happen if error early in lifecycle
+			return null;
 	    return sm.getConverter();
     }
 

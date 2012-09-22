@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import ed.inf.proofgeneral.Constants;
@@ -641,7 +642,7 @@ public class SessionManager implements IPGIPListener,IPropertyChangeListener {
 	// TODO da: for PGIP process class
 	protected void startProcessSession () {
 		try {
-			String err_no_response = "The prover failed to send a ready message after "+ 
+			final String err_no_response = "The prover failed to send a ready message after "+ 
 			PROVER_STARTUP_TIMEOUT + " seconds. "+
 			"The prover start command is probably wrong. "+
 			"Try editing them in the Proof General preferences and restarting the prover. "+
@@ -685,25 +686,32 @@ public class SessionManager implements IPGIPListener,IPropertyChangeListener {
 				writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
 			} else {
-				String e = "Cannot find (or access) prover.";
-				String pid = Constants.systemPreferencesPageIdFor(prover.getName());
-
-				EclipseMethods.messageDialogAsync("Error",
-						e+"\n Please check settings in the preference dialog which follows.",
-						new String[] { "OK" });
-
-				PreferenceDialog pd = PreferencesUtil.createPreferenceDialogOn(
-						null,pid,new String[]{pid},null);
-				pd.setMessage(e); // TODO make this work!
-
-				WaitReadyAction.getDefault().stop();
-				pd.open();
-				if (ProofGeneralPlugin.isEclipseMode()) {
-					WaitReadyAction.getDefault().start("Prover Not Started", err_no_response, 20*1000, this);
-				}
-
+				final String e = "Cannot find (or access) prover.";
 				System.err.println("Error: "+e);
 				firePGIPEvent(new PGIPError("Could not start session: "+e));
+				
+//				// launch error feedback in a new thread because we may be invoked here 
+//				// in a context which has a lock on the session manager
+//				// (and deadlock with a display thread which then locks the session manager)
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() {
+						String pid = Constants.systemPreferencesPageIdFor(prover.getName());
+
+						EclipseMethods.messageDialog("Error",
+								e+"\n Please check settings in the preference dialog which follows.",
+								new String[] { "OK" });
+
+						PreferenceDialog pd = PreferencesUtil.createPreferenceDialogOn(
+								null,pid,new String[]{pid},null);
+						pd.setMessage(e); // TODO make this work!
+
+						WaitReadyAction.getDefault().stop();
+						pd.open();
+						if (ProofGeneralPlugin.isEclipseMode()) {
+							WaitReadyAction.getDefault().start("Prover Not Started", err_no_response, 20*1000, SessionManager.this);
+						}
+					}
+				});
 			}
 
 		} catch (IOException e) {

@@ -13,4 +13,5 @@ Require-Bundle: ed.inf.proofgeneral,
  org.eclipse.jface.text,
  org.eclipse.jface,
  org.eclipse.ui,
- org.eclipse.ui.editors
+ org.eclipse.ui.editors,
+ org.eclipse.ui.ide
